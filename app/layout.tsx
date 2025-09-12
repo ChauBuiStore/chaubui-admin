@@ -1,3 +1,6 @@
+import { AppHeader } from "@/components/common/header";
+import { AppSidebar } from "@/components/common/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -6,6 +9,7 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,7 +26,13 @@ export default function RootLayout({
       <body
         className={`${inter.className} font-sans antialiased`}
       >
-        {children}
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <AppHeader />
+            {children}
+          </SidebarInset>
+        </SidebarProvider>
       </body>
     </html>
   );

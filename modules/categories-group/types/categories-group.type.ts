@@ -1,0 +1,25 @@
+import { Category } from "@/modules/categories/types/categories.type";
+
+export interface CategoryGroup {
+  id: string;
+  name: string;
+  description?: string;
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
+  categories?: Category[];
+}
+
+export interface CreateCategoryGroup {
+  name: string;
+}
+
+export interface UpdateCategoryGroup {
+  name: string;
+}
+
+export interface CategoryGroupFilters extends Record<string, unknown> {
+  page?: number;
+  limit?: number;
+  search?: string;
+}

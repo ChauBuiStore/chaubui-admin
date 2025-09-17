@@ -19,4 +19,25 @@ export const ENDPOINTS = {
     DELETE: '/categories/:id',
     BULK_DELETE: '/categories/bulk-delete',
   },
+  COLOR: {
+    GET_ALL: '/colors',
+    GET_BY_ID: '/colors/:id',
+    CREATE: '/colors',
+    UPDATE: '/colors/:id',
+    DELETE: '/colors/:id',
+    BULK_DELETE: '/colors/bulk-delete',
+  },
+  MENU: {
+    GET_ALL: '/menu',
+    GET_BY_ID: '/menu/:id',
+    CREATE: '/menu',
+    UPDATE: '/menu/:id',
+    DELETE: '/menu/:id',
+    BULK_DELETE: '/menu/bulk-delete',
+    TOGGLE_PUBLIC: '/menu/:id/public',
+  },
+  UPLOAD: {
+    UPLOAD: '/upload',
+    DELETE: '/upload/:id',
+  },
 };

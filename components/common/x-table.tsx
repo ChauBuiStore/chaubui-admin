@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useSearchParams } from "@/lib/hooks";
-import { PaginationMeta } from "@/lib/types/pagination";
+import { PaginationMeta } from "@/lib/types/pagination.type";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -278,7 +278,7 @@ const PaginationControls = <T,>({
             table.setPageSize(newPageSize);
           }
         }
-      } catch { }
+      } catch {}
     },
     [table, onPageSizeChange]
   );
@@ -338,10 +338,11 @@ const PaginationControls = <T,>({
             Rows per page
           </Label>
           <Select
-            value={`${pagination
-              ? pagination.limit
-              : table.getState().pagination?.pageSize || pageSizes[0]
-              }`}
+            value={`${
+              pagination
+                ? pagination.limit
+                : table.getState().pagination?.pageSize || pageSizes[0]
+            }`}
             onValueChange={handlePageSizeChange}
           >
             <SelectTrigger size="sm" className="w-20" id="rows-per-page">
@@ -448,7 +449,7 @@ const BulkDeleteButton = <T,>({
       className="flex items-center mr-4 ml-0"
     >
       <Trash2 className="h-4 w-4" />
-      Xóa ({selectedRows.length})
+      Delete ({selectedRows.length})
     </Button>
   );
 };
@@ -469,9 +470,9 @@ const XTableHeader = <T,>({ table }: TableHeaderProps<T>) => {
                 {header.isPlaceholder
                   ? null
                   : flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
               </TableHead>
             );
           })}
@@ -500,7 +501,7 @@ const XTableBody = <T,>({
           >
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900 mr-2"></div>
-              Đang tải...
+              Loading...
             </div>
           </TableCell>
         </TableRow>
@@ -529,7 +530,7 @@ const XTableBody = <T,>({
             role="status"
             aria-live="polite"
           >
-            Không tìm thấy dữ liệu.
+            No data found.
           </TableCell>
         </TableRow>
       )}
@@ -738,7 +739,7 @@ export function XTable<T = Record<string, unknown>>({
     getRowId: memoizedGetRowId,
     enableRowSelection: enableSelection,
     onRowSelectionChange: handleRowSelectionChange,
-    onColumnFiltersChange: () => { },
+    onColumnFiltersChange: () => {},
     onPaginationChange: serverPagination ? undefined : setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -747,13 +748,13 @@ export function XTable<T = Record<string, unknown>>({
       : getPaginationRowModel(),
     ...(serverPagination
       ? {
-        pageCount:
-          serverPagination.totalPages ||
-          Math.ceil(
-            (serverPagination.total || 0) / (serverPagination.limit || 10)
-          ),
-        manualPagination: true,
-      }
+          pageCount:
+            serverPagination.totalPages ||
+            Math.ceil(
+              (serverPagination.total || 0) / (serverPagination.limit || 10)
+            ),
+          manualPagination: true,
+        }
       : {}),
     filterFns: {
       exact: ((row, columnId, value) => {
@@ -796,12 +797,27 @@ export function XTable<T = Record<string, unknown>>({
       {(filterConfig?.enabled ||
         filterConfig?.search?.enabled ||
         searchConfig?.enabled) && (
-          <div className="mb-4">
-            <div className="inline-flex items-center">
-              {filterConfig?.enabled ? (
+        <div className="mb-4">
+          <div className="inline-flex items-center">
+            {filterConfig?.enabled ? (
+              <XFilter
+                filters={filterConfig?.filters || []}
+                triggerText={filterConfig?.triggerText || "Advanced Search"}
+                filterValues={urlFilters as Record<string, string | string[]>}
+                setFilter={setFilter}
+                clearFilters={() => {
+                  Object.keys(urlFilters).forEach((key) => {
+                    setFilter(key, "");
+                  });
+                }}
+                searchConfig={filterConfig?.search || searchConfig}
+                onSearchChange={onSearchChange}
+              />
+            ) : (
+              (filterConfig?.search?.enabled || searchConfig?.enabled) && (
                 <XFilter
-                  filters={filterConfig?.filters || []}
-                  triggerText={filterConfig?.triggerText || "Advanced Search"}
+                  filters={[]}
+                  triggerText=""
                   filterValues={urlFilters as Record<string, string | string[]>}
                   setFilter={setFilter}
                   clearFilters={() => {
@@ -812,26 +828,11 @@ export function XTable<T = Record<string, unknown>>({
                   searchConfig={filterConfig?.search || searchConfig}
                   onSearchChange={onSearchChange}
                 />
-              ) : (
-                (filterConfig?.search?.enabled || searchConfig?.enabled) && (
-                  <XFilter
-                    filters={[]}
-                    triggerText=""
-                    filterValues={urlFilters as Record<string, string | string[]>}
-                    setFilter={setFilter}
-                    clearFilters={() => {
-                      Object.keys(urlFilters).forEach((key) => {
-                        setFilter(key, "");
-                      });
-                    }}
-                    searchConfig={filterConfig?.search || searchConfig}
-                    onSearchChange={onSearchChange}
-                  />
-                )
-              )}
-            </div>
+              )
+            )}
           </div>
-        )}
+        </div>
+      )}
       <Table className="mb-4">
         <XTableHeader table={table} />
         <XTableBody table={table} columns={finalColumns} loading={loading} />

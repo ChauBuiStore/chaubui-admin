@@ -49,7 +49,7 @@ export function CategoriesPage() {
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={handleCreateCategory}>
-            <PlusIcon className="h-4 w-4 mr-2" />
+            <PlusIcon className="h-4 w-4" />
             Add Category
           </Button>
         </div>

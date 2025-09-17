@@ -303,7 +303,7 @@ export const XFormDialog = <T extends FieldValues = FieldValues>({
   onSubmit,
   onCancel,
   saveText = "Save",
-  cancelText = "Hủy",
+  cancelText = "Cancel",
   loading = false,
   children,
   ...props

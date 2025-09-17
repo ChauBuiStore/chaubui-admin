@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { authService } from '@/lib/services/auth-service';
-import { LoginCredentials, AuthResponse } from '@/lib/types/auth';
+import { LoginCredentials, AuthResponse } from '@/lib/types/auth.type';
 
 interface AuthContextType {
   token: string | null;
@@ -44,10 +44,10 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
     setIsLoading(true);
     try {
       const result = await authService.login(credentials);
-
-      if (result.data.accessToken) {
-        setToken(result.data.accessToken);
-        localStorage.setItem("auth_token", result.data.accessToken);
+      
+      if (result.accessToken) {
+        setToken(result.accessToken);
+        localStorage.setItem("auth_token", result.accessToken);
       }
 
       return result;
@@ -62,7 +62,7 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
       const result = await authService.logout();
       setToken(null);
       localStorage.removeItem("auth_token");
-      return result
+      return result 
     } finally {
       setIsLoading(false);
     }

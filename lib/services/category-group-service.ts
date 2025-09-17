@@ -1,12 +1,12 @@
-import { httpClient } from "@/lib/config";
+import { httpClient } from "@/lib/configs";
 import { PaginatedResponse } from "@/lib/types";
 import {
   CategoryGroup,
   CategoryGroupFilters,
-  CreateCategoryGroup,
-  UpdateCategoryGroup,
+  CreateCategoryGroupData,
+  UpdateCategoryGroupData,
 } from "@/modules/categories-group/types/categories-group.type";
-import { ENDPOINTS } from "../config";
+import { ENDPOINTS } from "../configs";
 
 export class CategoryGroupService {
   static async getCategoryGroups(
@@ -23,7 +23,7 @@ export class CategoryGroupService {
   }
 
   static async createCategoryGroup(
-    data: CreateCategoryGroup
+    data: CreateCategoryGroupData
   ): Promise<CategoryGroup> {
     const response = await httpClient.post<CategoryGroup>(
       ENDPOINTS.CATEGORY_GROUP.CREATE,
@@ -34,7 +34,7 @@ export class CategoryGroupService {
 
   static async updateCategoryGroup(
     id: string,
-    data: UpdateCategoryGroup
+    data: UpdateCategoryGroupData
   ): Promise<CategoryGroup> {
     const response = await httpClient.put<CategoryGroup>(
       ENDPOINTS.CATEGORY_GROUP.UPDATE.replace(":id", id),
@@ -43,22 +43,19 @@ export class CategoryGroupService {
     return response.data;
   }
 
-  static async deleteCategoryGroup(id: string): Promise<CategoryGroup> {
-    const response = await httpClient.delete<CategoryGroup>(
+  static async deleteCategoryGroup(id: string): Promise<void> {
+    await httpClient.delete<void>(
       ENDPOINTS.CATEGORY_GROUP.DELETE.replace(":id", id)
     );
-    return response.data;
   }
 
   static async bulkDeleteCategoryGroups(
     ids: string[]
   ): Promise<{ success: boolean; deletedCount: number }> {
-    const response = await httpClient.delete<{
+    const response = await httpClient.post<{
       success: boolean;
       deletedCount: number;
-    }>(ENDPOINTS.CATEGORY_GROUP.BULK_DELETE, {
-      body: JSON.stringify({ ids }),
-    });
+    }>(ENDPOINTS.CATEGORY_GROUP.BULK_DELETE, { ids });
 
     return response.data;
   }

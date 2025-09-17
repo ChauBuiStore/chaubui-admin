@@ -19,7 +19,7 @@ interface CreateCategoryGroupProps {
   loading: boolean;
 }
 
-export function CreateCategoryGroupModal({
+export function CreateCategoryGroup({
   open,
   onOpenChange,
   onSubmit,

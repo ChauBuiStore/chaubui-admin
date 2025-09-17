@@ -2,7 +2,6 @@
 
 import { ActionsConfig, XTable } from "@/components/common/x-table";
 import { ColumnDef } from "@tanstack/react-table";
-import { FolderIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Category } from "../types/categories.type";
 import { PaginationMeta } from "@/lib/types";
@@ -43,14 +42,7 @@ export function CategoriesList({
         header: "Category Name",
         cell: ({ row }) => {
           const category = row.original;
-          return (
-            <div className="flex items-center gap-2">
-              <FolderIcon className="h-4 w-4 text-gray-500" />
-              <div className="flex flex-col">
-                <span className="font-medium">{category.name}</span>
-              </div>
-            </div>
-          );
+          return <span className="font-medium">{category.name}</span>;
         },
       },
       {
@@ -61,7 +53,7 @@ export function CategoriesList({
           return (
             <div className="flex items-center gap-2">
               <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                {category.group?.name || 'N/A'}
+                {category.group?.name || "N/A"}
               </span>
             </div>
           );
@@ -72,7 +64,7 @@ export function CategoriesList({
         header: "Created Date",
         cell: ({ row }) => {
           const category = row.original;
-          return new Date(category.createdAt).toLocaleDateString('en-US');
+          return new Date(category.createdAt).toLocaleDateString("en-US");
         },
       },
     ],

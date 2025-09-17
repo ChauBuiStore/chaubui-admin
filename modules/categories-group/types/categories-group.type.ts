@@ -10,11 +10,11 @@ export interface CategoryGroup {
   categories?: Category[];
 }
 
-export interface CreateCategoryGroup {
+export interface CreateCategoryGroupData {
   name: string;
 }
 
-export interface UpdateCategoryGroup {
+export interface UpdateCategoryGroupData {
   name: string;
 }
 

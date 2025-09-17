@@ -1,12 +1,7 @@
-import { ENDPOINTS } from "@/lib/config";
-import { httpClient } from "@/lib/config/http-client";
+import { ENDPOINTS } from "@/lib/configs";
+import { httpClient } from "@/lib/configs/http-client";
 import { PaginatedResponse } from "@/lib/types";
-import {
-  Category,
-  CategoryFilters,
-  CreateCategoryRequest,
-  UpdateCategoryRequest,
-} from "@/modules/categories/types/categories.type";
+import { Category, CategoryFilters, CreateCategoryData, UpdateCategoryData } from "@/modules/categories/types";
 
 export class CategoryService {
   static async getCategories(
@@ -28,7 +23,7 @@ export class CategoryService {
     return response.data;
   }
 
-  static async createCategory(data: CreateCategoryRequest): Promise<Category> {
+  static async createCategory(data: CreateCategoryData): Promise<Category> {
     const response = await httpClient.post<Category>(
       ENDPOINTS.CATEGORY.CREATE,
       data
@@ -38,7 +33,7 @@ export class CategoryService {
 
   static async updateCategory(
     id: string,
-    data: UpdateCategoryRequest
+    data: UpdateCategoryData
   ): Promise<Category> {
     const response = await httpClient.put<Category>(
       ENDPOINTS.CATEGORY.UPDATE.replace(":id", id),
@@ -47,11 +42,8 @@ export class CategoryService {
     return response.data;
   }
 
-  static async deleteCategory(id: string): Promise<Category> {
-    const response = await httpClient.delete<Category>(
-      ENDPOINTS.CATEGORY.DELETE.replace(":id", id)
-    );
-    return response.data;
+  static async deleteCategory(id: string): Promise<void> {
+    await httpClient.delete<void>(ENDPOINTS.CATEGORY.DELETE.replace(":id", id));
   }
 
   static async bulkDeleteCategories(

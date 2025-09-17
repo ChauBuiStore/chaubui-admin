@@ -19,7 +19,7 @@ interface SelectOption {
   label: string;
 }
 
-interface XSelectProps {
+interface XSelectPaginationProps {
   options: SelectOption[];
   value?: string | string[];
   onValueChange?: (value: string | string[]) => void;
@@ -33,7 +33,7 @@ interface XSelectProps {
   multiple?: boolean;
 }
 
-export function XSelect({
+export function XSelectPagination({
   options,
   value,
   onValueChange,
@@ -45,7 +45,7 @@ export function XSelect({
   loadThreshold = 50,
   hasMoreData = false,
   multiple = false,
-}: XSelectProps) {
+}: XSelectPaginationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -67,20 +67,20 @@ export function XSelect({
 
     const currentValues = Array.isArray(value) ? value : [];
     const isSelected = currentValues.includes(newValue);
-
+    
     let newValues: string[];
     if (isSelected) {
       newValues = currentValues.filter(v => v !== newValue);
     } else {
       newValues = [...currentValues, newValue];
     }
-
+    
     onValueChange?.(newValues);
   };
 
   const removeValue = (valueToRemove: string) => {
     if (!multiple) return;
-
+    
     const currentValues = Array.isArray(value) ? value : [];
     const newValues = currentValues.filter(v => v !== valueToRemove);
     onValueChange?.(newValues);
@@ -88,7 +88,7 @@ export function XSelect({
 
   const getSelectedLabels = () => {
     if (!multiple || !Array.isArray(value)) return [];
-
+    
     return value.map(val => {
       const option = options.find(opt => opt.value === val);
       return option?.label || val;
@@ -121,7 +121,7 @@ export function XSelect({
 
   if (multiple) {
     const selectedLabels = getSelectedLabels();
-
+    
     return (
       <div className={cn("w-full relative", className)}>
         <Button
@@ -185,7 +185,7 @@ export function XSelect({
                   >
                     <Checkbox
                       checked={isSelected}
-                      onChange={() => { }}
+                      onChange={() => {}}
                       className="pointer-events-none"
                     />
                     <span className="flex-1">{option.label}</span>

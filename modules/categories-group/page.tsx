@@ -5,7 +5,7 @@ import { FolderIcon, PlusIcon } from "lucide-react";
 import { CategoriesGroupList } from "./components/list";
 import { useCategoryGroup } from "./hooks";
 import {
-  CreateCategoryGroupModal,
+  CreateCategoryGroup,
   DeleteCategoryGroup,
   EditCategoryGroup,
 } from "./modals";
@@ -49,7 +49,7 @@ export function CategoriesGroupPage() {
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={() => setShowCreateForm(true)} className="w-full sm:w-auto">
-            <PlusIcon className="h-4 w-4 sm:mr-2" />
+            <PlusIcon className="h-4 w-4" />
             <span className="hidden sm:inline">Add Category Group</span>
             <span className="sm:hidden">Add</span>
           </Button>
@@ -68,7 +68,7 @@ export function CategoriesGroupPage() {
         onSearchChange={handleSearchChange}
       />
 
-      <CreateCategoryGroupModal
+      <CreateCategoryGroup
         open={showCreateForm}
         onOpenChange={setShowCreateForm}
         onSubmit={handleCreateSubmit}

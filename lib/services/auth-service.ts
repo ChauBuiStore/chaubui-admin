@@ -1,6 +1,6 @@
-import { AuthResponse, LoginCredentials } from '@/lib/types/auth';
-import { ENDPOINTS } from '../config/endpoints';
-import { httpClient } from '../config/http-client';
+import { AuthResponse, LoginCredentials } from '@/lib/types/auth.type';
+import { ENDPOINTS } from '../configs/endpoints';
+import { httpClient } from '../configs/http-client';
 
 class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {

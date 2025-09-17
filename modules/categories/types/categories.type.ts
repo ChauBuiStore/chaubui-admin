@@ -19,13 +19,13 @@ export interface Category {
   updatedAt: Date | string;
 }
 
-export interface CreateCategoryRequest {
+export interface CreateCategoryData {
   name: string;
   description: string;
   groupId: string;
 }
 
-export interface UpdateCategoryRequest {
+export interface UpdateCategoryData {
   name: string;
   description: string;
   groupId: string;

@@ -12,7 +12,7 @@ interface XBackButtonProps {
 }
 
 export function XBackButton({ 
-  text = "Trở về trang chủ", 
+  text = "Back to home page", 
   href, 
   className = "inline-flex items-center justify-center gap-2 !bg-transparent hover:text-red-500",
   variant = "ghost"

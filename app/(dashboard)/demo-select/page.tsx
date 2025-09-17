@@ -1,6 +1,6 @@
 "use client";
 
-import { XSelect } from "@/components/common";
+import { XSelectPagination } from "@/components/common";
 import { CategoryService } from "@/lib/services";
 import { PaginatedResponse } from "@/lib/types";
 import { Category } from "@/modules/categories/types/categories.type";
@@ -9,7 +9,9 @@ import { useCallback, useState } from "react";
 
 export default function DemoSelectPage() {
   const [selectedValue, setSelectedValue] = useState<string>("");
-  const [selectedMultipleValues, setSelectedMultipleValues] = useState<string[]>([]);
+  const [selectedMultipleValues, setSelectedMultipleValues] = useState<
+    string[]
+  >([]);
   const itemsPerPage = 10;
 
   const getNextPageParam = (lastPage: PaginatedResponse<Category>) => {
@@ -51,6 +53,7 @@ export default function DemoSelectPage() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+
   const LoadingState = () => (
     <div className="flex items-center justify-center p-8">
       <div className="text-center">
@@ -74,8 +77,8 @@ export default function DemoSelectPage() {
   return (
     <div className="space-y-8 p-6">
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold">Single Select (Chọn một)</h2>
-        <XSelect
+        <h2 className="text-2xl font-bold">Single Select</h2>
+        <XSelectPagination
           options={categoryOptions}
           value={selectedValue}
           onValueChange={(value) => setSelectedValue(value as string)}
@@ -91,11 +94,13 @@ export default function DemoSelectPage() {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold">Multi Select (Chọn nhiều)</h2>
-        <XSelect
+        <h2 className="text-2xl font-bold">Multi Select</h2>
+        <XSelectPagination
           options={categoryOptions}
           value={selectedMultipleValues}
-          onValueChange={(value) => setSelectedMultipleValues(value as string[])}
+          onValueChange={(value) =>
+            setSelectedMultipleValues(value as string[])
+          }
           placeholder="Select multiple categories..."
           onLoadMore={handleLoadMore}
           loading={isFetchingNextPage}
@@ -104,9 +109,13 @@ export default function DemoSelectPage() {
           multiple={true}
         />
         <div className="text-sm text-gray-600">
-          Selected values: {selectedMultipleValues.length > 0 ? selectedMultipleValues.join(", ") : "None"}
+          Selected values:{" "}
+          {selectedMultipleValues.length > 0
+            ? selectedMultipleValues.join(", ")
+            : "None"}
         </div>
       </div>
+
     </div>
   );
 }

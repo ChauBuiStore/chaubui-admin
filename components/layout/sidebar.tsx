@@ -13,7 +13,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
+} from "@/components/ui";
 import { useAuth, useToast } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 import {
@@ -23,6 +23,7 @@ import {
   FolderTreeIcon,
   HomeIcon,
   LogOutIcon,
+  MenuIcon,
   PackageIcon,
   PaletteIcon,
 } from "lucide-react";
@@ -52,16 +53,22 @@ const sidebarItems: SidebarItem[] = [
     description: "Main Dashboard",
   },
   {
-    title: "Manage Colors",
-    href: "/colors",
-    icon: PaletteIcon,
-    description: "Manage color list",
+    title: "Manages Menus",
+    href: "/menu",
+    icon: MenuIcon,
+    description: "Manages menu list",
   },
   {
-    title: "Manage Categories",
+    title: "Manages Colors",
+    href: "/colors",
+    icon: PaletteIcon,
+    description: "Manages color list",
+  },
+  {
+    title: "Manages Categories",
     href: "#",
     icon: FolderIcon,
-    description: "Manage product categories",
+    description: "Manages product categories",
     children: [
       {
         title: "Category Groups",
@@ -76,10 +83,10 @@ const sidebarItems: SidebarItem[] = [
     ],
   },
   {
-    title: "Manage Products",
+    title: "Manages Products",
     href: "/products",
     icon: PackageIcon,
-    description: "Manage product list",
+    description: "Manages product list",
   },
 ];
 

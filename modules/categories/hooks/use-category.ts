@@ -1,22 +1,18 @@
-import { useSearchParams } from "@/lib/hooks";
+import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { useSearchParams, useToast } from "@/lib/hooks";
 import { CategoryGroupService, CategoryService } from "@/lib/services";
-import { PaginationMeta } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
-import { toast } from "sonner";
-import {
-  Category,
-  CreateCategoryRequest,
-  UpdateCategoryRequest,
-} from "../types/categories.type";
+import { Category, CreateCategoryData, UpdateCategoryData } from "../types";
 
 export function useCategory() {
   const queryClient = useQueryClient();
+  const { success, error: showError } = useToast();
 
   const { filters, setFilter } = useSearchParams({
-    page: "1",
-    limit: "10",
+    page: PAGINATION_CONSTANTS.PAGE,
+    limit: PAGINATION_CONSTANTS.LIMIT,
     search: "",
   });
 
@@ -25,84 +21,70 @@ export function useCategory() {
     error,
     isLoading,
   } = useQuery({
-    queryKey: ["categories", filters],
-    queryFn: async () => {
-      const response = await CategoryService.getCategories(filters);
-      return response;
-    },
-    select: (data) =>
-      ({
-        categories: data.data || [],
-        pagination: data.meta,
-      } as { categories: Category[]; pagination: PaginationMeta }),
+    queryKey: [QUERY_KEYS.CATEGORIES, filters],
+    queryFn: () => CategoryService.getCategories(filters),
   });
 
   const { data: categoryGroupsData } = useQuery({
-    queryKey: ["category-groups", filters],
-    queryFn: async () => {
-      const response = await CategoryGroupService.getCategoryGroups(filters);
-      return response;
-    },
-    select: (data) => ({
-      categoryGroups: data.data || [],
-    }),
+    queryKey: [QUERY_KEYS.CATEGORY_GROUPS, filters],
+    queryFn: () => CategoryGroupService.getCategoryGroups(filters),
   });
 
   if (error) {
-    toast.error((error as Error).message);
+    showError((error as Error).message);
   }
 
-  const categories = categoriesData?.categories || [];
-  const categoryGroups = categoryGroupsData?.categoryGroups || [];
-  const pagination = categoriesData?.pagination;
+  const categories = categoriesData?.data || [];
+  const categoryGroups = categoryGroupsData?.data || [];
+  const pagination = categoriesData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateCategoryRequest) =>
+    mutationFn: (data: CreateCategoryData) =>
       CategoryService.createCategory(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      queryClient.invalidateQueries({ queryKey: ["categories-group"] });
-      toast.success("Category created successfully!");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      success("Category created successfully!");
     },
     onError: (error) => {
-      toast.error((error as Error).message);
+      showError((error as Error).message);
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateCategoryRequest }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateCategoryData }) =>
       CategoryService.updateCategory(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      queryClient.invalidateQueries({ queryKey: ["categories-group"] });
-      toast.success("Category updated successfully!");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      success("Category updated successfully!");
     },
     onError: (error) => {
-      toast.error((error as Error).message);
+      showError((error as Error).message);
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => CategoryService.deleteCategory(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      queryClient.invalidateQueries({ queryKey: ["categories-group"] });
-      toast.success("Category deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      success("Category deleted successfully!");
     },
     onError: (error) => {
-      toast.error((error as Error).message);
+      showError((error as Error).message);
     },
   });
 
   const bulkDeleteMutation = useMutation({
     mutationFn: (ids: string[]) => CategoryService.bulkDeleteCategories(ids),
     onSuccess: (_, ids) => {
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      queryClient.invalidateQueries({ queryKey: ["categories-group"] });
-      toast.success(`Successfully deleted ${ids.length} categories!`);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      success(`Successfully deleted ${ids.length} categories!`);
     },
     onError: (error) => {
-      toast.error((error as Error).message);
+      showError((error as Error).message);
     },
   });
 
@@ -116,7 +98,7 @@ export function useCategory() {
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
 
   const handleCreateSubmit = async (data: FieldValues) => {
-    await createMutation.mutateAsync(data as CreateCategoryRequest);
+    await createMutation.mutateAsync(data as CreateCategoryData);
     setShowCreateForm(false);
   };
 
@@ -125,7 +107,7 @@ export function useCategory() {
 
     await updateMutation.mutateAsync({
       id: editingCategory.id,
-      data: data as UpdateCategoryRequest,
+      data: data as UpdateCategoryData,
     });
     setShowEditForm(false);
     setEditingCategory(null);
@@ -149,7 +131,7 @@ export function useCategory() {
       setSelectedCategory(null);
       setSelectedCategories([]);
     } catch (error) {
-      toast.error((error as Error).message);
+      showError((error as Error).message);
     }
   };
 
@@ -168,8 +150,8 @@ export function useCategory() {
   const handlePageChange = useCallback(
     (page: number) => {
       setFilter({
-        page: page.toString(),
-        limit: "10"
+        page,
+        limit: PAGINATION_CONSTANTS.LIMIT
       });
     },
     [setFilter]
@@ -178,9 +160,8 @@ export function useCategory() {
   const handlePageSizeChange = useCallback(
     (pageSize: number) => {
       setFilter({
-        limit: pageSize.toString(),
-        search: "",
-        page: "1"
+        limit: pageSize,
+        page: PAGINATION_CONSTANTS.PAGE
       });
     },
     [setFilter]
@@ -190,8 +171,8 @@ export function useCategory() {
     (searchTerm: string) => {
       setFilter({
         search: searchTerm,
-        page: "1",
-        limit: "10"
+        page: PAGINATION_CONSTANTS.PAGE,
+        limit: PAGINATION_CONSTANTS.LIMIT
       });
     },
     [setFilter]

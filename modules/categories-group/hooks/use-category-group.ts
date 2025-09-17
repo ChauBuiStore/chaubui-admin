@@ -1,17 +1,19 @@
-import { useSearchParams } from "@/lib/hooks";
+import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { useSearchParams, useToast } from "@/lib/hooks";
 import { CategoryGroupService } from "@/lib/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
-import { toast } from "sonner";
-import { CategoryGroup, CreateCategoryGroup, UpdateCategoryGroup } from "../types/categories-group.type";
+import { CategoryGroup, CreateCategoryGroupData, UpdateCategoryGroupData } from "../types";
 
 export function useCategoryGroup() {
   const queryClient = useQueryClient();
+  const { success, error: showError } = useToast();
 
   const { filters, setFilter } = useSearchParams({
-    page: "1",
-    limit: "10",
+    page: PAGINATION_CONSTANTS.PAGE,
+    limit: PAGINATION_CONSTANTS.LIMIT,
+    search: "",
   });
 
   const {
@@ -19,33 +21,26 @@ export function useCategoryGroup() {
     error,
     isLoading,
   } = useQuery({
-    queryKey: ["categories-group", filters],
-    queryFn: async () => {
-      const response = await CategoryGroupService.getCategoryGroups(filters);
-      if (!response) {
-        throw new Error("Failed to fetch category groups");
-      }
-      return response;
-    },
-    enabled: true,
+    queryKey: [QUERY_KEYS.CATEGORY_GROUPS, filters],
+    queryFn: () => CategoryGroupService.getCategoryGroups(filters),
   });
 
   if (error) {
-    toast.error((error as Error).message);
+    showError((error as Error).message);
   }
 
   const categoriesGroup = categoriesGroupData?.data || [];
   const meta = categoriesGroupData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateCategoryGroup) =>
+    mutationFn: (data: CreateCategoryGroupData) =>
       CategoryGroupService.createCategoryGroup(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories-group"] });
-      toast.success("Category group created successfully!");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      success("Category group created successfully!");
     },
     onError: (error) => {
-      toast.error((error as Error).message);
+      showError((error as Error).message);
     },
   });
 
@@ -55,25 +50,25 @@ export function useCategoryGroup() {
       data,
     }: {
       id: string;
-      data: UpdateCategoryGroup;
+      data: UpdateCategoryGroupData;
     }) => CategoryGroupService.updateCategoryGroup(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories-group"] });
-      toast.success("Category group updated successfully!");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      success("Category group updated successfully!");
     },
     onError: (error) => {
-      toast.error((error as Error).message);
+      showError((error as Error).message);
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => CategoryGroupService.deleteCategoryGroup(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["categories-group"] });
-      toast.success("Category group deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      success("Category group deleted successfully!");
     },
     onError: (error) => {
-      toast.error((error as Error).message);
+      showError((error as Error).message);
     },
   });
 
@@ -81,11 +76,11 @@ export function useCategoryGroup() {
     mutationFn: (ids: string[]) =>
       CategoryGroupService.bulkDeleteCategoryGroups(ids),
     onSuccess: (_, ids) => {
-      queryClient.invalidateQueries({ queryKey: ["categories-group"] });
-      toast.success(`Successfully deleted ${ids.length} category groups!`);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      success(`Successfully deleted ${ids.length} category groups!`);
     },
     onError: (error) => {
-      toast.error((error as Error).message);
+      showError((error as Error).message);
     },
   });
 
@@ -101,7 +96,7 @@ export function useCategoryGroup() {
   >([]);
 
   const handleCreateSubmit = async (data: FieldValues) => {
-    await createMutation.mutateAsync(data as CreateCategoryGroup);
+    await createMutation.mutateAsync(data as CreateCategoryGroupData);
     setShowCreateForm(false);
   };
 
@@ -110,7 +105,7 @@ export function useCategoryGroup() {
 
     await updateMutation.mutateAsync({
       id: editingCategoryGroup.id,
-      data: data as UpdateCategoryGroup,
+      data: data as UpdateCategoryGroupData,
     });
     setShowEditForm(false);
     setEditingCategoryGroup(null);
@@ -128,7 +123,7 @@ export function useCategoryGroup() {
           selectedCategoryGroup.categories &&
           selectedCategoryGroup.categories.length > 0
         ) {
-          toast.error(
+          showError(
             `Cannot delete category group "${selectedCategoryGroup.name}" because it contains child categories. Please delete child categories first.`
           );
           setShowDeleteForm(false);
@@ -147,7 +142,7 @@ export function useCategoryGroup() {
           const categoryNames = categoriesWithChildren
             .map((cat) => cat.name)
             .join(", ");
-          toast.error(
+          showError(
             `Cannot delete category groups "${categoryNames}" because they contain child categories. Please delete child categories first.`
           );
           setShowDeleteForm(false);
@@ -163,7 +158,7 @@ export function useCategoryGroup() {
       setSelectedCategoryGroup(null);
       setSelectedCategoryGroups([]);
     } catch (error) {
-      toast.error((error as Error).message);
+      showError((error as Error).message);
     }
   };
 
@@ -181,16 +176,16 @@ export function useCategoryGroup() {
 
   const handlePageChange = useCallback((page: number) => {
     setFilter({
-      page: page.toString(),
-      limit: "10",
+      page,
+      limit: PAGINATION_CONSTANTS.LIMIT,
       search: ""
     });
   }, [setFilter]);
 
   const handlePageSizeChange = useCallback((pageSize: number) => {
     setFilter({
-      page: "1",
-      limit: pageSize.toString(),
+      page: PAGINATION_CONSTANTS.PAGE,
+      limit: pageSize,
       search: ""
     });
   }, [setFilter]);
@@ -198,8 +193,8 @@ export function useCategoryGroup() {
   const handleSearchChange = useCallback((searchTerm: string) => {
     setFilter({
       search: searchTerm,
-      page: "1",
-      limit: "10"
+      page: PAGINATION_CONSTANTS.PAGE,
+      limit: PAGINATION_CONSTANTS.LIMIT
     });
   }, [setFilter]);
 

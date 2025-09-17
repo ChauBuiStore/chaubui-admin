@@ -53,10 +53,12 @@ const SearchInput = ({
   searchConfig,
   value,
   onValueChange,
+  onSearch,
 }: {
   searchConfig: SearchConfig;
   value: string;
   onValueChange: (value: string) => void;
+  onSearch?: (value: string) => void;
 }) => {
   const [inputValue, setInputValue] = useState(value);
 
@@ -67,11 +69,12 @@ const SearchInput = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
+    onValueChange(newValue);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      onValueChange(inputValue);
+      onSearch?.(inputValue);
     }
   };
 
@@ -177,17 +180,24 @@ export function XFilter({
           <SearchInput
             searchConfig={searchConfig}
             value={
-              (tempFilterValues?.[searchConfig.columnKey] as string) ||
-              (finalFilterValues?.[searchConfig.columnKey] as string) ||
-              ""
+              tempFilterValues?.[searchConfig.columnKey] !== undefined
+                ? (tempFilterValues[searchConfig.columnKey] as string)
+                : (finalFilterValues?.[searchConfig.columnKey] as string) || ""
             }
             onValueChange={(value) => {
               setTempFilterValues((prev) => ({
                 ...prev,
                 [searchConfig.columnKey]: value,
               }));
+            }}
+            onSearch={(value) => {
               finalSetFilter(searchConfig.columnKey, value);
               onSearchChange?.(value);
+              // Update tempFilterValues to match the search result
+              setTempFilterValues((prev) => ({
+                ...prev,
+                [searchConfig.columnKey]: value,
+              }));
             }}
           />
         </div>
@@ -198,14 +208,19 @@ export function XFilter({
             <Button
               variant="ghost"
               className={`rounded-none !bg-transparent hover:text-gray-500 cursor-pointer focus-visible:ring-0 focus-visible:ring-offset-0 flex-shrink-0 ${
-                searchConfig?.enabled ? "border-l-1 border-gray-200 sm:border-l-1 sm:border-t-0 border-t-1" : ""
+                searchConfig?.enabled
+                  ? "border-l-1 border-gray-200 sm:border-l-1 sm:border-t-0 border-t-1"
+                  : ""
               }`}
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline ml-2">{triggerText}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[90vw] sm:w-[560px] p-0" align="start">
+          <DropdownMenuContent
+            className="w-[90vw] sm:w-[560px] p-0"
+            align="start"
+          >
             <div className="p-4 space-y-6">
               {filters.map((filter) => (
                 <div
@@ -230,11 +245,11 @@ export function XFilter({
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue
-                            placeholder={`Chọn ${filter.label.toLowerCase()}`}
+                            placeholder={`Select ${filter.label.toLowerCase()}`}
                           />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">Tất cả</SelectItem>
+                          <SelectItem value="all">All</SelectItem>
                           {filter.options?.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
                               {option.label}
@@ -251,7 +266,7 @@ export function XFilter({
                         }
                         placeholder={
                           filter.placeholder ||
-                          `Nhập ${filter.label.toLowerCase()}`
+                          `Enter ${filter.label.toLowerCase()}`
                         }
                         className="w-full"
                       />
@@ -325,7 +340,7 @@ export function XFilter({
               <Button variant="outline" onClick={handleReset}>
                 Reset
               </Button>
-              <Button onClick={handleApply}>Tìm kiếm</Button>
+              <Button onClick={handleApply}>Search</Button>
             </div>
           </DropdownMenuContent>
         </DropdownMenu>

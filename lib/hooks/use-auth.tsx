@@ -44,10 +44,10 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
     setIsLoading(true);
     try {
       const result = await authService.login(credentials);
-      
-      if (result.accessToken) {
-        setToken(result.accessToken);
-        localStorage.setItem("auth_token", result.accessToken);
+
+      if (result.data.accessToken) {
+        setToken(result.data.accessToken);
+        localStorage.setItem("auth_token", result.data.accessToken);
       }
 
       return result;
@@ -62,7 +62,7 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
       const result = await authService.logout();
       setToken(null);
       localStorage.removeItem("auth_token");
-      return result 
+      return result
     } finally {
       setIsLoading(false);
     }

@@ -49,7 +49,7 @@ export function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: authLogin,
     onSuccess: (result) => {
-      if (result.accessToken) {
+      if (result.data.accessToken) {
         success("Login successful");
         router.push("/dashboard");
       } else {
@@ -110,11 +110,10 @@ export function LoginPage() {
                             {...field}
                             type="email"
                             placeholder="Enter your email"
-                            className={`h-12 bg-white text-gray-900 placeholder:text-gray-500 transition-all duration-200 ${
-                              fieldState.error
-                                ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-                                : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
-                            }`}
+                            className={`h-12 bg-white text-gray-900 placeholder:text-gray-500 transition-all duration-200 ${fieldState.error
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                              : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
+                              }`}
                             disabled={loginMutation.isPending}
                           />
                         </div>
@@ -139,11 +138,10 @@ export function LoginPage() {
                             {...field}
                             type={showPassword ? "text" : "password"}
                             placeholder="Enter your password"
-                            className={`pr-12 h-12 bg-white text-gray-900 placeholder:text-gray-500 transition-all duration-200 ${
-                              fieldState.error
-                                ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-                                : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
-                            }`}
+                            className={`pr-12 h-12 bg-white text-gray-900 placeholder:text-gray-500 transition-all duration-200 ${fieldState.error
+                              ? "border-red-500 focus:border-red-500 focus:ring-red-200"
+                              : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
+                              }`}
                             disabled={loginMutation.isPending}
                           />
                           <Button

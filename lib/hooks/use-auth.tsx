@@ -1,8 +1,15 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { authService } from '@/lib/services/auth-service';
-import { LoginCredentials, AuthResponse } from '@/lib/types/auth.type';
+import { httpClient } from "@/lib/configs";
+import { AuthService } from "@/lib/services";
+import { AuthResponse, LoginCredentials } from "@/lib/types";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface AuthContextType {
   token: string | null;
@@ -10,6 +17,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<AuthResponse>;
   logout: () => Promise<{ message: string }>;
+  logoutSilently: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,10 +48,23 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
     initAuth();
   }, []);
 
-  const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
+  const logoutSilently = () => {
+    setToken(null);
+    localStorage.removeItem("auth_token");
+  };
+
+  useEffect(() => {
+    (
+      httpClient as unknown as { config: { onTokenExpired: () => void } }
+    ).config.onTokenExpired = logoutSilently;
+  }, []);
+
+  const login = async (
+    credentials: LoginCredentials
+  ): Promise<AuthResponse> => {
     setIsLoading(true);
     try {
-      const result = await authService.login(credentials);
+      const result = (await AuthService.login(credentials)) as AuthResponse;
 
       if (result.data.accessToken) {
         setToken(result.data.accessToken);
@@ -59,10 +80,10 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
   const logout = async (): Promise<{ message: string }> => {
     setIsLoading(true);
     try {
-      const result = await authService.logout();
+      const result = await AuthService.logout();
       setToken(null);
       localStorage.removeItem("auth_token");
-      return result
+      return result;
     } finally {
       setIsLoading(false);
     }
@@ -74,6 +95,7 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
     isLoading: !isHydrated || isLoading,
     login,
     logout,
+    logoutSilently,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

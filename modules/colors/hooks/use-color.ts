@@ -12,9 +12,7 @@ export function useColor() {
   const queryClient = useQueryClient();
   const { success, error: showError } = useToast();
   const { filters, setFilter } = useSearchParams({
-    page: PAGINATION_CONSTANTS.PAGE,
-    limit: PAGINATION_CONSTANTS.LIMIT,
-    search: "",
+    search: undefined,
   });
 
   const {
@@ -142,20 +140,22 @@ export function useColor() {
     (page: number) => {
       setFilter({
         page,
-        limit: PAGINATION_CONSTANTS.LIMIT
+        limit: PAGINATION_CONSTANTS.LIMIT,
+        search: filters.search || ""
       });
     },
-    [setFilter]
+    [setFilter, filters.search]
   );
 
   const handlePageSizeChange = useCallback(
     (pageSize: number) => {
       setFilter({
         limit: pageSize,
-        page: PAGINATION_CONSTANTS.PAGE
+        page: PAGINATION_CONSTANTS.PAGE,
+        search: filters.search || ""
       });
     },
-    [setFilter]
+    [setFilter, filters.search]
   );
 
   const handleSearchChange = useCallback(

@@ -1,11 +1,8 @@
-import { ENDPOINTS, httpClient } from "../configs";
-import type {
-  UploadApiResponse,
-  UploadSingleApiResponse,
-} from "../types";
+import { ENDPOINTS, httpClient } from "@/lib/configs";
+import type { UploadApiResponse, UploadSingleApiResponse } from "@/lib/types";
 
 class UploadService {
-  async uploadSingle(file: File): Promise<UploadSingleApiResponse> {
+  static async uploadSingle(file: File): Promise<UploadSingleApiResponse> {
     if (!file) {
       throw new Error("No file to upload");
     }
@@ -21,7 +18,7 @@ class UploadService {
     return response.data;
   }
 
-  async uploadMultiple(files: File[]): Promise<UploadApiResponse> {
+  static async uploadMultiple(files: File[]): Promise<UploadApiResponse> {
     if (files.length === 0) {
       throw new Error("No files to upload");
     }
@@ -39,10 +36,9 @@ class UploadService {
     return response.data;
   }
 
-  async delete(id: string): Promise<void> {
+  static async delete(id: string): Promise<void> {
     await httpClient.delete<void>(ENDPOINTS.UPLOAD.DELETE.replace(":id", id));
   }
-
 }
 
-export const uploadService = new UploadService();
+export default UploadService;

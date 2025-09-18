@@ -1,6 +1,6 @@
-export * from "./auth-service";
-export * from "./category-service";
-export * from "./category-group-service";
-export * from "./color-service";
-export * from "./menu-service";
-export * from "./upload-service";
+export { default as AuthService } from "./auth-service";
+export { default as CategoryService } from "./category-service";
+export { default as CategoryGroupService } from "./category-group-service";
+export { default as ColorService } from "./color-service";
+export { default as MenuService } from "./menu-service";
+export { default as UploadService } from "./upload-service";

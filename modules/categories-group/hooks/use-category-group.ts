@@ -11,9 +11,7 @@ export function useCategoryGroup() {
   const { success, error: showError } = useToast();
 
   const { filters, setFilter } = useSearchParams({
-    page: PAGINATION_CONSTANTS.PAGE,
-    limit: PAGINATION_CONSTANTS.LIMIT,
-    search: "",
+    search: undefined,
   });
 
   const {
@@ -178,17 +176,17 @@ export function useCategoryGroup() {
     setFilter({
       page,
       limit: PAGINATION_CONSTANTS.LIMIT,
-      search: ""
+      search: filters.search || undefined
     });
-  }, [setFilter]);
+  }, [setFilter, filters.search]);
 
   const handlePageSizeChange = useCallback((pageSize: number) => {
     setFilter({
       page: PAGINATION_CONSTANTS.PAGE,
       limit: pageSize,
-      search: ""
+      search: filters.search || undefined
     });
-  }, [setFilter]);
+  }, [setFilter, filters.search]);
 
   const handleSearchChange = useCallback((searchTerm: string) => {
     setFilter({

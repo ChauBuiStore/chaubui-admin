@@ -3,9 +3,12 @@
 import { toast as sonnerToast } from "sonner";
 
 export const useToast = () => {
-  const toast = (message: string, options?: { type?: "success" | "error" | "warning" | "info" }) => {
+  const toast = (
+    message: string,
+    options?: { type?: "success" | "error" | "warning" | "info" }
+  ) => {
     const { type = "info" } = options || {};
-    
+
     switch (type) {
       case "success":
         return sonnerToast.success(message);
@@ -27,10 +30,13 @@ export const useToast = () => {
     info: (message: string) => sonnerToast.info(message),
     loading: (message: string) => sonnerToast.loading(message),
     dismiss: (toastId?: string | number) => sonnerToast.dismiss(toastId),
-    promise: <T,>(promise: Promise<T>, messages: {
-      loading: string;
-      success: string | ((data: T) => string);
-      error: string | ((error: unknown) => string);
-    }) => sonnerToast.promise(promise, messages),
+    promise: <T,>(
+      promise: Promise<T>,
+      messages: {
+        loading: string;
+        success: string | ((data: T) => string);
+        error: string | ((error: unknown) => string);
+      }
+    ) => sonnerToast.promise(promise, messages),
   };
 };

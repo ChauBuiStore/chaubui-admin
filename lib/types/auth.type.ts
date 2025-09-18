@@ -4,5 +4,7 @@ export interface LoginCredentials {
 }
 
 export interface AuthResponse {
-  accessToken: string;
+  data: {
+    accessToken: string;
+  };
 }

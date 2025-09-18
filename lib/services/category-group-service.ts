@@ -1,14 +1,13 @@
-import { httpClient } from "@/lib/configs";
+import { ENDPOINTS, httpClient } from "@/lib/configs";
 import { PaginatedResponse } from "@/lib/types";
 import {
   CategoryGroup,
   CategoryGroupFilters,
   CreateCategoryGroupData,
   UpdateCategoryGroupData,
-} from "@/modules/categories-group/types/categories-group.type";
-import { ENDPOINTS } from "../configs";
+} from "@/modules/categories-group/types";
 
-export class CategoryGroupService {
+class CategoryGroupService {
   static async getCategoryGroups(
     filters?: CategoryGroupFilters
   ): Promise<PaginatedResponse<CategoryGroup>> {
@@ -49,14 +48,11 @@ export class CategoryGroupService {
     );
   }
 
-  static async bulkDeleteCategoryGroups(
-    ids: string[]
-  ): Promise<{ success: boolean; deletedCount: number }> {
-    const response = await httpClient.post<{
-      success: boolean;
-      deletedCount: number;
-    }>(ENDPOINTS.CATEGORY_GROUP.BULK_DELETE, { ids });
-
-    return response.data;
+  static async bulkDeleteCategoryGroups(ids: string[]): Promise<void> {
+    await httpClient.delete<void>(ENDPOINTS.CATEGORY_GROUP.BULK_DELETE, {
+      ids,
+    });
   }
 }
+
+export default CategoryGroupService;

@@ -1,8 +1,9 @@
-import { env } from "./env";
+import { env, isClient } from "./env";
 
 interface HttpClientConfig {
   baseURL: string;
   headers?: Record<string, string>;
+  onTokenExpired?: () => void;
 }
 
 interface RequestConfig extends RequestInit {
@@ -38,7 +39,7 @@ class HttpClient {
 
   private getAuthHeaders(): Record<string, string> {
     const token =
-      typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+      isClient ? localStorage.getItem("auth_token") : null;
     return {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -57,6 +58,19 @@ class HttpClient {
         message: `HTTP ${response.status}: ${response.statusText}`,
       };
     }
+
+    if (response.status === 401) {
+      if (isClient) {
+        localStorage.removeItem("auth_token");
+      }
+
+      if (this.config.onTokenExpired) {
+        this.config.onTokenExpired();
+      }
+
+      throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    }
+
     throw new Error(errorData.message || "Request failed");
   }
 
@@ -127,8 +141,8 @@ class HttpClient {
   ): Promise<{ data: T }> {
     const url = this.buildUrl(endpoint, options?.params);
     const token =
-      typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
-    
+      isClient ? localStorage.getItem("auth_token") : null;
+
     const headers: Record<string, string> = {
       Accept: "application/json",
       ...this.config.headers,
@@ -179,9 +193,14 @@ class HttpClient {
 
   async delete<T>(
     endpoint: string,
+    body?: unknown,
     options?: RequestConfig
   ): Promise<{ data: T }> {
-    return this.request<T>(endpoint, { ...options, method: "DELETE" });
+    return this.request<T>(endpoint, {
+      ...options,
+      method: "DELETE",
+      body: body ? JSON.stringify(body) : undefined,
+    });
   }
 }
 

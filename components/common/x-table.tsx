@@ -530,7 +530,7 @@ const XTableBody = <T,>({
             role="status"
             aria-live="polite"
           >
-            No data found.
+            No results.
           </TableCell>
         </TableRow>
       )}

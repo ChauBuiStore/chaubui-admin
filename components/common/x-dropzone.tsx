@@ -1,7 +1,7 @@
 "use client";
 
 import { useToast } from "@/lib/hooks";
-import { uploadService } from "@/lib/services";
+import { UploadService } from "@/lib/services";
 import { UploadResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
@@ -38,10 +38,10 @@ export function XDropzone({
   const uploadMutation = useMutation({
     mutationFn: async (files: File[]) => {
       if (multiple) {
-        const response = await uploadService.uploadMultiple(files);
+        const response = await UploadService.uploadMultiple(files);
         return Array.isArray(response.data) ? response.data : [response.data];
       } else {
-        const response = await uploadService.uploadSingle(files[0]);
+        const response = await UploadService.uploadSingle(files[0]);
         return [response.data];
       }
     },
@@ -79,7 +79,7 @@ export function XDropzone({
   );
 
   const deleteMutation = useMutation({
-    mutationFn: (fileId: string) => uploadService.delete(fileId),
+    mutationFn: (fileId: string) => UploadService.delete(fileId),
     onSuccess: (_, fileId) => {
       setUploadedFiles((prev) =>
         prev.filter((file) => file.id !== fileId)

@@ -29,7 +29,7 @@ export function ProductsPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl">
-            <PackageIcon className="h-5 w-5" />
+            <PackageIcon className="h-8 w-8" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Product Management</h1>
         </div>

@@ -41,9 +41,9 @@ export function MenusPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
             <MenuIcon className="h-8 w-8" />
-            Menus
+            Menu Management
           </h1>
         </div>
         <div className="flex items-center gap-2">

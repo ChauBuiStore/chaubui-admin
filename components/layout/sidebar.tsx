@@ -26,6 +26,7 @@ import {
   MenuIcon,
   PackageIcon,
   PaletteIcon,
+  RulerIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -47,28 +48,34 @@ interface SidebarSubItem {
 
 const sidebarItems: SidebarItem[] = [
   {
-    title: "Home",
+    title: "Dashboard Management",
     href: "/dashboard",
     icon: HomeIcon,
-    description: "Main Dashboard",
+    description: "Dashboard management",
   },
   {
     title: "Menu Management",
     href: "/menu",
     icon: MenuIcon,
-    description: "Manage menu list",
+    description: "Menu management",
   },
   {
     title: "Color Management",
     href: "/colors",
     icon: PaletteIcon,
-    description: "Manage color list",
+    description: "Color management",
+  },
+  {
+    title: "Size Management",
+    href: "/sizes",
+    icon: RulerIcon,
+    description: "Size management",
   },
   {
     title: "Category Management",
     href: "#",
     icon: FolderIcon,
-    description: "Manage product categories",
+    description: "Category management",
     children: [
       {
         title: "Category Group",
@@ -86,7 +93,7 @@ const sidebarItems: SidebarItem[] = [
     title: "Product Management",
     href: "/products",
     icon: PackageIcon,
-    description: "Manage product list",
+    description: "Product management",
   },
 ];
 
@@ -188,8 +195,8 @@ export function Sidebar({ className }: SidebarProps) {
                           isActive
                             ? "bg-blue-50 text-blue-700 border border-blue-200"
                             : hasActiveChild
-                            ? "bg-slate-50 text-slate-600"
-                            : "hover:bg-slate-50 text-slate-700"
+                              ? "bg-slate-50 text-slate-600"
+                              : "hover:bg-slate-50 text-slate-700"
                         )}
                         onClick={() => toggleExpanded(item.href)}
                       >
@@ -200,8 +207,8 @@ export function Sidebar({ className }: SidebarProps) {
                               isActive
                                 ? "text-blue-600"
                                 : hasActiveChild
-                                ? "text-slate-600"
-                                : "text-slate-600 group-hover:text-slate-800"
+                                  ? "text-slate-600"
+                                  : "text-slate-600 group-hover:text-slate-800"
                             )}
                           />
                           <span
@@ -210,8 +217,8 @@ export function Sidebar({ className }: SidebarProps) {
                               isActive
                                 ? "text-blue-700"
                                 : hasActiveChild
-                                ? "text-slate-600"
-                                : "text-slate-700 group-hover:text-slate-900"
+                                  ? "text-slate-600"
+                                  : "text-slate-700 group-hover:text-slate-900"
                             )}
                           >
                             {item.title}

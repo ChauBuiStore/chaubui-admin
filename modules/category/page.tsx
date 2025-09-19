@@ -42,9 +42,9 @@ export function CategoriesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
             <FolderIcon className="h-8 w-8" />
-            Categories
+            Category Management
           </h1>
         </div>
         <div className="flex items-center gap-2">

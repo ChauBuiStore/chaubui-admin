@@ -41,17 +41,15 @@ export function CategoriesGroupPage() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-            <FolderIcon className="h-6 w-6 sm:h-8 sm:w-8" />
-            <span className="hidden xs:inline">Manage Category Groups</span>
-            <span className="xs:hidden">Category Groups</span>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <FolderIcon className="h-8 w-8" />
+            <span>Category Group Management</span>
           </h1>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={() => setShowCreateForm(true)} className="w-full sm:w-auto">
             <PlusIcon className="h-4 w-4" />
-            <span className="hidden sm:inline">Add Category Group</span>
-            <span className="sm:hidden">Add</span>
+            <span>Add Category Group</span>
           </Button>
         </div>
       </div>

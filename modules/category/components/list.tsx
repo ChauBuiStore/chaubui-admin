@@ -95,8 +95,8 @@ export function CategoriesList({
       onPageSizeChange={onPageSizeChange}
       searchConfig={{
         enabled: true,
-        columnKey: "search",
-        placeholder: "Search Sub categories...",
+        columnKey: "keyword",
+        placeholder: "Search categories...",
       }}
       filterConfig={{
         enabled: false,

@@ -13,6 +13,7 @@ export const ENDPOINTS = {
   },
   CATEGORY: {
     GET_ALL: '/categories',
+    GET_ALL_CATEGORIES: '/categories/all',
     GET_BY_ID: '/categories/:id',
     CREATE: '/categories',
     UPDATE: '/categories/:id',
@@ -21,6 +22,7 @@ export const ENDPOINTS = {
   },
   COLOR: {
     GET_ALL: '/colors',
+    GET_ALL_COLORS: '/colors/all',
     GET_BY_ID: '/colors/:id',
     CREATE: '/colors',
     UPDATE: '/colors/:id',
@@ -34,7 +36,14 @@ export const ENDPOINTS = {
     UPDATE: '/menu/:id',
     DELETE: '/menu/:id',
     BULK_DELETE: '/menu/bulk-delete',
-    TOGGLE_PUBLIC: '/menu/:id/public',
+  },
+  PRODUCT: {
+    GET_ALL: '/product',
+    GET_BY_ID: '/product/:id',
+    CREATE: '/product',
+    UPDATE: '/product/:id',
+    DELETE: '/product/:id',
+    BULK_DELETE: '/product/bulk-delete',
   },
   UPLOAD: {
     UPLOAD: '/upload',

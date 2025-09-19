@@ -1,4 +1,4 @@
-import { CategoriesPage } from "@/modules/categories";
+import { CategoriesPage } from "@/modules/category";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

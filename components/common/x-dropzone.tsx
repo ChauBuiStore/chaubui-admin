@@ -39,10 +39,10 @@ export function XDropzone({
     mutationFn: async (files: File[]) => {
       if (multiple) {
         const response = await UploadService.uploadMultiple(files);
-        return Array.isArray(response.data) ? response.data : [response.data];
+        return response.data?.data || [];
       } else {
         const response = await UploadService.uploadSingle(files[0]);
-        return [response.data];
+        return response.data?.data ? [response.data.data] : [];
       }
     },
     onSuccess: (responses) => {

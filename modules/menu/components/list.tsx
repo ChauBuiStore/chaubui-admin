@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionsConfig, XSwitch, XTable } from "@/components/common";
+import { ActionsConfig, XTable } from "@/components/common";
 import { PaginationMeta } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
@@ -13,7 +13,6 @@ interface MenusListProps {
   onEditMenu: (menu: Menu) => void;
   onDeleteMenu: (menu: Menu) => void;
   onBulkDelete: (selectedMenus: Menu[]) => void;
-  onTogglePublic: (menu: Menu) => void;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   onSearchChange?: (searchTerm: string) => void;
@@ -26,7 +25,6 @@ export function MenusList({
   onEditMenu,
   onDeleteMenu,
   onBulkDelete,
-  onTogglePublic,
   onPageChange,
   onPageSizeChange,
   onSearchChange,
@@ -56,17 +54,6 @@ export function MenusList({
         },
       },
       {
-        accessorKey: "isPublic",
-        header: "Public",
-        cell: ({ row }) => {
-          const menu = row.original;
-          return <XSwitch
-            checked={menu.isPublic}
-            onCheckedChange={() => onTogglePublic(menu)}
-          />
-        },
-      },
-      {
         accessorKey: "createdAt",
         header: "Created Date",
         cell: ({ row }) => {
@@ -75,7 +62,7 @@ export function MenusList({
         },
       },
     ],
-    [onTogglePublic]
+    []
   );
 
   const actionsConfig: ActionsConfig<Menu> = useMemo(
@@ -102,7 +89,7 @@ export function MenusList({
       onPageSizeChange={onPageSizeChange}
       searchConfig={{
         enabled: true,
-        columnKey: "search",
+        columnKey: "keyword",
         placeholder: "Search menu...",
       }}
       filterConfig={{

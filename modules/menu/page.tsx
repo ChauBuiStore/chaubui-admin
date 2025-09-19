@@ -31,7 +31,6 @@ export function MenusPage() {
     handlePageChange,
     handlePageSizeChange,
     handleSearchChange,
-    handleTogglePublic,
   } = useMenu();
 
   const handleCreateMenu = useCallback(() => {
@@ -62,7 +61,6 @@ export function MenusPage() {
         onBulkDelete={handleBulkDelete}
         onEditMenu={handleEditMenu}
         onDeleteMenu={handleDeleteMenu}
-        onTogglePublic={handleTogglePublic}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onSearchChange={handleSearchChange}

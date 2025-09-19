@@ -28,8 +28,8 @@ export function useColor() {
     showError((error as Error).message);
   }
 
-  const colors = colorsData?.data || [];
-  const pagination = colorsData?.meta;
+  const colors = colorsData?.data?.data || [];
+  const pagination = colorsData?.data?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateColorRequest) =>
@@ -80,7 +80,7 @@ export function useColor() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
-  const [editingColor, setEditingColor] = useState<Color | null>(null);
+  const [editingColor, setEditingColor] = useState<Color | undefined>(undefined);
   const [selectedColor, setSelectedColor] = useState<Color | null>(
     null
   );
@@ -92,24 +92,31 @@ export function useColor() {
   };
 
   const handleEditSubmit = async (data: FieldValues) => {
-    if (!editingColor) return;
+    if (!editingColor) {
+      showError("Color ID is missing. Please try again.");
+      return;
+    }
 
-    await updateMutation.mutateAsync({
-      id: editingColor.id,
-      data: data as UpdateColorRequest,
-    });
-    setShowEditForm(false);
-    setEditingColor(null);
+    try {
+      await updateMutation.mutateAsync({
+        id: editingColor.id,
+        data: data as UpdateColorRequest,
+      });
+      setShowEditForm(false);
+      setEditingColor(undefined);
+    } catch (error) {
+      showError((error as Error).message);
+    }
   };
 
   const handleEditColor = (color: Color) => {
-      setEditingColor(color);
+    setEditingColor(color);
     setShowEditForm(true);
   };
 
   const handleDeleteConfirm = async () => {
     try {
-      if (selectedColor && selectedColors.length === 0) {
+      if (selectedColor) {
         await deleteMutation.mutateAsync(selectedColor.id);
       } else if (selectedColors.length > 0) {
         const ids = selectedColors.map((color) => color.id);
@@ -118,7 +125,6 @@ export function useColor() {
 
       setShowDeleteForm(false);
       setSelectedColor(null);
-      setSelectedColors([]);
     } catch (error) {
       showError((error as Error).message);
     }
@@ -141,10 +147,10 @@ export function useColor() {
       setFilter({
         page,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        search: filters.search || ""
+        keyword: filters.keyword || ""
       });
     },
-    [setFilter, filters.search]
+    [setFilter, filters.keyword]
   );
 
   const handlePageSizeChange = useCallback(
@@ -152,16 +158,16 @@ export function useColor() {
       setFilter({
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        search: filters.search || ""
+        keyword: filters.keyword || ""
       });
     },
-    [setFilter, filters.search]
+    [setFilter, filters.keyword]
   );
 
   const handleSearchChange = useCallback(
     (searchTerm: string) => {
       setFilter({
-        search: searchTerm,
+        keyword: searchTerm,
         page: PAGINATION_CONSTANTS.PAGE,
         limit: PAGINATION_CONSTANTS.LIMIT
       });

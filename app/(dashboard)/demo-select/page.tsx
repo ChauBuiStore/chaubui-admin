@@ -3,7 +3,7 @@
 import { XSelectPagination } from "@/components/common";
 import { CategoryService } from "@/lib/services";
 import { PaginatedResponse } from "@/lib/types";
-import { Category } from "@/modules/categories/types/categories.type";
+import { Category } from "@/modules/category/types/categories.type";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 
@@ -31,10 +31,11 @@ export default function DemoSelectPage() {
   } = useInfiniteQuery<PaginatedResponse<Category>>({
     queryKey: ["categories", { limit: itemsPerPage }],
     queryFn: async ({ pageParam = 1 }) => {
-      return CategoryService.getCategories({
+      const response = await CategoryService.getCategories({
         page: pageParam as number,
         limit: itemsPerPage,
       });
+      return response.data!;
     },
     initialPageParam: 1,
     getNextPageParam,

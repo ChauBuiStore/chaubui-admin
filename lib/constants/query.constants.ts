@@ -4,4 +4,5 @@ export const QUERY_KEYS = {
   COLORS: "colors",
   MENU: "menu",
   PRODUCTS: "products",
+  SIZES: "sizes",
 };

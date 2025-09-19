@@ -45,6 +45,14 @@ export const ENDPOINTS = {
     DELETE: '/product/:id',
     BULK_DELETE: '/product/bulk-delete',
   },
+  SIZE: {
+    GET_ALL: '/size',
+    GET_BY_ID: '/size/:id',
+    CREATE: '/size',
+    UPDATE: '/size/:id',
+    DELETE: '/size/:id',
+    BULK_DELETE: '/size/bulk-delete',
+  },
   UPLOAD: {
     UPLOAD: '/upload',
     DELETE: '/upload/:id',

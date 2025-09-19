@@ -15,14 +15,6 @@ export function useBreadcrumb(): BreadcrumbItem[] {
   return useMemo(() => {
     const segments = pathname.split("/").filter(Boolean);
 
-    if (segments.length === 0) {
-      return [{ label: "Home", href: "/", isActive: true }];
-    }
-
-    if (segments.length === 1 && segments[0] === "dashboard") {
-      return [{ label: "Home", href: "/dashboard", isActive: true }];
-    }
-
     const breadcrumbs: BreadcrumbItem[] = [];
     let currentPath = "";
 
@@ -30,15 +22,14 @@ export function useBreadcrumb(): BreadcrumbItem[] {
       currentPath += `/${segment}`;
       const isLast = index === segments.length - 1;
 
-      if (segment === "dashboard") return;
-
       const labelMap: Record<string, string> = {
-        categories: "Categories",
-        "categories-group": "Category Groups",
-        colors: "Colors",
-        products: "Products",
-        add: "Add",
-        edit: "Edit",
+        dashboard: "Dashboard Management",
+        categories: "Category Management",
+        "categories-group": "Category Group Management",
+        colors: "Color Management",
+        menu: "Menu Management",
+        sizes: "Size Management",
+        products: "Product Management",
       };
 
       const label =

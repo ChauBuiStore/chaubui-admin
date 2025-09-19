@@ -91,8 +91,8 @@ export default function DashboardPageRoot() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Dashboard
+          <h1 className="text-2xl font-bold text-gray-900">
+            Dashboard Management
           </h1>
           <p className="text-gray-600 mt-1 text-sm sm:text-base">
             Product management system overview
@@ -219,13 +219,12 @@ export default function DashboardPageRoot() {
               {recentActivities.map((activity) => (
                 <div key={activity.id} className="flex items-start space-x-3">
                   <div
-                    className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                      activity.status === "success"
-                        ? "bg-green-500"
-                        : activity.status === "warning"
+                    className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${activity.status === "success"
+                      ? "bg-green-500"
+                      : activity.status === "warning"
                         ? "bg-yellow-500"
                         : "bg-blue-500"
-                    }`}
+                      }`}
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs sm:text-sm text-gray-900 line-clamp-2">

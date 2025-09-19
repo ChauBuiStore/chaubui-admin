@@ -107,8 +107,8 @@ export function CategoriesGroupList({
       onPageSizeChange={onPageSizeChange}
       searchConfig={{
         enabled: true,
-        columnKey: "search",
-        placeholder: "Search categories...",
+        columnKey: "keyword",
+        placeholder: "Search category groups...",
       }}
       filterConfig={{
         enabled: false,

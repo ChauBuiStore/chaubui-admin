@@ -1,4 +1,4 @@
-import { CategoriesGroupPage } from "@/modules/categories-group/page";
+import { CategoriesGroupPage } from "@/modules/category-group/page";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

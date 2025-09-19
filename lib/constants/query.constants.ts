@@ -3,4 +3,5 @@ export const QUERY_KEYS = {
   CATEGORY_GROUPS: "category-groups",
   COLORS: "colors",
   MENU: "menu",
+  PRODUCTS: "products",
 };

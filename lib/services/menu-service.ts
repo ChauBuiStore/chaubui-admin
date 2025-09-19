@@ -1,5 +1,5 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
-import { PaginatedResponse } from "@/lib/types";
+import { PaginatedResponse, ApiResponse } from "@/lib/types";
 import {
   CreateMenuData,
   Menu,
@@ -10,49 +10,44 @@ import {
 class MenuService {
   static async getMenus(
     filters?: MenuFilters
-  ): Promise<PaginatedResponse<Menu>> {
+  ): Promise<ApiResponse<PaginatedResponse<Menu>>> {
     const response = await httpClient.get<PaginatedResponse<Menu>>(
       ENDPOINTS.MENU.GET_ALL,
       {
         params: filters,
       }
     );
-    return response.data;
+    return response;
   }
 
-  static async getMenuById(id: string): Promise<Menu> {
+  static async getMenuById(id: string): Promise<ApiResponse<Menu>> {
     const response = await httpClient.get<Menu>(
       ENDPOINTS.MENU.GET_BY_ID.replace(":id", id)
     );
-    return response.data;
+    return response;
   }
 
-  static async createMenu(data: CreateMenuData): Promise<Menu> {
+  static async createMenu(data: CreateMenuData): Promise<ApiResponse<Menu>> {
     const response = await httpClient.post<Menu>(ENDPOINTS.MENU.CREATE, data);
-    return response.data;
+    return response;
   }
 
-  static async updateMenu(id: string, data: UpdateMenuData): Promise<Menu> {
+  static async updateMenu(id: string, data: UpdateMenuData): Promise<ApiResponse<Menu>> {
     const response = await httpClient.put<Menu>(
       ENDPOINTS.MENU.UPDATE.replace(":id", id),
       data
     );
-    return response.data;
+    return response;
   }
 
-  static async deleteMenu(id: string): Promise<void> {
-    await httpClient.delete<void>(ENDPOINTS.MENU.DELETE.replace(":id", id));
+  static async deleteMenu(id: string): Promise<ApiResponse<void>> {
+    const response = await httpClient.delete<void>(ENDPOINTS.MENU.DELETE.replace(":id", id));
+    return response;
   }
 
-  static async bulkDeleteMenus(ids: string[]): Promise<void> {
-    await httpClient.delete<void>(ENDPOINTS.MENU.BULK_DELETE, { ids });
-  }
-
-  static async togglePublicMenu(id: string): Promise<Menu> {
-    const response = await httpClient.patch<Menu>(
-      ENDPOINTS.MENU.TOGGLE_PUBLIC.replace(":id", id)
-    );
-    return response.data;
+  static async bulkDeleteMenus(ids: string[]): Promise<ApiResponse<void>> {
+    const response = await httpClient.delete<void>(ENDPOINTS.MENU.BULK_DELETE, { ids });
+    return response;
   }
 }
 

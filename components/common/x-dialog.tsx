@@ -36,7 +36,7 @@ export type DialogVariant =
   | "warning"
   | "error"
   | "info";
-export type DialogSize = "sm" | "md" | "lg" | "xl" | "full";
+export type DialogSize = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "full";
 
 interface XDialogAction {
   label: string;
@@ -95,6 +95,8 @@ const sizeStyles = {
   md: "max-w-md",
   lg: "max-w-lg",
   xl: "max-w-xl",
+  "2xl": "max-w-2xl",
+  "3xl": "max-w-3xl",
   full: "max-w-[95vw] h-[95vh]",
 } as const;
 

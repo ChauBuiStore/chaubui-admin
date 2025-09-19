@@ -1,42 +1,74 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/lib/hooks';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { useToast } from '@/lib/hooks/use-toast';
-import { isTokenValid } from '@/lib/utils/token-validation';
+import { useAuth } from "@/lib/hooks";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { useToast } from "@/lib/hooks/use-toast";
+import { isTokenValid } from "@/lib/utils/token-validation";
 
 interface AuthGuardProps {
   children: React.ReactNode;
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, logoutSilently } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const { error } = useToast();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      // Check if token was removed due to expiration
-      const token = localStorage.getItem("auth_token");
-      if (!token) {
-        error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-      }
-      router.replace('/login');
-    }
-  }, [isAuthenticated, isLoading, router, error]);
+    const checkAuth = () => {
+      if (!isLoading) {
+        const token = localStorage.getItem("auth_token");
 
-  // Additional check for token validity even if it exists
+        if (!token) {
+          if (isAuthenticated) {
+            error("Your session has expired. Please login again.");
+          }
+          router.replace("/login");
+          return;
+        }
+
+        if (!isTokenValid(token)) {
+          error("Invalid or expired token. Please login again.");
+          logoutSilently();
+          router.replace("/login");
+          return;
+        }
+      }
+    };
+
+    checkAuth();
+
+    const interval = setInterval(checkAuth, 30000);
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "auth_token") {
+        checkAuth();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [isAuthenticated, isLoading, router, error, logoutSilently]);
+
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
+    if (!isLoading && pathname) {
       const token = localStorage.getItem("auth_token");
-      if (token && !isTokenValid(token)) {
-        error("Token không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.");
-        localStorage.removeItem("auth_token");
-        router.replace('/login');
+
+      if (!token || !isTokenValid(token)) {
+        if (token && !isTokenValid(token)) {
+          error("Invalid or expired token. Please login again.");
+          logoutSilently();
+        }
+        router.replace("/login");
       }
     }
-  }, [isAuthenticated, isLoading, router, error]);
+  }, [pathname, isLoading, router, error, logoutSilently]);
 
   if (isLoading) {
     return (
@@ -52,4 +84,3 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   return <>{children}</>;
 }
-

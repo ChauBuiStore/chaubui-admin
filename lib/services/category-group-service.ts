@@ -1,16 +1,16 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
-import { PaginatedResponse } from "@/lib/types";
+import { PaginatedResponse, ApiResponse } from "@/lib/types";
 import {
   CategoryGroup,
   CategoryGroupFilters,
   CreateCategoryGroupData,
   UpdateCategoryGroupData,
-} from "@/modules/categories-group/types";
+} from "@/modules/category-group/types";
 
 class CategoryGroupService {
   static async getCategoryGroups(
     filters?: CategoryGroupFilters
-  ): Promise<PaginatedResponse<CategoryGroup>> {
+  ): Promise<ApiResponse<PaginatedResponse<CategoryGroup>>> {
     const response = await httpClient.get<PaginatedResponse<CategoryGroup>>(
       ENDPOINTS.CATEGORY_GROUP.GET_ALL,
       {
@@ -18,40 +18,42 @@ class CategoryGroupService {
       }
     );
 
-    return response.data;
+    return response;
   }
 
   static async createCategoryGroup(
     data: CreateCategoryGroupData
-  ): Promise<CategoryGroup> {
+  ): Promise<ApiResponse<CategoryGroup>> {
     const response = await httpClient.post<CategoryGroup>(
       ENDPOINTS.CATEGORY_GROUP.CREATE,
       data
     );
-    return response.data;
+    return response;
   }
 
   static async updateCategoryGroup(
     id: string,
     data: UpdateCategoryGroupData
-  ): Promise<CategoryGroup> {
+  ): Promise<ApiResponse<CategoryGroup>> {
     const response = await httpClient.put<CategoryGroup>(
       ENDPOINTS.CATEGORY_GROUP.UPDATE.replace(":id", id),
       data
     );
-    return response.data;
+    return response;
   }
 
-  static async deleteCategoryGroup(id: string): Promise<void> {
-    await httpClient.delete<void>(
+  static async deleteCategoryGroup(id: string): Promise<ApiResponse<void>> {
+    const response = await httpClient.delete<void>(
       ENDPOINTS.CATEGORY_GROUP.DELETE.replace(":id", id)
     );
+    return response;
   }
 
-  static async bulkDeleteCategoryGroups(ids: string[]): Promise<void> {
-    await httpClient.delete<void>(ENDPOINTS.CATEGORY_GROUP.BULK_DELETE, {
+  static async bulkDeleteCategoryGroups(ids: string[]): Promise<ApiResponse<void>> {
+    const response = await httpClient.delete<void>(ENDPOINTS.CATEGORY_GROUP.BULK_DELETE, {
       ids,
     });
+    return response;
   }
 }
 

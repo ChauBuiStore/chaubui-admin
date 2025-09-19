@@ -11,11 +11,11 @@ export function useCategoryGroup() {
   const { success, error: showError } = useToast();
 
   const { filters, setFilter } = useSearchParams({
-    search: undefined,
+    keyword: undefined,
   });
 
   const {
-    data: categoriesGroupData,
+    data: categoryGroupData,
     error,
     isLoading,
   } = useQuery({
@@ -27,8 +27,8 @@ export function useCategoryGroup() {
     showError((error as Error).message);
   }
 
-  const categoriesGroup = categoriesGroupData?.data || [];
-  const meta = categoriesGroupData?.meta;
+  const categoriesGroup = categoryGroupData?.data?.data || [];
+  const meta = categoryGroupData?.data?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateCategoryGroupData) =>
@@ -176,21 +176,21 @@ export function useCategoryGroup() {
     setFilter({
       page,
       limit: PAGINATION_CONSTANTS.LIMIT,
-      search: filters.search || undefined
+      keyword: filters.keyword || undefined
     });
-  }, [setFilter, filters.search]);
+  }, [setFilter, filters.keyword]);
 
   const handlePageSizeChange = useCallback((pageSize: number) => {
     setFilter({
       page: PAGINATION_CONSTANTS.PAGE,
       limit: pageSize,
-      search: filters.search || undefined
+      keyword: filters.keyword || undefined
     });
-  }, [setFilter, filters.search]);
+  }, [setFilter, filters.keyword]);
 
   const handleSearchChange = useCallback((searchTerm: string) => {
     setFilter({
-      search: searchTerm,
+      keyword: searchTerm,
       page: PAGINATION_CONSTANTS.PAGE,
       limit: PAGINATION_CONSTANTS.LIMIT
     });

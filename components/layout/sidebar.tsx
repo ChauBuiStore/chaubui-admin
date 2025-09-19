@@ -53,40 +53,40 @@ const sidebarItems: SidebarItem[] = [
     description: "Main Dashboard",
   },
   {
-    title: "Manages Menus",
+    title: "Menu Management",
     href: "/menu",
     icon: MenuIcon,
-    description: "Manages menu list",
+    description: "Manage menu list",
   },
   {
-    title: "Manages Colors",
+    title: "Color Management",
     href: "/colors",
     icon: PaletteIcon,
-    description: "Manages color list",
+    description: "Manage color list",
   },
   {
-    title: "Manages Categories",
+    title: "Category Management",
     href: "#",
     icon: FolderIcon,
-    description: "Manages product categories",
+    description: "Manage product categories",
     children: [
       {
-        title: "Category Groups",
+        title: "Category Group",
         href: "/categories-group",
         icon: FolderOpenIcon,
       },
       {
-        title: "Categories",
+        title: "Category",
         href: "/categories",
         icon: FolderTreeIcon,
       },
     ],
   },
   {
-    title: "Manages Products",
+    title: "Product Management",
     href: "/products",
     icon: PackageIcon,
-    description: "Manages product list",
+    description: "Manage product list",
   },
 ];
 

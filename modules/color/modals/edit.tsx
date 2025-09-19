@@ -75,13 +75,14 @@ export function EditColor({
             <FormField
               control={form.control}
               name="code"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel>Color Code *</FormLabel>
                   <FormControl>
                     <XColorPicker
                       value={field.value}
                       onChange={(color) => field.onChange(color)}
+                      hasError={!!fieldState.error}
                     />
                   </FormControl>
                   <FormMessage />

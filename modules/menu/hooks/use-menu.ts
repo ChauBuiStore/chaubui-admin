@@ -12,7 +12,7 @@ export function useMenu() {
   const queryClient = useQueryClient();
   const { success, error: showError } = useToast();
   const { filters, setFilter } = useSearchParams({
-    search: undefined,
+    keyword: undefined,
   });
 
   const {
@@ -28,8 +28,8 @@ export function useMenu() {
     showError((error as Error).message);
   }
 
-  const menus = menusData?.data || [];
-  const pagination = menusData?.meta;
+  const menus = menusData?.data?.data || [];
+  const pagination = menusData?.data?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateMenuData) =>
@@ -55,17 +55,6 @@ export function useMenu() {
     },
   });
 
-  const togglePublicMutation = useMutation({
-    mutationFn: (id: string) => MenuService.togglePublicMenu(id),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
-      success("Menu status updated successfully!");
-      return data;
-    },
-    onError: (error) => {
-      showError((error as Error).message);
-    },
-  });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => MenuService.deleteMenu(id),
@@ -136,18 +125,6 @@ export function useMenu() {
     }
   };
 
-  const handleTogglePublic = useCallback(
-    async (menu: Menu): Promise<Menu | null> => {
-      try {
-        const data = await togglePublicMutation.mutateAsync(menu.id);
-        return data;
-      } catch (error) {
-        showError((error as Error).message);  
-        return menu;
-      }
-    },
-    [togglePublicMutation, showError]
-  );
 
   const handleDeleteMenu = (menu: Menu) => {
     setSelectedMenu(menu);
@@ -166,10 +143,10 @@ export function useMenu() {
       setFilter({
         page,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        search: filters.search || ""
+        keyword: filters.keyword || ""
       });
     },
-    [setFilter, filters.search]
+    [setFilter, filters.keyword]
   );
 
   const handlePageSizeChange = useCallback(
@@ -177,16 +154,16 @@ export function useMenu() {
       setFilter({
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        search: filters.search || ""
+        keyword: filters.keyword || ""
       });
     },
-    [setFilter, filters.search]
+    [setFilter, filters.keyword]
   );
 
   const handleSearchChange = useCallback(
     (searchTerm: string) => {
       setFilter({
-        search: searchTerm,
+        keyword: searchTerm,
         page: PAGINATION_CONSTANTS.PAGE,
         limit: PAGINATION_CONSTANTS.LIMIT
       });
@@ -212,8 +189,7 @@ export function useMenu() {
       createMutation.isPending ||
       updateMutation.isPending ||
       deleteMutation.isPending ||
-      bulkDeleteMutation.isPending ||
-      togglePublicMutation.isPending,
+      bulkDeleteMutation.isPending,
     handleCreateSubmit,
     handleEditSubmit,
     handleEditMenu,
@@ -223,6 +199,5 @@ export function useMenu() {
     handlePageChange,
     handlePageSizeChange,
     handleSearchChange,
-    handleTogglePublic,
   };
 }

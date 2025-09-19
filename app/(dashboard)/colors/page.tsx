@@ -1,4 +1,4 @@
-import { ColorsPage } from "@/modules/colors";
+import { ColorsPage } from "@/modules/color";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

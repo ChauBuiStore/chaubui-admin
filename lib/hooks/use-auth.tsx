@@ -2,7 +2,8 @@
 
 import { httpClient } from "@/lib/configs";
 import { AuthService } from "@/lib/services";
-import { AuthResponse, LoginCredentials } from "@/lib/types";
+import { ApiResponse, AuthResponse, LoginCredentials } from "@/lib/types";
+import { isTokenValid } from "@/lib/utils/token-validation";
 import {
   createContext,
   ReactNode,
@@ -15,8 +16,8 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<AuthResponse>;
-  logout: () => Promise<{ message: string }>;
+  login: (credentials: LoginCredentials) => Promise<ApiResponse<AuthResponse>>;
+  logout: () => Promise<ApiResponse<{ message: string }>>;
   logoutSilently: () => void;
 }
 
@@ -36,7 +37,12 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
       try {
         const storedToken = localStorage.getItem("auth_token");
         if (storedToken) {
-          setToken(storedToken);
+          const isValid = isTokenValid(storedToken);
+          if (isValid) {
+            setToken(storedToken);
+          } else {
+            localStorage.removeItem("auth_token");
+          }
         }
       } catch {
       } finally {
@@ -61,12 +67,12 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
 
   const login = async (
     credentials: LoginCredentials
-  ): Promise<AuthResponse> => {
+  ): Promise<ApiResponse<AuthResponse>> => {
     setIsLoading(true);
     try {
-      const result = (await AuthService.login(credentials)) as AuthResponse;
+      const result = await AuthService.login(credentials);
 
-      if (result.data.accessToken) {
+      if (result.status === 'success' && result.data?.accessToken) {
         setToken(result.data.accessToken);
         localStorage.setItem("auth_token", result.data.accessToken);
       }
@@ -77,7 +83,7 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
     }
   };
 
-  const logout = async (): Promise<{ message: string }> => {
+  const logout = async (): Promise<ApiResponse<{ message: string }>> => {
     setIsLoading(true);
     try {
       const result = await AuthService.logout();

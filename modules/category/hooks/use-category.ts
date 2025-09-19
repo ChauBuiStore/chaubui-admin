@@ -11,7 +11,7 @@ export function useCategory() {
   const { success, error: showError } = useToast();
 
   const { filters, setFilter } = useSearchParams({
-    search: undefined,
+    keyword: undefined,
   });
 
   const {
@@ -32,9 +32,9 @@ export function useCategory() {
     showError((error as Error).message);
   }
 
-  const categories = categoriesData?.data || [];
-  const categoryGroups = categoryGroupsData?.data || [];
-  const pagination = categoriesData?.meta;
+  const categories = categoriesData?.data?.data || [];
+  const categoryGroups = categoryGroupsData?.data?.data || [];
+  const pagination = categoriesData?.data?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateCategoryData) =>
@@ -150,10 +150,10 @@ export function useCategory() {
       setFilter({
         page,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        search: filters.search || ""
+        keyword: filters.keyword || ""
       });
     },
-    [setFilter, filters.search]
+    [setFilter, filters.keyword]
   );
 
   const handlePageSizeChange = useCallback(
@@ -161,16 +161,16 @@ export function useCategory() {
       setFilter({
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        search: filters.search || ""
+        keyword: filters.keyword || ""
       });
     },
-    [setFilter, filters.search]
+    [setFilter, filters.keyword]
   );
 
   const handleSearchChange = useCallback(
     (searchTerm: string) => {
       setFilter({
-        search: searchTerm,
+        keyword: searchTerm,
         page: PAGINATION_CONSTANTS.PAGE,
         limit: PAGINATION_CONSTANTS.LIMIT
       });

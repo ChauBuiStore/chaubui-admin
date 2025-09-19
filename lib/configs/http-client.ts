@@ -1,9 +1,11 @@
 import { env, isClient } from "./env";
+import { ApiResponse, ApiErrorResponse } from "@/lib/types/response.type";
 
 interface HttpClientConfig {
   baseURL: string;
   headers?: Record<string, string>;
   onTokenExpired?: () => void;
+  timeout?: number;
 }
 
 interface RequestConfig extends RequestInit {
@@ -37,9 +39,13 @@ class HttpClient {
     return url;
   }
 
+  private getToken(): string | null {
+    return typeof isClient ? localStorage.getItem("auth_token") : null;
+  }
+
   private getAuthHeaders(): Record<string, string> {
-    const token =
-      isClient ? localStorage.getItem("auth_token") : null;
+    const token = this.getToken();
+
     return {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -48,14 +54,34 @@ class HttpClient {
     };
   }
 
+  private getFormDataHeaders(): Record<string, string> {
+    const token = this.getToken();
+
+    return {
+      Accept: "application/json",
+      ...this.config.headers,
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+  }
+
   private async parseErrorResponse(response: Response): Promise<never> {
-    let errorData;
+    let errorData: ApiErrorResponse;
     try {
       const text = await response.text();
-      errorData = text ? JSON.parse(text) : {};
+      if (text) {
+        errorData = JSON.parse(text) as ApiErrorResponse;
+      } else {
+        errorData = {
+          message: `HTTP ${response.status}: ${response.statusText}`,
+          status: 'error' as const,
+          statusCode: response.status
+        };
+      }
     } catch {
       errorData = {
         message: `HTTP ${response.status}: ${response.statusText}`,
+        status: 'error' as const,
+        statusCode: response.status
       };
     }
 
@@ -68,7 +94,7 @@ class HttpClient {
         this.config.onTokenExpired();
       }
 
-      throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      throw new Error("Unauthorized");
     }
 
     throw new Error(errorData.message || "Request failed");
@@ -76,19 +102,30 @@ class HttpClient {
 
   private async parseSuccessResponse<T>(
     response: Response
-  ): Promise<{ data: T }> {
+  ): Promise<ApiResponse<T>> {
     if (response.status === 204 || response.status === 205) {
-      return { data: null as T };
+      return {
+        message: "Success",
+        status: "success",
+        statusCode: response.status,
+        data: null as T
+      };
     }
 
     const text = await response.text();
     if (!text) {
-      return { data: null as T };
+      return {
+        message: "Success",
+        status: "success",
+        statusCode: response.status,
+        data: null as T
+      };
     }
 
     try {
-      const data = JSON.parse(text);
-      return { data };
+      const parsedData = JSON.parse(text);
+
+      return parsedData as ApiResponse<T>;
     } catch {
       throw new Error("Invalid JSON response from server");
     }
@@ -97,28 +134,46 @@ class HttpClient {
   private async request<T>(
     endpoint: string,
     options: RequestConfig = {}
-  ): Promise<{ data: T }> {
+  ): Promise<ApiResponse<T>> {
     const url = this.buildUrl(endpoint, options.params);
     const headers = { ...this.getAuthHeaders(), ...options.headers };
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { params: _params, ...fetchOptions } = options;
 
-    const response = await fetch(url, {
-      ...fetchOptions,
-      headers,
-    });
+    const timeout = this.config.timeout || 10000;
 
-    if (!response.ok) {
-      await this.parseErrorResponse(response);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const response = await fetch(url, {
+        ...fetchOptions,
+        headers,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        await this.parseErrorResponse(response);
+      }
+
+      return this.parseSuccessResponse<T>(response);
+    } catch (error) {
+      clearTimeout(timeoutId);
+
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
+
+      throw error;
     }
-
-    return this.parseSuccessResponse<T>(response);
   }
 
   async get<T>(
     endpoint: string,
     options?: RequestConfig
-  ): Promise<{ data: T }> {
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { ...options, method: "GET" });
   }
 
@@ -126,7 +181,7 @@ class HttpClient {
     endpoint: string,
     body?: unknown,
     options?: RequestConfig
-  ): Promise<{ data: T }> {
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       ...options,
       method: "POST",
@@ -138,40 +193,50 @@ class HttpClient {
     endpoint: string,
     formData: FormData,
     options?: RequestConfig
-  ): Promise<{ data: T }> {
+  ): Promise<ApiResponse<T>> {
     const url = this.buildUrl(endpoint, options?.params);
-    const token =
-      isClient ? localStorage.getItem("auth_token") : null;
-
-    const headers: Record<string, string> = {
-      Accept: "application/json",
-      ...this.config.headers,
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options?.headers,
-    };
+    const headers = { ...this.getFormDataHeaders(), ...options?.headers };
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { params: _params, ...fetchOptions } = options || {};
 
-    const response = await fetch(url, {
-      ...fetchOptions,
-      method: "POST",
-      body: formData,
-      headers,
-    });
+    const timeout = this.config.timeout || 10000;
 
-    if (!response.ok) {
-      await this.parseErrorResponse(response);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const response = await fetch(url, {
+        ...fetchOptions,
+        method: "POST",
+        body: formData,
+        headers,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        await this.parseErrorResponse(response);
+      }
+
+      return this.parseSuccessResponse<T>(response);
+    } catch (error) {
+      clearTimeout(timeoutId);
+
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
+
+      throw error;
     }
-
-    return this.parseSuccessResponse<T>(response);
   }
 
   async put<T>(
     endpoint: string,
     body?: unknown,
     options?: RequestConfig
-  ): Promise<{ data: T }> {
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       ...options,
       method: "PUT",
@@ -183,7 +248,7 @@ class HttpClient {
     endpoint: string,
     body?: unknown,
     options?: RequestConfig
-  ): Promise<{ data: T }> {
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       ...options,
       method: "PATCH",
@@ -195,7 +260,7 @@ class HttpClient {
     endpoint: string,
     body?: unknown,
     options?: RequestConfig
-  ): Promise<{ data: T }> {
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       ...options,
       method: "DELETE",

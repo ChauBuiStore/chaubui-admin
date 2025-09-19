@@ -49,11 +49,11 @@ export function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: authLogin,
     onSuccess: (result) => {
-      if (result.data.accessToken) {
-        success("Login successful");
+      if (result.status === 'success' && result.data?.accessToken) {
+        success(result.message || "Login successful");
         router.push("/dashboard");
       } else {
-        error("Login failed");
+        error(result.message || "Login failed");
       }
     },
     onError: (err) => {

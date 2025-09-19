@@ -192,9 +192,8 @@ export function XFilter({
             }}
             onSearch={(value) => {
               finalSetFilter(searchConfig.columnKey, value);
-              finalSetFilter("page", "1"); // Reset to page 1 when searching
+              finalSetFilter("page", "1");
               onSearchChange?.(value);
-              // Update tempFilterValues to match the search result
               setTempFilterValues((prev) => ({
                 ...prev,
                 [searchConfig.columnKey]: value,

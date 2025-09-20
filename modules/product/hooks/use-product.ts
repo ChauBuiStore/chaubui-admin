@@ -26,13 +26,13 @@ export function useProduct() {
   });
 
   const { data: categoriesData } = useQuery({
-    queryKey: [QUERY_KEYS.CATEGORIES, filters],
-    queryFn: () => CategoryService.getAllCategories(),
+    queryKey: [QUERY_KEYS.CATEGORIES_ALL],
+    queryFn: () => CategoryService.getCategories(),
   });
 
   const { data: colorsData } = useQuery({
-    queryKey: [QUERY_KEYS.COLORS, filters],
-    queryFn: () => ColorService.getAllColors(),
+    queryKey: [QUERY_KEYS.COLORS_ALL],
+    queryFn: () => ColorService.getColors(),
   });
 
   if (error) {

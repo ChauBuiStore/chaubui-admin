@@ -13,7 +13,6 @@ export const ENDPOINTS = {
   },
   CATEGORY: {
     GET_ALL: '/categories',
-    GET_ALL_CATEGORIES: '/categories/all',
     GET_BY_ID: '/categories/:id',
     CREATE: '/categories',
     UPDATE: '/categories/:id',
@@ -22,7 +21,6 @@ export const ENDPOINTS = {
   },
   COLOR: {
     GET_ALL: '/colors',
-    GET_ALL_COLORS: '/colors/all',
     GET_BY_ID: '/colors/:id',
     CREATE: '/colors',
     UPDATE: '/colors/:id',

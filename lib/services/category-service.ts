@@ -20,13 +20,6 @@ class CategoryService {
     return response;
   }
 
-  static async getAllCategories(
-  ): Promise<ApiResponse<Category[]>> {
-    const response = await httpClient.get<Category[]>(
-      ENDPOINTS.CATEGORY.GET_ALL_CATEGORIES,
-    );
-    return response;
-  }
 
   static async getCategoryById(id: string): Promise<ApiResponse<Category>> {
     const response = await httpClient.get<Category>(

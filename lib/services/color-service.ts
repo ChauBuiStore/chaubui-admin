@@ -20,10 +20,6 @@ class ColorService {
     return response;
   }
 
-  static async getAllColors(): Promise<ApiResponse<Color[]>> {
-    const response = await httpClient.get<Color[]>(ENDPOINTS.COLOR.GET_ALL_COLORS);
-    return response;
-  }
 
   static async getColorById(id: string): Promise<ApiResponse<Color>> {
     const response = await httpClient.get<Color>(

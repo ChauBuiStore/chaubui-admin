@@ -39,10 +39,10 @@ export function XDropzone({
     mutationFn: async (files: File[]) => {
       if (multiple) {
         const response = await UploadService.uploadMultiple(files);
-        return response.data?.data || [];
+        return response.data || [];
       } else {
         const response = await UploadService.uploadSingle(files[0]);
-        return response.data?.data ? [response.data.data] : [];
+        return response.data ? [response.data] : [];
       }
     },
     onSuccess: (responses) => {
@@ -51,7 +51,7 @@ export function XDropzone({
       } else {
         setUploadedFiles(responses);
       }
-      
+
       onUploadSuccess?.(responses);
       success(`Successfully uploaded ${responses.length} file${responses.length > 1 ? 's' : ''}`);
     },
@@ -71,7 +71,7 @@ export function XDropzone({
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       if (acceptedFiles.length === 0) return;
-      
+
       const filesToUpload = multiple ? acceptedFiles : acceptedFiles.slice(0, 1);
       await handleUpload(filesToUpload);
     },
@@ -108,7 +108,7 @@ export function XDropzone({
 
   const renderSingleModePreview = () => {
     if (uploadedFiles.length === 0) return null;
-    
+
     const file = uploadedFiles[0];
     return (
       <div className="relative group">
@@ -138,7 +138,7 @@ export function XDropzone({
 
   const renderMultipleModePreviews = () => {
     if (uploadedFiles.length === 0) return null;
-    
+
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {uploadedFiles.map((file, index) => (
@@ -186,7 +186,7 @@ export function XDropzone({
         )}
       >
         <Input {...getInputProps()} />
-        
+
         {!multiple && uploadedFiles.length > 0 ? (
           renderSingleModePreview()
         ) : (
@@ -208,12 +208,12 @@ export function XDropzone({
                 </p>
               </>
             )}
-            
+
             <p className="text-xs text-gray-500">
               PNG, JPG, JPEG, GIF, WEBP up to {maxSize}MB each
             </p>
             <p className="text-xs text-gray-500">
-              {multiple 
+              {multiple
                 ? `Maximum ${maxFiles} images to upload`
                 : "Single image upload only"
               }

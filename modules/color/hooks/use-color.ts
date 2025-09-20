@@ -28,8 +28,8 @@ export function useColor() {
     showError((error as Error).message);
   }
 
-  const colors = colorsData?.data?.data || [];
-  const pagination = colorsData?.data?.meta;
+  const colors = colorsData?.data || [];
+  const pagination = colorsData?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateColorRequest) =>

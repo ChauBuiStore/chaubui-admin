@@ -32,9 +32,9 @@ export function useCategory() {
     showError((error as Error).message);
   }
 
-  const categories = categoriesData?.data?.data || [];
-  const categoryGroups = categoryGroupsData?.data?.data || [];
-  const pagination = categoriesData?.data?.meta;
+  const categories = categoriesData?.data || [];
+  const categoryGroups = categoryGroupsData?.data || [];
+  const pagination = categoriesData?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateCategoryData) =>

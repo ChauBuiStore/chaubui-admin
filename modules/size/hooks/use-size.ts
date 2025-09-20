@@ -30,8 +30,8 @@ export function useSize() {
     showError((error as Error).message);
   }
 
-  const sizes = sizesData?.data?.data || [];
-  const pagination = sizesData?.data?.meta;
+  const sizes = sizesData?.data || [];
+  const pagination = sizesData?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateSizeData) =>

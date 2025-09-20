@@ -2,7 +2,7 @@
 
 import { XSelectPagination } from "@/components/common";
 import { CategoryService } from "@/lib/services";
-import { PaginatedResponse } from "@/lib/types";
+import { ApiResponse } from "@/lib/types";
 import { Category } from "@/modules/category/types/categories.type";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
@@ -14,8 +14,9 @@ export default function DemoSelectPage() {
   >([]);
   const itemsPerPage = 10;
 
-  const getNextPageParam = (lastPage: PaginatedResponse<Category>) => {
+  const getNextPageParam = (lastPage: ApiResponse<Category[]>) => {
     const { meta } = lastPage;
+    if (!meta) return undefined;
     return meta.page < (meta.totalPages || Math.ceil(meta.total / meta.limit))
       ? meta.page + 1
       : undefined;
@@ -28,20 +29,20 @@ export default function DemoSelectPage() {
     isFetchingNextPage,
     isLoading,
     error,
-  } = useInfiniteQuery<PaginatedResponse<Category>>({
+  } = useInfiniteQuery<ApiResponse<Category[]>>({
     queryKey: ["categories", { limit: itemsPerPage }],
     queryFn: async ({ pageParam = 1 }) => {
       const response = await CategoryService.getCategories({
         page: pageParam as number,
         limit: itemsPerPage,
       });
-      return response.data!;
+      return response;
     },
     initialPageParam: 1,
     getNextPageParam,
   });
 
-  const categories = data?.pages.flatMap((page) => page.data) || [];
+  const categories = data?.pages.flatMap((page) => page.data || []) || [];
 
   const categoryOptions = categories.map((category) => ({
     value: category.id,

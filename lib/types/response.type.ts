@@ -1,8 +1,11 @@
+import { PaginationMeta } from './pagination.type';
+
 export interface ApiResponse<T = unknown> {
   message: string;
   status: 'success' | 'error';
   statusCode: number;
   data?: T;
+  meta?: PaginationMeta;
 }
 
 export interface ApiErrorResponse {
@@ -11,3 +14,4 @@ export interface ApiErrorResponse {
   statusCode: number;
   errors?: Record<string, string[]>;
 }
+

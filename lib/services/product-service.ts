@@ -1,5 +1,5 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
-import { PaginatedResponse, ApiResponse } from "@/lib/types";
+import { ApiResponse } from "@/lib/types";
 import {
   Product,
   ProductFilters,
@@ -10,8 +10,8 @@ import {
 class ProductService {
   static async getProducts(
     filters?: ProductFilters
-  ): Promise<ApiResponse<PaginatedResponse<Product>>> {
-    const response = await httpClient.get<PaginatedResponse<Product>>(
+  ): Promise<ApiResponse<Product[]>> {
+    const response = await httpClient.get<Product[]>(
       ENDPOINTS.PRODUCT.GET_ALL,
       {
         params: filters,

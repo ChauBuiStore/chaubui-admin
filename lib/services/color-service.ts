@@ -1,5 +1,5 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
-import { PaginatedResponse, ApiResponse } from "@/lib/types";
+import { ApiResponse } from "@/lib/types";
 import {
   Color,
   ColorFilters,
@@ -10,8 +10,8 @@ import {
 class ColorService {
   static async getColors(
     filters?: ColorFilters
-  ): Promise<ApiResponse<PaginatedResponse<Color>>> {
-    const response = await httpClient.get<PaginatedResponse<Color>>(
+  ): Promise<ApiResponse<Color[]>> {
+    const response = await httpClient.get<Color[]>(
       ENDPOINTS.COLOR.GET_ALL,
       {
         params: filters,

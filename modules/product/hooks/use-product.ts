@@ -39,10 +39,10 @@ export function useProduct() {
     showError((error as Error).message);
   }
 
-  const products = productsData?.data?.data || [];
+  const products = productsData?.data || [];
   const categories = categoriesData?.data || [];
   const colors = colorsData?.data || [];
-  const pagination = productsData?.data?.meta;
+  const pagination = productsData?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateProductData) =>

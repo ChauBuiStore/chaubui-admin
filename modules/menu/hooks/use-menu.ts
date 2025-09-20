@@ -28,8 +28,8 @@ export function useMenu() {
     showError((error as Error).message);
   }
 
-  const menus = menusData?.data?.data || [];
-  const pagination = menusData?.data?.meta;
+  const menus = menusData?.data || [];
+  const pagination = menusData?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateMenuData) =>

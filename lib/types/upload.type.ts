@@ -10,19 +10,6 @@ export interface UploadResponse {
   updatedAt: string;
 }
 
-export interface UploadMeta {
-  uploadedCount: number;
-  totalCount: number;
-}
-
-export interface UploadApiResponse {
-  data: UploadResponse[];
-  meta: UploadMeta;
-}
-
-export interface UploadSingleApiResponse {
-  data: UploadResponse;
-}
 
 export interface UploadProgress {
   loaded: number;

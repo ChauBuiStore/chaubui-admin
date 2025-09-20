@@ -1,8 +1,8 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
-import type { UploadApiResponse, UploadSingleApiResponse, ApiResponse } from "@/lib/types";
+import type { UploadResponse, ApiResponse } from "@/lib/types";
 
 class UploadService {
-  static async uploadSingle(file: File): Promise<ApiResponse<UploadSingleApiResponse>> {
+  static async uploadSingle(file: File): Promise<ApiResponse<UploadResponse>> {
     if (!file) {
       throw new Error("No file to upload");
     }
@@ -10,7 +10,7 @@ class UploadService {
     const formData = new FormData();
     formData.append(`files`, file);
 
-    const response = await httpClient.postFormData<UploadSingleApiResponse>(
+    const response = await httpClient.postFormData<UploadResponse>(
       ENDPOINTS.UPLOAD.UPLOAD,
       formData
     );
@@ -18,7 +18,7 @@ class UploadService {
     return response;
   }
 
-  static async uploadMultiple(files: File[]): Promise<ApiResponse<UploadApiResponse>> {
+  static async uploadMultiple(files: File[]): Promise<ApiResponse<UploadResponse[]>> {
     if (files.length === 0) {
       throw new Error("No files to upload");
     }
@@ -28,7 +28,7 @@ class UploadService {
       formData.append(`files`, file);
     });
 
-    const response = await httpClient.postFormData<UploadApiResponse>(
+    const response = await httpClient.postFormData<UploadResponse[]>(
       ENDPOINTS.UPLOAD.UPLOAD,
       formData
     );

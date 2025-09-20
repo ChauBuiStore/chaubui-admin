@@ -27,8 +27,8 @@ export function useCategoryGroup() {
     showError((error as Error).message);
   }
 
-  const categoriesGroup = categoryGroupData?.data?.data || [];
-  const meta = categoryGroupData?.data?.meta;
+  const categoriesGroup = categoryGroupData?.data || [];
+  const meta = categoryGroupData?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateCategoryGroupData) =>

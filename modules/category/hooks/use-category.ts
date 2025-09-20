@@ -24,8 +24,8 @@ export function useCategory() {
   });
 
   const { data: categoryGroupsData } = useQuery({
-    queryKey: [QUERY_KEYS.CATEGORY_GROUPS, filters],
-    queryFn: () => CategoryGroupService.getCategoryGroups(filters),
+    queryKey: [QUERY_KEYS.CATEGORY_GROUPS_ALL],
+    queryFn: () => CategoryGroupService.getCategoryGroups(),
   });
 
   if (error) {

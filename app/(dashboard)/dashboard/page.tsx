@@ -69,21 +69,21 @@ export default function DashboardPageRoot() {
       description: "Create new product in the system",
       href: "/products",
       icon: PackageIcon,
-      color: "bg-blue-500",
+      color: "bg-primary",
     },
     {
       title: "Manage Categories",
       description: "Add or edit categories",
       href: "/categories",
       icon: FolderIcon,
-      color: "bg-green-500",
+      color: "bg-primary",
     },
     {
       title: "Manage Colors",
       description: "Add or edit colors",
       href: "/colors",
       icon: PaletteIcon,
-      color: "bg-purple-500",
+      color: "bg-primary",
     },
   ];
 
@@ -91,10 +91,10 @@ export default function DashboardPageRoot() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-foreground">
             Dashboard Management
           </h1>
-          <p className="text-gray-600 mt-1 text-sm sm:text-base">
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Product management system overview
           </p>
         </div>
@@ -117,7 +117,7 @@ export default function DashboardPageRoot() {
               {stats.totalProducts.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+{stats.growthRate}%</span> from
+              <span className="text-primary">+{stats.growthRate}%</span> from
               last month
             </p>
           </CardContent>
@@ -171,7 +171,7 @@ export default function DashboardPageRoot() {
         </Card>
       </div>
       <div>
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
+        <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -220,17 +220,17 @@ export default function DashboardPageRoot() {
                 <div key={activity.id} className="flex items-start space-x-3">
                   <div
                     className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${activity.status === "success"
-                      ? "bg-green-500"
+                      ? "bg-primary"
                       : activity.status === "warning"
-                        ? "bg-yellow-500"
-                        : "bg-blue-500"
+                        ? "bg-primary/60"
+                        : "bg-primary"
                       }`}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm text-gray-900 line-clamp-2">
+                    <p className="text-xs sm:text-sm text-foreground line-clamp-2">
                       {activity.message}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {activity.time}
                     </p>
                   </div>
@@ -254,8 +254,8 @@ export default function DashboardPageRoot() {
             <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2 min-w-0">
-                  <UsersIcon className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-gray-700 truncate">
+                  <UsersIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-foreground truncate">
                     Active Users
                   </span>
                 </div>
@@ -265,8 +265,8 @@ export default function DashboardPageRoot() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2 min-w-0">
-                  <ShoppingCartIcon className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-gray-700 truncate">
+                  <ShoppingCartIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-foreground truncate">
                     Today&apos;s Orders
                   </span>
                 </div>
@@ -276,8 +276,8 @@ export default function DashboardPageRoot() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2 min-w-0">
-                  <PackageIcon className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-gray-700 truncate">
+                  <PackageIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-xs sm:text-sm text-foreground truncate">
                     New Products
                   </span>
                 </div>
@@ -290,7 +290,7 @@ export default function DashboardPageRoot() {
                     Growth
                   </span>
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-green-600">
+                <span className="text-xs sm:text-sm font-medium text-primary">
                   +{stats.growthRate}%
                 </span>
               </div>

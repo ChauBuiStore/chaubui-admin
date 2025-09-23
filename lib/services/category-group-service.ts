@@ -1,5 +1,6 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
 import { ApiResponse } from "@/lib/types";
+import { PaginatedResponse } from "@/lib/types/pagination.type";
 import {
   CategoryGroup,
   CategoryGroupFilters,
@@ -10,8 +11,9 @@ import {
 class CategoryGroupService {
   static async getCategoryGroups(
     filters?: CategoryGroupFilters
-  ): Promise<ApiResponse<CategoryGroup[]>> {
-    const response = await httpClient.get<CategoryGroup[]>(
+  ): Promise<ApiResponse<PaginatedResponse<CategoryGroup[]>>>
+  {
+    const response = await httpClient.get<PaginatedResponse<CategoryGroup[]>>(
       ENDPOINTS.CATEGORY_GROUP.GET_ALL,
       {
         params: filters,

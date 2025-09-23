@@ -8,4 +8,5 @@ export const QUERY_KEYS = {
   MENU: "menu",
   PRODUCTS: "products",
   SIZES: "sizes",
+  SIZES_ALL: "sizes-all",
 };

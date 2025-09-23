@@ -5,14 +5,30 @@ import { PackageIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
 import { ProductsList } from "./components/list";
 import { useProduct } from "./hooks";
+import { CreateProduct, EditProduct, DeleteProduct } from "./modals";
 
 export function ProductsPage() {
   const {
     products,
+    categories,
+    colors,
+    sizes,
     pagination,
     isLoading,
+    showCreateForm,
     setShowCreateForm,
+    showEditForm,
+    setShowEditForm,
+    showDeleteForm,
+    setShowDeleteForm,
+    editingProduct,
+    selectedProduct,
+    selectedProducts,
+    isSubmitting,
+    handleCreateSubmit,
+    handleEditSubmit,
     handleEditProduct,
+    handleDeleteConfirm,
     handleDeleteProduct,
     handleBulkDelete,
     handlePageChange,
@@ -31,7 +47,7 @@ export function ProductsPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl">
             <PackageIcon className="h-8 w-8" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Product Management</h1>
+          <h1 className="text-2xl font-bold text-foreground">Product Management</h1>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -54,6 +70,37 @@ export function ProductsPage() {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onSearchChange={handleSearchChange}
+      />
+
+      {/* Modals */}
+      <CreateProduct
+        open={showCreateForm}
+        onOpenChange={setShowCreateForm}
+        onSubmit={handleCreateSubmit}
+        loading={isSubmitting}
+        categories={categories}
+        colors={colors}
+        sizes={sizes}
+      />
+
+      <EditProduct
+        open={showEditForm}
+        onOpenChange={setShowEditForm}
+        onSubmit={handleEditSubmit}
+        loading={isSubmitting}
+        product={editingProduct}
+        categories={categories}
+        colors={colors}
+        sizes={sizes}
+      />
+
+      <DeleteProduct
+        open={showDeleteForm}
+        onOpenChange={setShowDeleteForm}
+        onConfirm={handleDeleteConfirm}
+        loading={isSubmitting}
+        product={selectedProduct}
+        selectedProducts={selectedProducts}
       />
     </div>
   );

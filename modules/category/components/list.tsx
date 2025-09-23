@@ -52,7 +52,7 @@ export function CategoriesList({
           const category = row.original;
           return (
             <div className="flex items-center gap-2">
-              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+              <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full border border-primary/20">
                 {category.group?.name || "N/A"}
               </span>
             </div>
@@ -95,7 +95,7 @@ export function CategoriesList({
       onPageSizeChange={onPageSizeChange}
       searchConfig={{
         enabled: true,
-        columnKey: "keyword",
+        columnKey: "search",
         placeholder: "Search categories...",
       }}
       filterConfig={{

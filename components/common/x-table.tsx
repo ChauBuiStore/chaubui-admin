@@ -1,21 +1,27 @@
 "use client";
 
 import {
+  Button,
+  Checkbox,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui";
 import { useSearchParams } from "@/lib/hooks";
-import { PaginationMeta } from "@/lib/types/pagination.type";
+import { PaginationMeta } from "@/lib/types";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -44,16 +50,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
-import { Label } from "../ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { XFilter } from "./x-filter";
 
 interface PaginationControlsProps<T> {
@@ -257,14 +253,12 @@ const PaginationControls = <T,>({
   const pageSizes = [10, 20, 30, 40, 50];
 
   const currentPage = pagination
-    ? pagination.page
+    ? Number(pagination.currentPage)
     : (table.getState().pagination?.pageIndex || 0) + 1;
-  const totalPages = pagination
-    ? pagination.totalPages || Math.ceil(pagination.total / pagination.limit)
-    : table.getPageCount();
+  const totalPages = pagination ? pagination.totalPages : table.getPageCount();
   const selectedRows = table.getFilteredSelectedRowModel().rows.length;
   const totalRows = pagination
-    ? pagination.total
+    ? pagination.totalItems
     : table.getFilteredRowModel().rows.length;
 
   const handlePageSizeChange = useCallback(
@@ -278,7 +272,7 @@ const PaginationControls = <T,>({
             table.setPageSize(newPageSize);
           }
         }
-      } catch {}
+      } catch { }
     },
     [table, onPageSizeChange]
   );
@@ -338,18 +332,17 @@ const PaginationControls = <T,>({
             Rows per page
           </Label>
           <Select
-            value={`${
-              pagination
-                ? pagination.limit
+            value={`${pagination
+                ? pagination.itemsPerPage
                 : table.getState().pagination?.pageSize || pageSizes[0]
-            }`}
+              }`}
             onValueChange={handlePageSizeChange}
           >
             <SelectTrigger size="sm" className="w-20" id="rows-per-page">
               <SelectValue
                 placeholder={
                   pagination
-                    ? pagination.limit
+                    ? pagination.itemsPerPage
                     : table.getState().pagination?.pageSize || pageSizes[0]
                 }
               />
@@ -470,9 +463,9 @@ const XTableHeader = <T,>({ table }: TableHeaderProps<T>) => {
                 {header.isPlaceholder
                   ? null
                   : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
               </TableHead>
             );
           })}
@@ -500,7 +493,7 @@ const XTableBody = <T,>({
             aria-live="polite"
           >
             <div className="flex items-center justify-center">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900 mr-2"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground mr-2"></div>
               Loading...
             </div>
           </TableCell>
@@ -631,7 +624,7 @@ export function XTable<T = Record<string, unknown>>({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: serverPagination ? serverPagination.limit : pageSize,
+    pageSize: serverPagination ? serverPagination.itemsPerPage : pageSize,
   });
 
   const { filters: urlFilters, setFilter } = useSearchParams();
@@ -739,7 +732,7 @@ export function XTable<T = Record<string, unknown>>({
     getRowId: memoizedGetRowId,
     enableRowSelection: enableSelection,
     onRowSelectionChange: handleRowSelectionChange,
-    onColumnFiltersChange: () => {},
+    onColumnFiltersChange: () => { },
     onPaginationChange: serverPagination ? undefined : setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -748,13 +741,14 @@ export function XTable<T = Record<string, unknown>>({
       : getPaginationRowModel(),
     ...(serverPagination
       ? {
-          pageCount:
-            serverPagination.totalPages ||
-            Math.ceil(
-              (serverPagination.total || 0) / (serverPagination.limit || 10)
-            ),
-          manualPagination: true,
-        }
+        pageCount:
+          serverPagination.totalPages ||
+          Math.ceil(
+            (serverPagination.totalItems || 0) /
+            (serverPagination.itemsPerPage || 10)
+          ),
+        manualPagination: true,
+      }
       : {}),
     filterFns: {
       exact: ((row, columnId, value) => {
@@ -797,27 +791,12 @@ export function XTable<T = Record<string, unknown>>({
       {(filterConfig?.enabled ||
         filterConfig?.search?.enabled ||
         searchConfig?.enabled) && (
-        <div className="mb-4">
-          <div className="inline-flex items-center">
-            {filterConfig?.enabled ? (
-              <XFilter
-                filters={filterConfig?.filters || []}
-                triggerText={filterConfig?.triggerText || "Advanced Search"}
-                filterValues={urlFilters as Record<string, string | string[]>}
-                setFilter={setFilter}
-                clearFilters={() => {
-                  Object.keys(urlFilters).forEach((key) => {
-                    setFilter(key, "");
-                  });
-                }}
-                searchConfig={filterConfig?.search || searchConfig}
-                onSearchChange={onSearchChange}
-              />
-            ) : (
-              (filterConfig?.search?.enabled || searchConfig?.enabled) && (
+          <div className="mb-4">
+            <div className="inline-flex items-center">
+              {filterConfig?.enabled ? (
                 <XFilter
-                  filters={[]}
-                  triggerText=""
+                  filters={filterConfig?.filters || []}
+                  triggerText={filterConfig?.triggerText || "Advanced Search"}
                   filterValues={urlFilters as Record<string, string | string[]>}
                   setFilter={setFilter}
                   clearFilters={() => {
@@ -828,11 +807,26 @@ export function XTable<T = Record<string, unknown>>({
                   searchConfig={filterConfig?.search || searchConfig}
                   onSearchChange={onSearchChange}
                 />
-              )
-            )}
+              ) : (
+                (filterConfig?.search?.enabled || searchConfig?.enabled) && (
+                  <XFilter
+                    filters={[]}
+                    triggerText=""
+                    filterValues={urlFilters as Record<string, string | string[]>}
+                    setFilter={setFilter}
+                    clearFilters={() => {
+                      Object.keys(urlFilters).forEach((key) => {
+                        setFilter(key, "");
+                      });
+                    }}
+                    searchConfig={filterConfig?.search || searchConfig}
+                    onSearchChange={onSearchChange}
+                  />
+                )
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
       <Table className="mb-4">
         <XTableHeader table={table} />
         <XTableBody table={table} columns={finalColumns} loading={loading} />

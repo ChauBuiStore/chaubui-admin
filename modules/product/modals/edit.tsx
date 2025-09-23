@@ -1,28 +1,32 @@
 "use client";
 
-import { XFormDialog } from "@/components/common/x-dialog";
 import {
+  XDropzone,
+  XFormDialog,
+  XRadioGroup,
+  XSelect,
+} from "@/components/common";
+import {
+  Button,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea, ScrollArea } from "@/components/ui";
-import { Button } from "@/components/ui/button";
-import { FieldValues, useFieldArray, UseFormReturn } from "react-hook-form";
-import { updateProductSchema, UpdateProductFormData } from "../schemas";
-import { PlusIcon, TrashIcon } from "lucide-react";
-import { Product } from "../types/product.type";
+  Input,
+  ScrollArea,
+  Textarea,
+} from "@/components/ui";
+import { FileUpload } from "@/lib/types";
 import { Color } from "@/modules/color/types";
+import { Size } from "@/modules/size/types";
+import { PlusIcon, TrashIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { FieldValues, useFieldArray, UseFormReturn } from "react-hook-form";
+import { UpdateProductFormData, updateProductSchema } from "../schemas";
+import { ProductImage, VariantType } from "../types";
+import { Product } from "../types/product.type";
+import { mergeNewUploads, removeImageById } from "@/lib/helpers";
 
 interface EditProductProps {
   open: boolean;
@@ -32,42 +36,111 @@ interface EditProductProps {
   product?: Product | null;
   categories?: Array<{ id: string; name: string }>;
   colors?: Color[];
+  sizes?: Size[];
 }
 
 interface ProductEditFormFieldsProps {
   form: UseFormReturn<UpdateProductFormData>;
   categories: Array<{ id: string; name: string }>;
   colors: Color[];
+  sizes: Size[];
+  productImages?: ProductImage[];
 }
 
-function ProductEditFormFields({ form, categories, colors }: ProductEditFormFieldsProps) {
-  const { fields, append, remove } = useFieldArray({
+function ProductEditFormFields({
+  form,
+  categories,
+  colors,
+  sizes,
+  productImages,
+}: ProductEditFormFieldsProps) {
+  const [uploadResponseImages, setUploadResponseImages] = useState<
+    FileUpload[]
+  >([]);
+
+  useEffect(() => {
+    if (productImages && productImages.length > 0) {
+      const convertedImages = productImages
+        .filter((img) => Boolean(img && img.file && img.file.id && img.file.url))
+        .map((img) => ({
+          id: img.file!.id,
+          fileName: img.file!.fileName || img.alt || "Image",
+          url: img.file!.url!,
+          alt: img.alt || img.file!.fileName || "Image",
+          sortOrder: img.sortOrder || 1,
+          size: img.file!.size || "0",
+          mimeType: img.file!.mimeType || "image/jpeg",
+          key: img.file!.key || "",
+          createdAt: img.file!.createdAt || new Date().toISOString(),
+          updatedAt: img.file!.updatedAt || new Date().toISOString(),
+        }));
+      setUploadResponseImages((prev) => {
+        if (JSON.stringify(prev) !== JSON.stringify(convertedImages)) {
+          return convertedImages;
+        }
+        return prev;
+      });
+    } else {
+      setUploadResponseImages([]);
+    }
+  }, [productImages]);
+
+  const {
+    fields: variantFields,
+    append: appendVariant,
+    remove: removeVariantField,
+  } = useFieldArray({
     control: form.control,
-    name: "colors",
+    name: "variants",
   });
 
-  const addColor = () => {
-    append({
-      id: "",
-      originPrice: 0,
-      salePrice: null,
-      discountPercent: null,
+  const [, setUploadedFiles] = useState<FileUpload[]>([]);
+
+  const variantType = form.watch("variantType");
+
+  useEffect(() => {
+    if (variantType && variantType !== VariantType.NONE) {
+      if (variantFields.length === 0) {
+        appendVariant({
+          sizeId: undefined,
+          colorId: undefined,
+          originalPrice: 0,
+          salePrice: undefined,
+          discountPercent: undefined,
+          stock: 0,
+        });
+      }
+    }
+  }, [variantType, variantFields.length, appendVariant]);
+
+  const addVariant = () => {
+    appendVariant({
+      sizeId: undefined,
+      colorId: undefined,
+      originalPrice: 0,
+      salePrice: undefined,
+      discountPercent: undefined,
       stock: 0,
     });
   };
 
-  const removeColor = (index: number) => {
-    if (fields.length > 1) {
-      remove(index);
+  const removeVariant = (index: number) => {
+    if (variantFields.length > 1) {
+      removeVariantField(index);
     }
   };
 
   const safeColors = Array.isArray(colors) ? colors : [];
+  const safeSizes = Array.isArray(sizes) ? sizes : [];
 
   return (
-    <ScrollArea className="h-[550px]">
+    <ScrollArea className="h-[600px]">
       <div className="space-y-6">
-        <div className="space-y-4">                
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-foreground">
+            Basic Information
+          </h3>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -89,23 +162,17 @@ function ProductEditFormFields({ form, categories, colors }: ProductEditFormFiel
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category *</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <XSelect
+                      placeholder="Select category"
+                      options={categories.map((cat) => ({
+                        value: cat.id,
+                        label: cat.name,
+                      }))}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -116,11 +183,11 @@ function ProductEditFormFields({ form, categories, colors }: ProductEditFormFiel
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Price (VND) *</FormLabel>
+                  <FormLabel>Base Price (VND) *</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
-                      placeholder="Enter product price"
+                      placeholder="Enter base price"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -152,175 +219,226 @@ function ProductEditFormFields({ form, categories, colors }: ProductEditFormFiel
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium text-gray-900">Colors and Pricing</h3>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addColor}
-              className="flex items-center gap-2"
-            >
-              <PlusIcon className="h-4 w-4" />
-              Add Color
-            </Button>
-          </div>
+          <FormField
+            control={form.control}
+            name="images"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <XDropzone
+                    maxFiles={5}
+                    maxSize={5}
+                    initialFiles={uploadResponseImages}
+                    onUploadSuccess={(files) => {
+                      setUploadedFiles(files);
+                      const currentImages = field.value || [];
+                      field.onChange(mergeNewUploads(currentImages, files));
+                    }}
+                    onFileDelete={(fileId) => {
+                      const currentImages = field.value || [];
+                      field.onChange(removeImageById(currentImages, fileId));
+                      setUploadResponseImages((prev) => prev.filter((f) => f.id !== fileId));
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="variantType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Variant Type *</FormLabel>
+                <FormControl>
+                  <XRadioGroup
+                    options={[
+                      { value: VariantType.NONE, label: "None" },
+                      { value: VariantType.COLOR, label: "Color" },
+                      { value: VariantType.SIZE, label: "Size" },
+                      {
+                        value: VariantType.COMBO,
+                        label: "Combo (Color + Size)",
+                      },
+                    ]}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    size="sm"
+                    name="variantType"
+                    orientation="horizontal"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {variantType && variantType !== VariantType.NONE && (
           <div className="space-y-4">
-            {fields.map((field, index) => (
-              <div key={field.id} className="bg-gray-50 rounded-lg p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-gray-800">Color {index + 1}</h4>
-                  {fields.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeColor(index)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium text-foreground">Variants</h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addVariant}
+                className="flex items-center gap-2"
+              >
+                <PlusIcon className="h-4 w-4" />
+                Add Variant
+              </Button>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-3">
-                    <FormField
-                      control={form.control}
-                      name={`colors.${index}.id`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium">Color *</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Select color">
-                                  {field.value && safeColors.find(c => c.id === field.value) && (
-                                    <div className="flex items-center gap-2">
-                                      <div
-                                        className="w-4 h-4 rounded-full border border-gray-300"
-                                        style={{
-                                          backgroundColor: safeColors.find(c => c.id === field.value)?.code,
-                                        }}
-                                      />
-                                      {safeColors.find(c => c.id === field.value)?.name}
-                                    </div>
-                                  )}
-                                </SelectValue>
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {safeColors.map((color) => (
-                                <SelectItem key={color.id} value={color.id}>
-                                  <div className="flex items-center gap-2">
-                                    <div
-                                      className="w-4 h-4 rounded-full border border-gray-300"
-                                      style={{ backgroundColor: color.code }}
-                                    />
-                                    {color.name}
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name={`colors.${index}.originPrice`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium">Base Price (VND) *</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="0"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(Number(e.target.value))
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+            <div className="space-y-4">
+              {variantFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="bg-muted rounded-lg p-4 space-y-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium text-foreground">
+                      Variant {index + 1}
+                    </h4>
+                    {variantFields.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeVariant(index)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 p-0"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
 
-                  <div className="space-y-3">
-                    <FormField
-                      control={form.control}
-                      name={`colors.${index}.stock`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium">Stock *</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              placeholder="0"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(Number(e.target.value))
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      {(variantType === VariantType.COLOR ||
+                        variantType === VariantType.COMBO) && (
+                        <FormField
+                          control={form.control}
+                          name={`variants.${index}.colorId`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium">
+                                Color *
+                              </FormLabel>
+                              <FormControl>
+                                <XSelect
+                                  placeholder="Select color"
+                                  options={safeColors.map((color) => ({
+                                    value: color.id,
+                                    label: color.name,
+                                  }))}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       )}
-                    />
 
-                    <div className="grid grid-cols-2 gap-3">
+                      {variantType === VariantType.SIZE && (
+                        <FormField
+                          control={form.control}
+                          name={`variants.${index}.sizeId`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium">
+                                Size *
+                              </FormLabel>
+                              <FormControl>
+                                <XSelect
+                                  placeholder="Select size"
+                                  options={safeSizes.map((size) => ({
+                                    value: size.id,
+                                    label: size.name,
+                                  }))}
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                      {variantType === VariantType.COMBO && (
+                        <>
+                          <FormField
+                            control={form.control}
+                            name={`variants.${index}.colorId`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">
+                                  Color *
+                                </FormLabel>
+                                <FormControl>
+                                  <XSelect
+                                    placeholder="Select color"
+                                    options={safeColors.map((color) => ({
+                                      value: color.id,
+                                      label: color.name,
+                                    }))}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`variants.${index}.sizeId`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">
+                                  Size *
+                                </FormLabel>
+                                <FormControl>
+                                  <XSelect
+                                    placeholder="Select size"
+                                    options={safeSizes.map((size) => ({
+                                      value: size.id,
+                                      label: size.name,
+                                    }))}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </>
+                      )}
+
                       <FormField
                         control={form.control}
-                        name={`colors.${index}.salePrice`}
+                        name={`variants.${index}.originalPrice`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-sm font-medium">Sale Price</FormLabel>
+                            <FormLabel className="text-sm font-medium">
+                              Original Price (VND) *
+                            </FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
                                 placeholder="0"
                                 {...field}
-                                value={field.value ?? ""}
                                 onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? Number(e.target.value)
-                                      : null
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name={`colors.${index}.discountPercent`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">Discount (%)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="0"
-                                {...field}
-                                value={field.value ?? ""}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? Number(e.target.value)
-                                      : null
-                                  )
+                                  field.onChange(Number(e.target.value))
                                 }
                               />
                             </FormControl>
@@ -329,12 +447,95 @@ function ProductEditFormFields({ form, categories, colors }: ProductEditFormFiel
                         )}
                       />
                     </div>
+
+                    <div className="space-y-3">
+                      <FormField
+                        control={form.control}
+                        name={`variants.${index}.stock`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium">
+                              Stock *
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder="0"
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(Number(e.target.value))
+                                }
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormField
+                          control={form.control}
+                          name={`variants.${index}.salePrice`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium">
+                                Sale Price (VND)
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="0"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value
+                                        ? Number(e.target.value)
+                                        : null
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name={`variants.${index}.discountPercent`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium">
+                                Discount (%)
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="0"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      e.target.value
+                                        ? Number(e.target.value)
+                                        : null
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </ScrollArea>
   );
@@ -348,8 +549,10 @@ export function EditProduct({
   product,
   categories = [],
   colors = [],
+  sizes = [],
 }: EditProductProps) {
   const safeColors = Array.isArray(colors) ? colors : [];
+  const safeSizes = Array.isArray(sizes) ? sizes : [];
 
   const handleSubmit = async (data: FieldValues) => {
     try {
@@ -362,30 +565,54 @@ export function EditProduct({
     ? {
         name: product.name,
         description: product.description,
-        price: product.price,
+        price: Number(product.price) || 0,
         categoryId: product.category.id,
-        colors: product.variants.map((pc) => ({
-          id: pc.color.id,
-          originPrice: pc.originalPrice,
-          salePrice: pc.salePrice,
-          discountPercent: pc.discountPercent,
-          stock: pc.stock,
-          sku: pc.sku,
-        })),
+        variantType:
+          product.variants?.length > 0 ? VariantType.COMBO : VariantType.NONE,
+        images:
+          product.images
+            ?.filter((img) => {
+              const hasValidFile = img.file && img.file.id && img.file.url;
+              if (!hasValidFile) {
+                return false;
+              }
+              return true;
+            })
+            ?.map((img, index) => ({
+              fileId: img.file.id,
+              alt: img.alt || img.file.fileName || `Image ${index + 1}`,
+              sortOrder: index + 1,
+              isThumbnail: index === 0,
+            })) || [],
+        variants:
+          product.variants?.map((variant) => ({
+            sizeId: variant.size?.id || "",
+            colorId: variant.color?.id || "",
+            originalPrice: Number(variant.originalPrice) || 0,
+            salePrice: variant.salePrice
+              ? Number(variant.salePrice)
+              : undefined,
+            discountPercent: variant.discountPercent
+              ? Number(variant.discountPercent)
+              : undefined,
+            stock: Number(variant.stock) || 0,
+          })) || [],
       }
     : {
         name: "",
         description: "",
         price: 0,
         categoryId: "",
-        colors: [
+        variantType: VariantType.NONE,
+        images: [],
+        variants: [
           {
-            id: "",
-            originPrice: 0,
-            salePrice: null,
-            discountPercent: null,
+            sizeId: "",
+            colorId: "",
+            originalPrice: 0,
+            salePrice: undefined,
+            discountPercent: undefined,
             stock: 0,
-            sku: null,
           },
         ],
       };
@@ -404,10 +631,12 @@ export function EditProduct({
       onCancel={() => onOpenChange(false)}
     >
       {(form) => (
-        <ProductEditFormFields 
-          form={form} 
-          categories={categories} 
-          colors={safeColors} 
+        <ProductEditFormFields
+          form={form}
+          categories={categories}
+          colors={safeColors}
+          sizes={safeSizes}
+          productImages={product?.images}
         />
       )}
     </XFormDialog>

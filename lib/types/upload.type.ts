@@ -1,15 +1,9 @@
-export interface UploadResponse {
-  id: string;
-  fileName: string;
-  url: string;
-  alt: string;
-  sortOrder: number;
-  size: number;
-  mimeType: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { FileUpload } from "./file.type";
 
+export interface Upload {
+  files: FileUpload[];
+  count: number;
+}
 
 export interface UploadProgress {
   loaded: number;
@@ -26,5 +20,5 @@ export interface UploadOptions {
 
 export interface UploadError extends Error {
   code?: string;
-  file?: File;
+  file?: FileUpload;
 }

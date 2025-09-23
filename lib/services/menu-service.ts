@@ -1,5 +1,6 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
 import { ApiResponse } from "@/lib/types";
+import { PaginatedResponse } from "@/lib/types/pagination.type";
 import {
   CreateMenuData,
   Menu,
@@ -10,8 +11,9 @@ import {
 class MenuService {
   static async getMenus(
     filters?: MenuFilters
-  ): Promise<ApiResponse<Menu[]>> {
-    const response = await httpClient.get<Menu[]>(
+  ): Promise<ApiResponse<PaginatedResponse<Menu[]>>>
+  {
+    const response = await httpClient.get<PaginatedResponse<Menu[]>>(
       ENDPOINTS.MENU.GET_ALL,
       {
         params: filters,

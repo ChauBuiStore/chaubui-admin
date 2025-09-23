@@ -1,17 +1,17 @@
 "use client";
 
 import {
+  Badge,
+  Button,
+  Checkbox,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { Loader2, X, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface SelectOption {
@@ -19,7 +19,7 @@ interface SelectOption {
   label: string;
 }
 
-interface XSelectPaginationProps {
+interface XSelectProps {
   options: SelectOption[];
   value?: string | string[];
   onValueChange?: (value: string | string[]) => void;
@@ -31,9 +31,10 @@ interface XSelectPaginationProps {
   loadThreshold?: number;
   hasMoreData?: boolean;
   multiple?: boolean;
+  hasError?: boolean;
 }
 
-export function XSelectPagination({
+export function XSelect({
   options,
   value,
   onValueChange,
@@ -45,7 +46,8 @@ export function XSelectPagination({
   loadThreshold = 50,
   hasMoreData = false,
   multiple = false,
-}: XSelectPaginationProps) {
+  hasError = false,
+}: XSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -67,30 +69,30 @@ export function XSelectPagination({
 
     const currentValues = Array.isArray(value) ? value : [];
     const isSelected = currentValues.includes(newValue);
-    
+
     let newValues: string[];
     if (isSelected) {
-      newValues = currentValues.filter(v => v !== newValue);
+      newValues = currentValues.filter((v) => v !== newValue);
     } else {
       newValues = [...currentValues, newValue];
     }
-    
+
     onValueChange?.(newValues);
   };
 
   const removeValue = (valueToRemove: string) => {
     if (!multiple) return;
-    
+
     const currentValues = Array.isArray(value) ? value : [];
-    const newValues = currentValues.filter(v => v !== valueToRemove);
+    const newValues = currentValues.filter((v) => v !== valueToRemove);
     onValueChange?.(newValues);
   };
 
   const getSelectedLabels = () => {
     if (!multiple || !Array.isArray(value)) return [];
-    
-    return value.map(val => {
-      const option = options.find(opt => opt.value === val);
+
+    return value.map((val) => {
+      const option = options.find((opt) => opt.value === val);
       return option?.label || val;
     });
   };
@@ -121,7 +123,7 @@ export function XSelectPagination({
 
   if (multiple) {
     const selectedLabels = getSelectedLabels();
-    
+
     return (
       <div className={cn("w-full relative", className)}>
         <Button
@@ -130,7 +132,8 @@ export function XSelectPagination({
           className={cn(
             "w-full h-auto min-h-[40px] px-3 py-2 text-left font-normal",
             !selectedLabels.length && "text-muted-foreground",
-            disabled && "cursor-not-allowed opacity-50"
+            disabled && "cursor-not-allowed opacity-50",
+            hasError && "border-red-500"
           )}
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
@@ -139,12 +142,16 @@ export function XSelectPagination({
             <div className="flex flex-wrap gap-1 flex-1 min-w-0 overflow-hidden">
               {selectedLabels.length > 0 ? (
                 selectedLabels.map((label, index) => {
-                  const val = Array.isArray(value) ? value[index] : '';
+                  const val = Array.isArray(value) ? value[index] : "";
                   return (
-                    <Badge key={val} variant="secondary" className="flex items-center gap-1 text-xs bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200 max-w-[140px]">
+                    <Badge
+                      key={val}
+                      variant="secondary"
+                      className="flex items-center gap-1 text-xs bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15 max-w-[140px]"
+                    >
                       <span className="truncate">{label}</span>
                       <div
-                        className="h-3 w-3 p-0 hover:bg-transparent ml-1 flex-shrink-0 cursor-pointer flex items-center justify-center rounded-sm hover:bg-gray-300"
+                        className="h-3 w-3 p-0 hover:bg-transparent ml-1 flex-shrink-0 cursor-pointer flex items-center justify-center rounded-sm hover:bg-muted"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeValue(val);
@@ -194,7 +201,7 @@ export function XSelectPagination({
               })}
 
               {loading && (
-                <div className="flex items-center justify-center p-2 text-sm text-gray-500">
+                <div className="flex items-center justify-center p-2 text-sm text-muted-foreground">
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Loading...
                 </div>
@@ -216,12 +223,14 @@ export function XSelectPagination({
   return (
     <Select
       value={value as string}
-      onValueChange={(value) => onValueChange?.(value)}
+      onValueChange={(value: string) => onValueChange?.(value)}
       open={isOpen}
       onOpenChange={handleOpenChange}
       disabled={disabled}
     >
-      <SelectTrigger className={cn("w-full", className)}>
+      <SelectTrigger
+        className={cn("w-full", hasError && "border-destructive", className)}
+      >
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent className="max-h-[300px]">
@@ -233,7 +242,7 @@ export function XSelectPagination({
           ))}
 
           {loading && (
-            <div className="flex items-center justify-center p-2 text-sm text-gray-500">
+            <div className="flex items-center justify-center p-2 text-sm text-muted-foreground">
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Loading...
             </div>

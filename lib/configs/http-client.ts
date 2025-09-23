@@ -94,7 +94,7 @@ class HttpClient {
         this.config.onTokenExpired();
       }
 
-      throw new Error("Unauthorized");
+      throw new Error(errorData.message || "Unauthorized");
     }
 
     throw new Error(errorData.message || "Request failed");

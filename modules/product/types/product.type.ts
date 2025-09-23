@@ -1,15 +1,8 @@
 import { Category } from "@/modules/category/types";
 import { Color } from "@/modules/color/types";
+import { ProductImage } from "./product-image.type";
+import { ProductVariant, ProductVariantData, VariantType } from "./product-variant.type";
 
-export interface Variant {
-  id: string;
-  color: Color;
-  stock: number;
-  discountPercent: number;
-  originalPrice: number;
-  salePrice: number;
-  sku: string | null;
-}
 
 export interface Product {
   id: string;
@@ -18,7 +11,8 @@ export interface Product {
   price: number;
   category: Category;
   colors: Color[];
-  variants: Variant[];
+  variants: ProductVariant[];
+  images: ProductImage[];
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -28,7 +22,9 @@ export interface CreateProductData {
   description: string;
   price: number;
   categoryId: string;
-  colors: Color[];
+  variantType: VariantType;
+  images?: ProductImage[];
+  variants?: ProductVariantData[];
 }
 
 export interface UpdateProductData {
@@ -36,12 +32,13 @@ export interface UpdateProductData {
   description: string;
   price: number;
   categoryId: string;
-  colors: Color[];
+  variantType: VariantType;
+  images?: ProductImage[];
+  variants?: ProductVariantData[];
 }
 
 export interface ProductFilters extends Record<string, unknown> {
   search?: string;
-  categoryId?: string | null;
   page?: string | number;
   limit?: string | number;
 }

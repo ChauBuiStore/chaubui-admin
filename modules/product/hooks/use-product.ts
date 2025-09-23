@@ -2,7 +2,7 @@
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
-import { CategoryService, ColorService, ProductService } from "@/lib/services";
+import { CategoryService, ColorService, ProductService, SizeService } from "@/lib/services";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
@@ -35,18 +35,25 @@ export function useProduct() {
     queryFn: () => ColorService.getColors(),
   });
 
+  const { data: sizesData } = useQuery({
+    queryKey: [QUERY_KEYS.SIZES_ALL],
+    queryFn: () => SizeService.getSizes(),
+  });
+
   if (error) {
     showError((error as Error).message);
   }
 
-  const products = productsData?.data || [];
-  const categories = categoriesData?.data || [];
-  const colors = colorsData?.data || [];
-  const pagination = productsData?.meta;
+  const products = productsData?.data?.data || [];
+  const categories = categoriesData?.data?.data || [];
+  const colors = colorsData?.data?.data || [];
+  const sizes = sizesData?.data?.data || [];
+  const pagination = productsData?.data?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateProductData) =>
-      ProductService.createProduct(data),
+    mutationFn: (data: CreateProductData) => {
+      return ProductService.createProduct(data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
       success("Product created successfully!");
@@ -98,19 +105,56 @@ export function useProduct() {
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
 
   const handleCreateSubmit = async (data: FieldValues) => {
-    await createMutation.mutateAsync(data as CreateProductData);
-    setShowCreateForm(false);
+    try {
+      await createMutation.mutateAsync(data as CreateProductData);
+      setShowCreateForm(false);
+    } catch (error) {
+      throw error;
+    }
   };
 
   const handleEditSubmit = async (data: FieldValues) => {
     if (!editingProduct) return;
 
-    await updateMutation.mutateAsync({
-      id: editingProduct.id,
-      data: data as UpdateProductData,
-    });
-    setShowEditForm(false);
-    setEditingProduct(null);
+    if (data.images?.length > 0) {
+      const invalidImages = data.images.filter((img: { fileId?: string; alt?: string; sortOrder?: number; isThumbnail?: boolean }) => 
+        !img.fileId || 
+        !img.alt || 
+        typeof img.sortOrder !== 'number' || 
+        img.sortOrder < 1 ||
+        typeof img.isThumbnail !== 'boolean'
+      );
+
+      if (invalidImages.length > 0) {
+        showError("Some images have invalid data. Please check and try again.");
+        return;
+      }
+
+      const sortOrders = data.images.map((img: { sortOrder?: number }) => img.sortOrder as number);
+      const duplicateSortOrders = sortOrders.filter((order: number, index: number) => 
+        sortOrders.indexOf(order) !== index
+      );
+
+      if (duplicateSortOrders.length > 0) {
+        showError("Images have duplicate sort orders. Please check and try again.");
+        return;
+      }
+
+      const thumbnailCount = data.images.filter((img: { isThumbnail?: boolean }) => Boolean(img.isThumbnail)).length;
+      if (thumbnailCount > 1) {
+        showError("Only one image can be set as thumbnail. Please check and try again.");
+        return;
+      }
+    }
+
+    try {
+      await updateMutation.mutateAsync({
+        id: editingProduct.id,
+        data: data as UpdateProductData,
+      });
+      setShowEditForm(false);
+      setEditingProduct(null);
+    } catch {}
   };
 
   const handleEditProduct = (product: Product) => {
@@ -184,6 +228,7 @@ export function useProduct() {
     products,
     categories,
     colors,
+    sizes,
     pagination,
     isLoading,
     showCreateForm,

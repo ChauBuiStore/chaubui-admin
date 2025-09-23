@@ -1,7 +1,6 @@
 "use client";
 
-import { XDialog } from "@/components/common/x-dialog";
-import { Button } from "@/components/ui/button";
+import { XConfirmDialog } from "@/components/common";
 import { Product } from "../types/product.type";
 
 interface DeleteProductProps {
@@ -28,58 +27,43 @@ export function DeleteProduct({
     try {
       await onConfirm();
       onOpenChange(false);
-    } catch {
-    }
+    } catch {}
   };
 
+  const description = isBulkDelete ? (
+    <div className="space-y-2">
+      <p>Are you sure you want to delete {count} selected products?</p>
+      <div className="bg-muted p-3 rounded-lg">
+        <p className="text-sm text-muted-foreground mb-2">Products to be deleted:</p>
+        <ul className="text-sm space-y-1">
+          {selectedProducts.slice(0, 5).map((p) => (
+            <li key={p.id} className="text-foreground">
+              • {p.name}
+            </li>
+          ))}
+          {selectedProducts.length > 5 && (
+            <li className="text-muted-foreground">
+              ... and {selectedProducts.length - 5} other products
+            </li>
+          )}
+        </ul>
+      </div>
+    </div>
+  ) : (
+    `Are you sure you want to delete product "${product?.name}"?`
+  );
+
   return (
-    <XDialog
+    <XConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
       title={isBulkDelete ? "Delete Multiple Products" : "Delete Product"}
-    >
-      <div className="space-y-4">
-        <p className="text-gray-600">
-          {isBulkDelete
-            ? `Are you sure you want to delete ${count} selected products?`
-            : `Are you sure you want to delete product "${product?.name}"?`}
-        </p>
-        
-        {isBulkDelete && (
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-sm text-gray-600 mb-2">Products to be deleted:</p>
-            <ul className="text-sm space-y-1">
-              {selectedProducts.slice(0, 5).map((product) => (
-                <li key={product.id} className="text-gray-700">
-                  • {product.name}
-                </li>
-              ))}
-              {selectedProducts.length > 5 && (
-                <li className="text-gray-500">
-                  ... and {selectedProducts.length - 5} other products
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
-
-        <div className="flex justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleConfirm}
-            disabled={loading}
-          >
-            {loading ? "Deleting..." : "Delete"}
-          </Button>
-        </div>
-      </div>
-    </XDialog>
+      description={description}
+      onConfirm={handleConfirm}
+      onCancel={() => onOpenChange(false)}
+      confirmText={loading ? "Deleting..." : "Delete"}
+      confirmVariant="destructive"
+      loading={loading}
+    />
   );
 }

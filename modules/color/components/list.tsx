@@ -53,7 +53,7 @@ export function ColorsList({
           return (
             <div className="flex items-center gap-3">
               <div
-                className="w-6 h-6 rounded-full shadow-md border border-gray-100"
+                className="w-6 h-6 rounded-full shadow-md border"
                 style={{ backgroundColor: color.code }}
               />
               <span className="font-medium">{color.code}</span>
@@ -97,7 +97,7 @@ export function ColorsList({
       onPageSizeChange={onPageSizeChange}
       searchConfig={{
         enabled: true,
-        columnKey: "keyword",
+        columnKey: "search",
         placeholder: "Search Colors...",
       }}
       filterConfig={{

@@ -24,14 +24,13 @@ export function useSize() {
     queryFn: () => SizeService.getSizes(filters),
   });
 
-  console.log(sizesData);
 
   if (error) {
     showError((error as Error).message);
   }
 
-  const sizes = sizesData?.data || [];
-  const pagination = sizesData?.meta;
+  const sizes = sizesData?.data?.data || [];
+  const pagination = sizesData?.data?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateSizeData) =>

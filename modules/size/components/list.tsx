@@ -81,7 +81,7 @@ export function SizesList({
       onPageSizeChange={onPageSizeChange}
       searchConfig={{
         enabled: true,
-        columnKey: "keyword",
+        columnKey: "search",
         placeholder: "Search size...",
       }}
       filterConfig={{

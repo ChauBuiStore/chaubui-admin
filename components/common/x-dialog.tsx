@@ -1,8 +1,7 @@
 "use client";
 
-import * as React from "react";
-import { useCallback, useEffect } from "react";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -10,24 +9,24 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+  ScrollArea,
+} from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertTriangleIcon,
-  InfoIcon,
   CheckCircleIcon,
+  InfoIcon,
   XCircleIcon,
 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  useForm,
-  FormProvider,
-  FieldValues,
-  UseFormReturn,
   DefaultValues,
+  FieldValues,
+  FormProvider,
+  useForm,
+  UseFormReturn,
 } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 export type DialogVariant =
@@ -36,7 +35,15 @@ export type DialogVariant =
   | "warning"
   | "error"
   | "info";
-export type DialogSize = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "full";
+export type DialogSize =
+  | "sm"
+  | "md"
+  | "lg"
+  | "xl"
+  | "2xl"
+  | "3xl"
+  | "4xl"
+  | "full";
 
 interface XDialogAction {
   label: string;
@@ -83,10 +90,10 @@ interface XDialogProps {
 }
 
 const variantIcons = {
-  success: <CheckCircleIcon className="h-6 w-6 text-green-600" />,
-  warning: <AlertTriangleIcon className="h-6 w-6 text-yellow-600" />,
-  error: <XCircleIcon className="h-6 w-6 text-red-600" />,
-  info: <InfoIcon className="h-6 w-6 text-blue-600" />,
+  success: <CheckCircleIcon className="h-6 w-6 text-primary" />,
+  warning: <AlertTriangleIcon className="h-6 w-6 text-primary" />,
+  error: <XCircleIcon className="h-6 w-6 text-destructive" />,
+  info: <InfoIcon className="h-6 w-6 text-primary" />,
   default: null,
 } as const;
 
@@ -97,6 +104,7 @@ const sizeStyles = {
   xl: "max-w-xl",
   "2xl": "max-w-2xl",
   "3xl": "max-w-3xl",
+  "4xl": "max-w-4xl",
   full: "max-w-[95vw] h-[95vh]",
 } as const;
 
@@ -129,7 +137,7 @@ export function XDialog({
   icon,
   showIcon = true,
 }: XDialogProps) {
-  const [isOpen, setIsOpen] = React.useState(open ?? false);
+  const [isOpen, setIsOpen] = useState(open ?? false);
   const currentOpen = open !== undefined ? open : isOpen;
 
   const handleOpenChange = useCallback(
@@ -152,7 +160,7 @@ export function XDialog({
     handleOpenChange(false);
   }, [onCancel, handleOpenChange]);
 
-  const defaultActions = React.useMemo(() => {
+  const defaultActions = useMemo(() => {
     if (actions.length > 0) return actions;
 
     const actionsList: XDialogAction[] = [];
@@ -220,7 +228,9 @@ export function XDialog({
                   )}
                   {description && (
                     <DialogDescription className="text-left">
-                      {typeof description === 'string' ? description : description}
+                      {typeof description === "string"
+                        ? description
+                        : description}
                     </DialogDescription>
                   )}
                 </div>
@@ -332,7 +342,7 @@ export const XFormDialog = <T extends FieldValues = FieldValues>({
   };
 
   const handleFormSubmit = () => {
-    form.handleSubmit(handleSubmit)();
+    form.handleSubmit(handleSubmit, () => {})();
   };
 
   return (

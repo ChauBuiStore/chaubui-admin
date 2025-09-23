@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { CornerUpLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui";
 
 interface XBackButtonProps {
   text?: string;
@@ -14,7 +14,7 @@ interface XBackButtonProps {
 export function XBackButton({ 
   text = "Back to home page", 
   href, 
-  className = "inline-flex items-center justify-center gap-2 !bg-transparent hover:text-red-500",
+  className = "inline-flex items-center justify-center gap-2 !bg-transparent hover:text-destructive",
   variant = "ghost"
 }: XBackButtonProps) {
   const router = useRouter();

@@ -1,25 +1,23 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Button,
+  Checkbox,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
+  Input,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+  Separator,
+} from "@/components/ui";
 import { useSearchParams } from "@/lib/hooks";
 import { SlidersHorizontal } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface FilterOption {
   key: string;
@@ -28,6 +26,8 @@ interface FilterOption {
   type: "select" | "input" | "checkbox" | "radio";
   options?: { value: string; label: string }[];
   placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
 }
 
 interface SearchConfig {
@@ -47,6 +47,8 @@ interface XFilterProps {
   clearFilters?: () => void;
   searchConfig?: SearchConfig;
   onSearchChange?: (searchTerm: string) => void;
+  isLoading?: boolean;
+  className?: string;
 }
 
 const SearchInput = ({
@@ -54,36 +56,33 @@ const SearchInput = ({
   value,
   onValueChange,
   onSearch,
+  isLoading = false,
 }: {
   searchConfig: SearchConfig;
   value: string;
   onValueChange: (value: string) => void;
   onSearch?: (value: string) => void;
+  isLoading?: boolean;
 }) => {
-  const [inputValue, setInputValue] = useState(value);
-
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    setInputValue(newValue);
     onValueChange(newValue);
-  };
+  }, [onValueChange]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      onSearch?.(inputValue);
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !isLoading) {
+      onSearch?.(value);
     }
-  };
+  }, [value, onSearch, isLoading]);
 
   return (
     <Input
       placeholder={searchConfig.placeholder || "Search..."}
-      value={inputValue}
+      value={value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
+      disabled={isLoading}
+      aria-label="Search input"
       className={`border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 w-full sm:w-80 lg:w-96 ${
         searchConfig.className || ""
       }`}
@@ -101,6 +100,8 @@ export function XFilter({
   clearFilters,
   searchConfig,
   onSearchChange,
+  isLoading = false,
+  className = "",
 }: XFilterProps) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [tempFilterValues, setTempFilterValues] = useState<
@@ -112,77 +113,96 @@ export function XFilter({
   const finalSetFilter = setFilter || fallbackSearchParams.setFilter;
   const finalClearFilters = clearFilters || fallbackSearchParams.clearFilters;
 
+  const cleanFilterValues = useMemo(() => {
+    if (!finalFilterValues) return {};
+    return Object.entries(finalFilterValues)
+      .filter(([, value]) => value !== undefined && value !== null && value !== "")
+      .reduce((acc, [key, value]) => {
+        acc[key] = value as string | string[];
+        return acc;
+      }, {} as Record<string, string | string[]>);
+  }, [finalFilterValues]);
+
   useEffect(() => {
     if (filterOpen) {
-      const cleanFilterValues = Object.entries(finalFilterValues || {})
-        .filter(([, value]) => value !== undefined)
-        .reduce((acc, [key, value]) => {
-          acc[key] = value as string | string[];
-          return acc;
-        }, {} as Record<string, string | string[]>);
       setTempFilterValues(cleanFilterValues);
     }
-  }, [filterOpen, finalFilterValues]);
+  }, [filterOpen, cleanFilterValues]);
 
-  const handleFilterChange = (key: string, value: string) => {
+  const handleFilterChange = useCallback((key: string, value: string) => {
     const newValue = value === "all" ? "" : value;
     setTempFilterValues((prev) => ({ ...prev, [key]: newValue }));
-  };
+  }, []);
 
-  const handleInputChange = (key: string, value: string) => {
+  const handleInputChange = useCallback((key: string, value: string) => {
     setTempFilterValues((prev) => ({ ...prev, [key]: value }));
-  };
+  }, []);
 
-  const handleCheckboxChange = (
+  const handleCheckboxChange = useCallback((
     key: string,
     value: string,
     checked: boolean
   ) => {
-    const currentValues = (tempFilterValues?.[key] as string[]) || [];
-    let newValues: string[];
+    setTempFilterValues((prev) => {
+      const currentValues = Array.isArray(prev?.[key]) ? prev[key] as string[] : [];
+      const newValues = checked 
+        ? [...currentValues, value]
+        : currentValues.filter((v) => v !== value);
 
-    if (checked) {
-      newValues = [...currentValues, value];
-    } else {
-      newValues = currentValues.filter((v) => v !== value);
+      return { ...prev, [key]: newValues };
+    });
+  }, []);
+
+  const handleRadioChange = useCallback((key: string, value: string) => {
+    setTempFilterValues((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
+  const handleApply = useCallback(() => {
+    if (!finalSetFilter) {
+      console.warn("setFilter function is not available");
+      return;
     }
 
-    setTempFilterValues((prev) => ({ ...prev, [key]: newValues }));
-  };
+    try {
+      Object.entries(tempFilterValues).forEach(([key, value]) => {
+        finalSetFilter(key, value);
+      });
 
-  const handleRadioChange = (key: string, value: string) => {
-    setTempFilterValues((prev) => ({ ...prev, [key]: value }));
-  };
+      finalSetFilter("page", "1");
+      onApply?.(tempFilterValues);
+      setFilterOpen(false);
+    } catch (error) {
+      console.error("Error applying filters:", error);
+    }
+  }, [tempFilterValues, finalSetFilter, onApply]);
 
-  const handleApply = () => {
-    Object.entries(tempFilterValues).forEach(([key, value]) => {
-      finalSetFilter(key, value);
-    });
+  const handleReset = useCallback(() => {
+    if (!finalClearFilters || !finalSetFilter) {
+      console.warn("clearFilters or setFilter function is not available");
+      return;
+    }
 
-    finalSetFilter("page", "1");
-
-    onApply?.(tempFilterValues);
-    setFilterOpen(false);
-  };
-
-  const handleReset = () => {
-    setTempFilterValues({});
-    finalClearFilters();
-    finalSetFilter("page", "1");
-    onReset?.();
-    setFilterOpen(false);
-  };
+    try {
+      setTempFilterValues({});
+      finalClearFilters();
+      finalSetFilter("page", "1");
+      onReset?.();
+      setFilterOpen(false);
+    } catch (error) {
+      console.error("Error resetting filters:", error);
+    }
+  }, [finalClearFilters, finalSetFilter, onReset]);
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center border border-1 border-gray-200 rounded-full p-1 gap-2 sm:gap-0">
+    <div className={`flex flex-col sm:flex-row items-stretch sm:items-center border rounded-full p-1 gap-2 sm:gap-0 ${className}`}>
       {searchConfig?.enabled && (
         <div className="flex-1 min-w-0">
           <SearchInput
             searchConfig={searchConfig}
             value={
               tempFilterValues?.[searchConfig.columnKey] !== undefined
-                ? (tempFilterValues[searchConfig.columnKey] as string)
-                : (finalFilterValues?.[searchConfig.columnKey] as string) || ""
+                ? String(tempFilterValues[searchConfig.columnKey])
+                : String(finalFilterValues?.[searchConfig.columnKey] || "")
             }
             onValueChange={(value) => {
               setTempFilterValues((prev) => ({
@@ -191,14 +211,17 @@ export function XFilter({
               }));
             }}
             onSearch={(value) => {
-              finalSetFilter(searchConfig.columnKey, value);
-              finalSetFilter("page", "1");
-              onSearchChange?.(value);
-              setTempFilterValues((prev) => ({
-                ...prev,
-                [searchConfig.columnKey]: value,
-              }));
+              if (finalSetFilter) {
+                finalSetFilter(searchConfig.columnKey, value);
+                finalSetFilter("page", "1");
+                onSearchChange?.(value);
+                setTempFilterValues((prev) => ({
+                  ...prev,
+                  [searchConfig.columnKey]: value,
+                }));
+              }
             }}
+            isLoading={isLoading}
           />
         </div>
       )}
@@ -207,20 +230,17 @@ export function XFilter({
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className={`rounded-none !bg-transparent hover:text-gray-500 cursor-pointer focus-visible:ring-0 focus-visible:ring-offset-0 flex-shrink-0 ${
-                searchConfig?.enabled
-                  ? "border-l-1 border-gray-200 sm:border-l-1 sm:border-t-0 border-t-1"
-                  : ""
+              disabled={isLoading}
+              aria-label="Open advanced search filters"
+              className={`rounded-none !bg-transparent hover:text-foreground cursor-pointer focus-visible:ring-0 focus-visible:ring-offset-0 flex-shrink-0 ${
+                searchConfig?.enabled ? "border-l sm:border-l border-t sm:border-t-0" : ""
               }`}
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden sm:inline ml-2">{triggerText}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-[90vw] sm:w-[560px] p-0"
-            align="start"
-          >
+          <DropdownMenuContent className="w-[90vw] sm:w-[560px] p-0" align="start">
             <div className="p-4 space-y-6">
               {filters.map((filter) => (
                 <div
@@ -236,17 +256,15 @@ export function XFilter({
                         value={
                           tempFilterValues?.[filter.key] === ""
                             ? "all"
-                            : (tempFilterValues?.[filter.key] as string) ||
-                              "all"
+                            : String(tempFilterValues?.[filter.key] || "all")
                         }
                         onValueChange={(value) =>
                           handleFilterChange(filter.key, value)
                         }
+                        disabled={isLoading || filter.disabled}
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue
-                            placeholder={`Select ${filter.label.toLowerCase()}`}
-                          />
+                        <SelectTrigger className="w-full" aria-label={`Select ${filter.label}`}>
+                          <SelectValue placeholder={`Select ${filter.label.toLowerCase()}`} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">All</SelectItem>
@@ -260,7 +278,7 @@ export function XFilter({
                     ) : filter.type === "input" ? (
                       <Input
                         type="text"
-                        value={(tempFilterValues?.[filter.key] as string) || ""}
+                        value={String(tempFilterValues?.[filter.key] || "")}
                         onChange={(e) =>
                           handleInputChange(filter.key, e.target.value)
                         }
@@ -268,10 +286,12 @@ export function XFilter({
                           filter.placeholder ||
                           `Enter ${filter.label.toLowerCase()}`
                         }
+                        disabled={isLoading || filter.disabled}
+                        aria-label={`Input for ${filter.label}`}
                         className="w-full"
                       />
                     ) : filter.type === "checkbox" ? (
-                      <div className="space-y-2">
+                      <div className="space-y-2" role="group" aria-label={`Checkbox group for ${filter.label}`}>
                         {filter.options?.map((option) => (
                           <div
                             key={option.value}
@@ -279,10 +299,11 @@ export function XFilter({
                           >
                             <Checkbox
                               id={`${filter.key}-${option.value}`}
-                              checked={(
-                                (tempFilterValues?.[filter.key] as string[]) ||
-                                []
-                              ).includes(option.value)}
+                              checked={
+                                Array.isArray(tempFilterValues?.[filter.key])
+                                  ? (tempFilterValues[filter.key] as string[]).includes(option.value)
+                                  : false
+                              }
                               onCheckedChange={(checked) =>
                                 handleCheckboxChange(
                                   filter.key,
@@ -290,6 +311,7 @@ export function XFilter({
                                   checked as boolean
                                 )
                               }
+                              disabled={isLoading || filter.disabled}
                             />
                             <Label
                               htmlFor={`${filter.key}-${option.value}`}
@@ -301,7 +323,7 @@ export function XFilter({
                         ))}
                       </div>
                     ) : filter.type === "radio" ? (
-                      <div className="space-y-2">
+                      <div className="space-y-2" role="radiogroup" aria-label={`Radio group for ${filter.label}`}>
                         {filter.options?.map((option) => (
                           <div
                             key={option.value}
@@ -313,13 +335,13 @@ export function XFilter({
                               name={filter.key}
                               value={option.value}
                               checked={
-                                (tempFilterValues?.[filter.key] as string) ===
-                                option.value
+                                String(tempFilterValues?.[filter.key] || "") === option.value
                               }
                               onChange={(e) =>
                                 handleRadioChange(filter.key, e.target.value)
                               }
-                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                              disabled={isLoading || filter.disabled}
+                              className="h-4 w-4 text-primary focus:ring-primary border"
                             />
                             <Label
                               htmlFor={`${filter.key}-${option.value}`}
@@ -337,10 +359,21 @@ export function XFilter({
             </div>
             <Separator />
             <div className="p-4 flex items-center justify-end gap-3">
-              <Button variant="outline" onClick={handleReset}>
+              <Button 
+                variant="outline" 
+                onClick={handleReset}
+                disabled={isLoading}
+                aria-label="Reset all filters"
+              >
                 Reset
               </Button>
-              <Button onClick={handleApply}>Search</Button>
+              <Button 
+                onClick={handleApply}
+                disabled={isLoading}
+                aria-label="Apply filters"
+              >
+                {isLoading ? "Searching..." : "Search"}
+              </Button>
             </div>
           </DropdownMenuContent>
         </DropdownMenu>

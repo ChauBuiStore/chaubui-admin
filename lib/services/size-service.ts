@@ -1,5 +1,6 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
 import { ApiResponse } from "@/lib/types";
+import { PaginatedResponse } from "@/lib/types/pagination.type";
 import {
   CreateSizeData,
   Size,
@@ -10,8 +11,9 @@ import {
 class SizeService {
   static async getSizes(
     filters?: SizeFilters
-  ): Promise<ApiResponse<Size[]>> {
-    const response = await httpClient.get<Size[]>(
+  ): Promise<ApiResponse<PaginatedResponse<Size[]>>>
+  {
+    const response = await httpClient.get<PaginatedResponse<Size[]>>(
       ENDPOINTS.SIZE.GET_ALL,
       {
         params: filters,

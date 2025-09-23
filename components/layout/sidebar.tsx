@@ -156,18 +156,18 @@ export function Sidebar({ className }: SidebarProps) {
   return (
     <SidebarComponent
       className={cn(
-        "bg-gradient-to-b from-slate-50 to-white border-r border-slate-200/60 shadow-xl",
+        "bg-background border-r border shadow-xl",
         className
       )}
     >
-      <SidebarHeader className="border-b border-slate-200/60 bg-gradient-to-r from-blue-600 to-purple-600">
+      <SidebarHeader className="bg-primary">
         <div className="flex items-center gap-3 px-4 py-1.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm shadow-lg">
-            <HomeIcon className="h-5 w-5 text-white" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-foreground/20 backdrop-blur-sm shadow-lg">
+            <HomeIcon className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">Châu Bùi Store</h2>
-            <p className="text-xs text-white/80">Admin Dashboard</p>
+            <h2 className="text-lg font-bold text-primary-foreground">Châu Bùi Store</h2>
+            <p className="text-xs text-primary-foreground/80">Admin Dashboard</p>
           </div>
         </div>
       </SidebarHeader>
@@ -193,10 +193,10 @@ export function Sidebar({ className }: SidebarProps) {
                         className={cn(
                           "h-12 px-3 rounded-lg transition-all duration-200 group cursor-pointer",
                           isActive
-                            ? "bg-blue-50 text-blue-700 border border-blue-200"
+                            ? "bg-primary/10 text-primary border border-primary/20"
                             : hasActiveChild
-                              ? "bg-slate-50 text-slate-600"
-                              : "hover:bg-slate-50 text-slate-700"
+                              ? "bg-muted text-muted-foreground"
+                              : "hover:bg-muted text-foreground"
                         )}
                         onClick={() => toggleExpanded(item.href)}
                       >
@@ -205,20 +205,20 @@ export function Sidebar({ className }: SidebarProps) {
                             className={cn(
                               "h-5 w-5 transition-colors duration-200",
                               isActive
-                                ? "text-blue-600"
+                                ? "text-primary"
                                 : hasActiveChild
-                                  ? "text-slate-600"
-                                  : "text-slate-600 group-hover:text-slate-800"
+                                  ? "text-muted-foreground"
+                                  : "text-muted-foreground group-hover:text-foreground"
                             )}
                           />
                           <span
                             className={cn(
                               "font-medium transition-colors duration-200",
                               isActive
-                                ? "text-blue-700"
+                                ? "text-primary"
                                 : hasActiveChild
-                                  ? "text-slate-600"
-                                  : "text-slate-700 group-hover:text-slate-900"
+                                  ? "text-muted-foreground"
+                                  : "text-foreground group-hover:text-foreground"
                             )}
                           >
                             {item.title}
@@ -227,8 +227,8 @@ export function Sidebar({ className }: SidebarProps) {
                             className={cn(
                               "ml-auto h-4 w-4 transition-transform duration-200",
                               isExpanded
-                                ? "text-slate-600 rotate-90"
-                                : "text-slate-500"
+                                ? "text-muted-foreground rotate-90"
+                                : "text-muted-foreground"
                             )}
                           />
                         </div>
@@ -241,8 +241,8 @@ export function Sidebar({ className }: SidebarProps) {
                         className={cn(
                           "h-12 px-3 rounded-lg transition-all duration-200 group",
                           isActive
-                            ? "bg-blue-50 text-blue-700 border border-blue-200"
-                            : "hover:bg-slate-50 text-slate-700"
+                            ? "bg-primary/10 text-primary border border-primary/20"
+                            : "hover:bg-muted text-foreground"
                         )}
                       >
                         <Link
@@ -253,16 +253,16 @@ export function Sidebar({ className }: SidebarProps) {
                             className={cn(
                               "h-5 w-5 transition-colors duration-200",
                               isActive
-                                ? "text-blue-600"
-                                : "text-slate-600 group-hover:text-slate-800"
+                                ? "text-primary"
+                                : "text-muted-foreground group-hover:text-foreground"
                             )}
                           />
                           <span
                             className={cn(
                               "font-medium transition-colors duration-200",
                               isActive
-                                ? "text-blue-700"
-                                : "text-slate-700 group-hover:text-slate-900"
+                                ? "text-primary"
+                                : "text-foreground group-hover:text-foreground"
                             )}
                           >
                             {item.title}
@@ -285,8 +285,8 @@ export function Sidebar({ className }: SidebarProps) {
                                 className={cn(
                                   "h-10 px-3 rounded-md transition-all duration-200 group",
                                   isChildActive
-                                    ? "bg-blue-50 text-blue-600 border border-blue-200"
-                                    : "hover:bg-slate-50 text-slate-600"
+                                    ? "bg-primary/10 text-primary border border-primary/20"
+                                    : "hover:bg-muted text-muted-foreground"
                                 )}
                               >
                                 <Link
@@ -297,16 +297,16 @@ export function Sidebar({ className }: SidebarProps) {
                                     className={cn(
                                       "h-4 w-4 transition-colors duration-200",
                                       isChildActive
-                                        ? "text-blue-500"
-                                        : "text-slate-500 group-hover:text-slate-700"
+                                        ? "text-primary"
+                                        : "text-muted-foreground group-hover:text-foreground"
                                     )}
                                   />
                                   <span
                                     className={cn(
                                       "text-sm font-medium transition-colors duration-200",
                                       isChildActive
-                                        ? "text-blue-600"
-                                        : "text-slate-600 group-hover:text-slate-800"
+                                        ? "text-primary"
+                                        : "text-muted-foreground group-hover:text-foreground"
                                     )}
                                   >
                                     {child.title}
@@ -326,13 +326,13 @@ export function Sidebar({ className }: SidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-slate-200/60 px-2 py-4">
+      <SidebarFooter className="border-t px-2 py-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={handleLogout}
               disabled={isLoading}
-              className="h-12 px-3 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-200 group cursor-pointer"
+              className="h-12 px-3 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10 transition-all duration-200 group cursor-pointer"
               tooltip="Logout"
             >
               <LogOutIcon className="h-5 w-5 group-hover:scale-105 transition-transform duration-200" />

@@ -89,7 +89,7 @@ export function MenusList({
       onPageSizeChange={onPageSizeChange}
       searchConfig={{
         enabled: true,
-        columnKey: "keyword",
+        columnKey: "search",
         placeholder: "Search menu...",
       }}
       filterConfig={{

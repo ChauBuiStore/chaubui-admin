@@ -1,10 +1,9 @@
 "use client";
 
-import { useAuth } from "@/lib/hooks";
-import { useRouter, usePathname } from "next/navigation";
-import { useEffect } from "react";
-import { useToast } from "@/lib/hooks/use-toast";
+import { useAuth, useToast } from "@/lib/hooks";
 import { isTokenValid } from "@/lib/utils/token-validation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -73,7 +72,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
       </div>
     );
   }

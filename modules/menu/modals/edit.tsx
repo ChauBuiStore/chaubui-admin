@@ -1,14 +1,8 @@
 "use client";
 
-import { XFormDialog } from "@/components/common";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input
-} from "@/components/ui";
+import { XDialog, XForm, XFormField } from "@/components/common";
+import { FORM_TYPES } from "@/lib/constants";
+import { useRef } from "react";
 import { FieldValues } from "react-hook-form";
 import { updateMenuSchema } from "../schemas";
 import { Menu } from "../types";
@@ -28,6 +22,7 @@ export function EditMenu({
   loading,
   menu,
 }: EditMenuProps) {
+  const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
     try {
       await onSubmit(data);
@@ -35,39 +30,42 @@ export function EditMenu({
     } catch {}
   };
 
+  const fields: XFormField[] = [
+    {
+      name: "name",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.TEXT,
+      label: "Menu Name",
+      placeholder: "Enter menu name",
+      required: true,
+    },
+  ];
+
   return (
-    <XFormDialog
+    <XDialog
       open={open}
       onOpenChange={onOpenChange}
       title="Edit Menu"
-      onSubmit={handleSubmit}
-      loading={loading}
-      schema={updateMenuSchema}
-      defaultValues={{
-        name: menu?.name || "",
-      }}
-      saveText="Update"
+      onConfirm={() => formRef.current?.requestSubmit()}
       onCancel={() => onOpenChange(false)}
+      confirmText="Update"
+      cancelText="Cancel"
+      loading={loading}
+      size="md"
     >
-      {(form) => {
-        return (
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Menu Name *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter menu name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        );
-      }}
-    </XFormDialog>
+      <XForm
+        ref={formRef}
+        schema={updateMenuSchema}
+        fields={fields}
+        onSubmit={handleSubmit}
+        spacing="md"
+        onSuccess={() => onOpenChange(false)}
+        onFormReady={(form) => {
+          form.reset({
+            name: menu?.name || "",
+          });
+        }}
+      />
+    </XDialog>
   );
 }

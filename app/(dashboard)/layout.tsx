@@ -1,4 +1,3 @@
-import { AuthGuard } from "@/components/auth/auth-guard";
 import { SidebarProvider, SidebarInset } from "@/components/ui";
 import { Sidebar, Header } from "@/components/layout";
 import { Suspense } from "react";
@@ -10,17 +9,15 @@ export default function DashboardLayout({
 }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <AuthGuard>
-        <div className="flex h-screen bg-muted">
-          <SidebarProvider>
-            <Sidebar />
-            <SidebarInset>
-              <Header />
-              <div className="p-6">{children}</div>
-            </SidebarInset>
-          </SidebarProvider>
-        </div>
-      </AuthGuard>
+      <div className="flex h-screen bg-muted">
+        <SidebarProvider>
+          <Sidebar />
+          <SidebarInset>
+            <Header />
+            <div className="p-6">{children}</div>
+          </SidebarInset>
+        </SidebarProvider>
+      </div>
     </Suspense>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, Input } from "@/components/ui";
+import { XButton, XLabel } from "@/components/common";
+import { Input } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
 import React, { forwardRef, useState } from "react";
@@ -21,6 +22,7 @@ export interface XInputProps
   required?: boolean;
   showPassword?: boolean;
   onTogglePassword?: () => void;
+  hideSpinner?: boolean;
   wrapperClassName?: string;
   labelClassName?: string;
   inputClassName?: string;
@@ -45,6 +47,7 @@ export const XInput = forwardRef<HTMLInputElement, XInputProps>(
       required = false,
       showPassword = false,
       onTogglePassword,
+      hideSpinner = false,
       wrapperClassName,
       labelClassName,
       inputClassName,
@@ -82,30 +85,33 @@ export const XInput = forwardRef<HTMLInputElement, XInputProps>(
         : "password"
       : type;
 
+    const isNumberType = type === "number";
+    const shouldHideSpinner = isNumberType && hideSpinner;
+
     return (
-      <>
+      <div className={cn("space-y-1", wrapperClassName)}>
         {label && (
-          <label
+          <XLabel
+            required={required}
+            error={hasError}
             className={cn(
               "text-sm font-medium text-foreground",
-              hasError && "text-destructive",
               disabled && "text-muted-foreground",
               labelClassName
             )}
           >
             {label}
-            {required && <span className="text-destructive ml-1">*</span>}
-          </label>
+          </XLabel>
         )}
 
-        {hasLeftContent && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-muted-foreground">
-            {leftIcon}
-            {prefix && <span className="text-sm">{prefix}</span>}
-          </div>
-        )}
+        <div className="relative">
+          {hasLeftContent && (
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-muted-foreground">
+              {leftIcon}
+              {prefix && <span className="text-sm">{prefix}</span>}
+            </div>
+          )}
 
-        <div className="relative mb-0">
           <Input
             ref={ref}
             type={currentType}
@@ -118,6 +124,9 @@ export const XInput = forwardRef<HTMLInputElement, XInputProps>(
                 : "",
               disabled ? "bg-muted cursor-not-allowed" : "",
               readOnly ? "bg-muted cursor-default" : "",
+              shouldHideSpinner
+                ? "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                : "",
               inputClassName,
               className
             )}
@@ -135,7 +144,7 @@ export const XInput = forwardRef<HTMLInputElement, XInputProps>(
               )}
 
               {shouldShowPasswordToggle && (
-                <Button
+                <XButton
                   type="button"
                   variant="ghost"
                   onClick={handleTogglePassword}
@@ -147,18 +156,24 @@ export const XInput = forwardRef<HTMLInputElement, XInputProps>(
                   ) : (
                     <Eye className="w-4 h-4" />
                   )}
-                </Button>
+                </XButton>
               )}
             </div>
           )}
         </div>
+
+        {hasError && errorMessage && (
+          <p className={cn("text-xs text-destructive", errorClassName)}>
+            {errorMessage}
+          </p>
+        )}
 
         {!hasError && helperText && (
           <p className={cn("text-xs text-muted-foreground", helperClassName)}>
             {helperText}
           </p>
         )}
-      </>
+      </div>
     );
   }
 );

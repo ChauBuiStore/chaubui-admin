@@ -1,14 +1,8 @@
 "use client";
 
-import { XFormDialog } from "@/components/common";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input
-} from "@/components/ui";
+import { XDialog, XForm, XFormField } from "@/components/common";
+import { FORM_TYPES } from "@/lib/constants";
+import { useRef } from "react";
 import { FieldValues } from "react-hook-form";
 import { createMenuSchema } from "../schemas";
 
@@ -25,6 +19,7 @@ export function CreateMenu({
   onSubmit,
   loading,
 }: CreateMenuProps) {
+  const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
     try {
       await onSubmit(data);
@@ -32,39 +27,38 @@ export function CreateMenu({
     } catch {}
   };
 
+  const fields: XFormField[] = [
+    {
+      name: "name",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.TEXT,
+      label: "Menu Name",
+      placeholder: "Enter menu name",
+      required: true,
+    },
+  ];
+
   return (
-    <XFormDialog
+    <XDialog
       open={open}
       onOpenChange={onOpenChange}
       title="Add New Menu"
-      onSubmit={handleSubmit}
-      loading={loading}
-      schema={createMenuSchema}
-      defaultValues={{
-        name: "",
-      }}
-      saveText="Add"
+      onConfirm={() => formRef.current?.requestSubmit()}
       onCancel={() => onOpenChange(false)}
+      confirmText="Add"
+      cancelText="Cancel"
+      loading={loading}
+      size="md"
     >
-      {(form) => {
-        return (
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Menu Name *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter menu name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        );
-      }}
-    </XFormDialog>
+      <XForm
+        ref={formRef}
+        schema={createMenuSchema}
+        fields={fields}
+        loading={loading}
+        onSubmit={handleSubmit}
+        spacing="md"
+        onSuccess={() => onOpenChange(false)}
+      />
+    </XDialog>
   );
 }

@@ -1,6 +1,5 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
 import { ApiResponse } from "@/lib/types";
-import { PaginatedResponse } from "@/lib/types/pagination.type";
 import {
   Product,
   ProductFilters,
@@ -11,9 +10,9 @@ import {
 class ProductService {
   static async getProducts(
     filters?: ProductFilters
-  ): Promise<ApiResponse<PaginatedResponse<Product[]>>>
+  ): Promise<ApiResponse<Product[]>>
   {
-    const response = await httpClient.get<PaginatedResponse<Product[]>>(
+    const response = await httpClient.get<Product[]>(
       ENDPOINTS.PRODUCT.GET_ALL,
       {
         params: filters,

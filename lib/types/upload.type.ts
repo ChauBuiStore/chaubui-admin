@@ -1,7 +1,7 @@
 import { FileUpload } from "./file.type";
 
 export interface Upload {
-  files: FileUpload[];
+  data: FileUpload[];
   count: number;
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
+import { XButton, XScrollArea } from "@/components/common";
 import {
-  Button,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  ScrollArea,
 } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -98,13 +97,13 @@ const variantIcons = {
 } as const;
 
 const sizeStyles = {
-  sm: "max-w-sm",
-  md: "max-w-md",
-  lg: "max-w-lg",
-  xl: "max-w-xl",
-  "2xl": "max-w-2xl",
-  "3xl": "max-w-3xl",
-  "4xl": "max-w-4xl",
+  sm: "sm:max-w-sm",
+  md: "sm:max-w-md",
+  lg: "sm:max-w-lg",
+  xl: "sm:max-w-xl",
+  "2xl": "sm:max-w-2xl",
+  "3xl": "sm:max-w-3xl",
+  "4xl": "sm:max-w-4xl",
   full: "max-w-[95vw] h-[95vh]",
 } as const;
 
@@ -245,7 +244,7 @@ export function XDialog({
               {customFooter || (
                 <div className="flex justify-end gap-2">
                   {defaultActions.map((action, index) => (
-                    <Button
+                    <XButton
                       key={`${action.label}-${index}`}
                       variant={action.variant || "default"}
                       onClick={action.onClick}
@@ -256,7 +255,7 @@ export function XDialog({
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
                       )}
                       {action.label}
-                    </Button>
+                    </XButton>
                   ))}
                 </div>
               )}
@@ -356,9 +355,9 @@ export const XFormDialog = <T extends FieldValues = FieldValues>({
       loading={loading || form.formState.isSubmitting}
       {...props}
     >
-      <ScrollArea>
+      <XScrollArea>
         <FormProvider {...form}>{children(form)}</FormProvider>
-      </ScrollArea>
+      </XScrollArea>
     </XDialog>
   );
 };

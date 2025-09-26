@@ -1,13 +1,12 @@
 "use client";
 
-import { Product } from "../types/product.type";
+import { Product } from "@/modules/product/types";
 
-interface SizesProps {
+interface SizeProps {
   product: Product;
 }
 
-export function Sizes({ product }: SizesProps) {
-  // Sử dụng variant.size (từ API có object đầy đủ)
+export function Size({ product }: SizeProps) {
   const variantSizes =
     product.variants?.map((variant) => variant.size).filter(Boolean) || [];
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui";
+import { XButton } from "@/components/common";
 import { RulerIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
 import { SizesList } from "./components";
@@ -47,10 +47,10 @@ export function SizesPage() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={handleCreateSize}>
+          <XButton onClick={handleCreateSize}>
             <PlusIcon className="h-4 w-4" />
             Add Size
-          </Button>
+          </XButton>
         </div>
       </div>
 

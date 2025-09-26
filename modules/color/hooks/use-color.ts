@@ -3,10 +3,14 @@
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { ColorService } from "@/lib/services";
+import {
+  Color,
+  CreateColorRequest,
+  UpdateColorRequest,
+} from "@/modules/color/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
-import { Color, CreateColorRequest, UpdateColorRequest } from "../types";
 
 export function useColor() {
   const queryClient = useQueryClient();
@@ -28,12 +32,11 @@ export function useColor() {
     showError((error as Error).message);
   }
 
-  const colors = colorsData?.data?.data || [];
-  const pagination = colorsData?.data?.meta;
+  const colors = colorsData?.data || [];
+  const pagination = colorsData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateColorRequest) =>
-      ColorService.createColor(data),
+    mutationFn: (data: CreateColorRequest) => ColorService.createColor(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
       success("Color created successfully!");
@@ -80,10 +83,10 @@ export function useColor() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
-  const [editingColor, setEditingColor] = useState<Color | undefined>(undefined);
-  const [selectedColor, setSelectedColor] = useState<Color | null>(
-    null
+  const [editingColor, setEditingColor] = useState<Color | undefined>(
+    undefined
   );
+  const [selectedColor, setSelectedColor] = useState<Color | null>(null);
   const [selectedColors, setSelectedColors] = useState<Color[]>([]);
 
   const handleCreateSubmit = async (data: FieldValues) => {
@@ -147,7 +150,7 @@ export function useColor() {
       setFilter({
         page,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        keyword: filters.keyword || ""
+        keyword: filters.keyword || "",
       });
     },
     [setFilter, filters.keyword]
@@ -158,7 +161,7 @@ export function useColor() {
       setFilter({
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        keyword: filters.keyword || ""
+        keyword: filters.keyword || "",
       });
     },
     [setFilter, filters.keyword]
@@ -169,7 +172,7 @@ export function useColor() {
       setFilter({
         keyword: searchTerm,
         page: PAGINATION_CONSTANTS.PAGE,
-        limit: PAGINATION_CONSTANTS.LIMIT
+        limit: PAGINATION_CONSTANTS.LIMIT,
       });
     },
     [setFilter]

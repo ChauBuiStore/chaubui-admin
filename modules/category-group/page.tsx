@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { XButton } from "@/components/common";
 import { FolderIcon, PlusIcon } from "lucide-react";
 import { CategoriesGroupList } from "./components/list";
 import { useCategoryGroup } from "./hooks";
@@ -47,10 +47,10 @@ export function CategoriesGroupPage() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={() => setShowCreateForm(true)} className="w-full sm:w-auto">
+          <XButton onClick={() => setShowCreateForm(true)} className="w-full sm:w-auto">
             <PlusIcon className="h-4 w-4" />
             <span>Add Category Group</span>
-          </Button>
+          </XButton>
         </div>
       </div>
 

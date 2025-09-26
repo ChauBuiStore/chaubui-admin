@@ -15,6 +15,7 @@ export interface XPopoverProps {
   triggerClassName?: string;
   disabled?: boolean;
   closeOnClickOutside?: boolean;
+  matchTriggerWidth?: boolean;
 }
 
 export function XPopover({
@@ -28,8 +29,15 @@ export function XPopover({
   triggerClassName,
   disabled = false,
   closeOnClickOutside = true,
+  matchTriggerWidth = false,
 }: XPopoverProps) {
-  const sizeClass = size === "sm" ? "w-56" : size === "lg" ? "w-96" : "w-80";
+  const sizeClass = matchTriggerWidth
+    ? "w-[var(--radix-popover-trigger-width)]"
+    : size === "sm"
+      ? "w-56"
+      : size === "lg"
+        ? "w-96"
+        : "w-80";
 
   return (
     <Popover open={open} onOpenChange={onOpenChange}>

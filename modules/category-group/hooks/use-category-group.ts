@@ -1,10 +1,14 @@
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { CategoryGroupService } from "@/lib/services";
+import {
+  CategoryGroup,
+  CreateCategoryGroupData,
+  UpdateCategoryGroupData,
+} from "@/modules/category-group/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
-import { CategoryGroup, CreateCategoryGroupData, UpdateCategoryGroupData } from "../types";
 
 export function useCategoryGroup() {
   const queryClient = useQueryClient();
@@ -27,8 +31,8 @@ export function useCategoryGroup() {
     showError((error as Error).message);
   }
 
-  const categoriesGroup = categoryGroupData?.data?.data || [];
-  const meta = categoryGroupData?.data?.meta;
+  const categoriesGroup = categoryGroupData?.data || [];
+  const meta = categoryGroupData?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateCategoryGroupData) =>
@@ -43,13 +47,8 @@ export function useCategoryGroup() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({
-      id,
-      data,
-    }: {
-      id: string;
-      data: UpdateCategoryGroupData;
-    }) => CategoryGroupService.updateCategoryGroup(id, data),
+    mutationFn: ({ id, data }: { id: string; data: UpdateCategoryGroupData }) =>
+      CategoryGroupService.updateCategoryGroup(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
       success("Category group updated successfully!");
@@ -172,29 +171,38 @@ export function useCategoryGroup() {
     setShowDeleteForm(true);
   };
 
-  const handlePageChange = useCallback((page: number) => {
-    setFilter({
-      page,
-      limit: PAGINATION_CONSTANTS.LIMIT,
-      keyword: filters.keyword || undefined
-    });
-  }, [setFilter, filters.keyword]);
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setFilter({
+        page,
+        limit: PAGINATION_CONSTANTS.LIMIT,
+        keyword: filters.keyword || undefined,
+      });
+    },
+    [setFilter, filters.keyword]
+  );
 
-  const handlePageSizeChange = useCallback((pageSize: number) => {
-    setFilter({
-      page: PAGINATION_CONSTANTS.PAGE,
-      limit: pageSize,
-      keyword: filters.keyword || undefined
-    });
-  }, [setFilter, filters.keyword]);
+  const handlePageSizeChange = useCallback(
+    (pageSize: number) => {
+      setFilter({
+        page: PAGINATION_CONSTANTS.PAGE,
+        limit: pageSize,
+        keyword: filters.keyword || undefined,
+      });
+    },
+    [setFilter, filters.keyword]
+  );
 
-  const handleSearchChange = useCallback((searchTerm: string) => {
-    setFilter({
-      keyword: searchTerm,
-      page: PAGINATION_CONSTANTS.PAGE,
-      limit: PAGINATION_CONSTANTS.LIMIT
-    });
-  }, [setFilter]);
+  const handleSearchChange = useCallback(
+    (searchTerm: string) => {
+      setFilter({
+        keyword: searchTerm,
+        page: PAGINATION_CONSTANTS.PAGE,
+        limit: PAGINATION_CONSTANTS.LIMIT,
+      });
+    },
+    [setFilter]
+  );
 
   return {
     categoriesGroup,

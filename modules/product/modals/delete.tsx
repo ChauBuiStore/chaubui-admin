@@ -1,7 +1,7 @@
 "use client";
 
 import { XConfirmDialog } from "@/components/common";
-import { Product } from "../types/product.type";
+import { Product } from "../types";
 
 interface DeleteProductProps {
   open: boolean;

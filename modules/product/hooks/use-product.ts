@@ -2,11 +2,20 @@
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
-import { CategoryService, ColorService, ProductService, SizeService } from "@/lib/services";
+import {
+  CategoryService,
+  ColorService,
+  ProductService,
+  SizeService,
+} from "@/lib/services";
+import {
+  CreateProductData,
+  Product,
+  UpdateProductData,
+} from "@/modules/product/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
-import { Product, CreateProductData, UpdateProductData } from "../types";
 
 export function useProduct() {
   const queryClient = useQueryClient();
@@ -44,11 +53,11 @@ export function useProduct() {
     showError((error as Error).message);
   }
 
-  const products = productsData?.data?.data || [];
-  const categories = categoriesData?.data?.data || [];
-  const colors = colorsData?.data?.data || [];
-  const sizes = sizesData?.data?.data || [];
-  const pagination = productsData?.data?.meta;
+  const products = productsData?.data || [];
+  const categories = categoriesData?.data || [];
+  const colors = colorsData?.data || [];
+  const sizes = sizesData?.data || [];
+  const pagination = productsData?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateProductData) => {
@@ -117,12 +126,18 @@ export function useProduct() {
     if (!editingProduct) return;
 
     if (data.images?.length > 0) {
-      const invalidImages = data.images.filter((img: { fileId?: string; alt?: string; sortOrder?: number; isThumbnail?: boolean }) => 
-        !img.fileId || 
-        !img.alt || 
-        typeof img.sortOrder !== 'number' || 
-        img.sortOrder < 1 ||
-        typeof img.isThumbnail !== 'boolean'
+      const invalidImages = data.images.filter(
+        (img: {
+          fileId?: string;
+          alt?: string;
+          sortOrder?: number;
+          isThumbnail?: boolean;
+        }) =>
+          !img.fileId ||
+          !img.alt ||
+          typeof img.sortOrder !== "number" ||
+          img.sortOrder < 1 ||
+          typeof img.isThumbnail !== "boolean"
       );
 
       if (invalidImages.length > 0) {
@@ -130,19 +145,27 @@ export function useProduct() {
         return;
       }
 
-      const sortOrders = data.images.map((img: { sortOrder?: number }) => img.sortOrder as number);
-      const duplicateSortOrders = sortOrders.filter((order: number, index: number) => 
-        sortOrders.indexOf(order) !== index
+      const sortOrders = data.images.map(
+        (img: { sortOrder?: number }) => img.sortOrder as number
+      );
+      const duplicateSortOrders = sortOrders.filter(
+        (order: number, index: number) => sortOrders.indexOf(order) !== index
       );
 
       if (duplicateSortOrders.length > 0) {
-        showError("Images have duplicate sort orders. Please check and try again.");
+        showError(
+          "Images have duplicate sort orders. Please check and try again."
+        );
         return;
       }
 
-      const thumbnailCount = data.images.filter((img: { isThumbnail?: boolean }) => Boolean(img.isThumbnail)).length;
+      const thumbnailCount = data.images.filter(
+        (img: { isThumbnail?: boolean }) => Boolean(img.isThumbnail)
+      ).length;
       if (thumbnailCount > 1) {
-        showError("Only one image can be set as thumbnail. Please check and try again.");
+        showError(
+          "Only one image can be set as thumbnail. Please check and try again."
+        );
         return;
       }
     }
@@ -196,7 +219,7 @@ export function useProduct() {
       setFilter({
         page,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        search: filters.search || ""
+        search: filters.search || "",
       });
     },
     [setFilter, filters.search]
@@ -207,7 +230,7 @@ export function useProduct() {
       setFilter({
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        search: filters.search || ""
+        search: filters.search || "",
       });
     },
     [setFilter, filters.search]
@@ -218,7 +241,7 @@ export function useProduct() {
       setFilter({
         search: searchTerm,
         page: PAGINATION_CONSTANTS.PAGE,
-        limit: PAGINATION_CONSTANTS.LIMIT
+        limit: PAGINATION_CONSTANTS.LIMIT,
       });
     },
     [setFilter]

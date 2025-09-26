@@ -3,10 +3,10 @@
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { SizeService } from "@/lib/services";
+import { CreateSizeData, Size, UpdateSizeData } from "@/modules/size/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
-import { Size, CreateSizeData, UpdateSizeData } from "../types";
 
 export function useSize() {
   const queryClient = useQueryClient();
@@ -29,8 +29,8 @@ export function useSize() {
     showError((error as Error).message);
   }
 
-  const sizes = sizesData?.data?.data || [];
-  const pagination = sizesData?.data?.meta;
+  const sizes = sizesData?.data || [];
+  const pagination = sizesData?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateSizeData) =>

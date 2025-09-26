@@ -1,11 +1,10 @@
 "use client";
 
-import { XDialog } from "@/components/common";
-import { Button } from "@/components/ui";
+import { XButton, XDialog } from "@/components/common";
+import { Product } from "@/modules/product/types";
 import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { Product } from "../types/product.type";
 
 interface ImageWithFallbackProps {
   src: string;
@@ -141,14 +140,13 @@ export function Images({ product }: ImagesProps) {
         onKeyDown={handleKeyDown}
       >
         {images.length > 1 && (
-          <Button
+          <XButton
             variant="ghost"
-            size="icon"
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-card/80 hover:bg-card text-foreground hover:text-foreground rounded-full shadow-lg border transition-all duration-200 hover:scale-105 cursor-pointer"
             onClick={handlePrevious}
           >
             <ChevronLeft className="w-6 h-6" />
-          </Button>
+          </XButton>
         )}
 
         <div className="relative w-full h-full">
@@ -162,14 +160,13 @@ export function Images({ product }: ImagesProps) {
         </div>
 
         {images.length > 1 && (
-          <Button
+          <XButton
             variant="ghost"
-            size="icon"
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-card/80 hover:bg-card text-foreground hover:text-foreground rounded-full shadow-lg border transition-all duration-200 hover:scale-105 cursor-pointer"
             onClick={handleNext}
           >
             <ChevronRight className="w-6 h-6" />
-          </Button>
+          </XButton>
         )}
 
         {images.length > 1 && (
@@ -188,9 +185,9 @@ export function Images({ product }: ImagesProps) {
               .map((image, index) => {
                 const actualIndex = Math.max(0, currentImageIndex - 2) + index;
                 return (
-                  <Button 
+                  <XButton 
                     key={actualIndex}
-                    className={`relative w-12 h-12 rounded overflow-hidden border-2 transition-all ${
+                    className={`relative w-12 h-12 rounded !bg-transparent overflow-hidden border-2 transition-all ${
                       actualIndex === currentImageIndex
                         ? "border-primary scale-110 shadow-lg"
                         : "opacity-70 hover:opacity-90 border hover:border-foreground/50"
@@ -204,7 +201,7 @@ export function Images({ product }: ImagesProps) {
                       className="object-cover"
                       sizes="48px"
                     />
-                  </Button>
+                  </XButton>
                 );
               })}
           </div>

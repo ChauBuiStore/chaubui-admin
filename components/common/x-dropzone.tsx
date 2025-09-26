@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input, Label } from "@/components/ui";
+import { XButton, XLabel } from "@/components/common";
 import { useToast } from "@/lib/hooks";
 import { UploadService } from "@/lib/services";
 import { FileUpload } from "@/lib/types";
@@ -56,8 +56,8 @@ export function XDropzone({
     mutationFn: async (files: File[]) => {
       const response = await UploadService.upload(files);
 
-      if (response.data?.files) {
-        return response.data.files;
+      if (response.data?.data) {
+        return response.data.data;
       } else {
         return [];
       }
@@ -152,7 +152,7 @@ export function XDropzone({
           width={200}
           height={128}
         />
-        <Button
+        <XButton
           type="button"
           variant="destructive"
           size="sm"
@@ -166,7 +166,7 @@ export function XDropzone({
           }
         >
           <XIcon className="h-3 w-3" />
-        </Button>
+        </XButton>
       </div>
     );
   };
@@ -210,7 +210,7 @@ export function XDropzone({
                     </p>
                   </div>
 
-                  <Button
+                  <XButton
                     type="button"
                     variant="destructive"
                     size="sm"
@@ -226,7 +226,7 @@ export function XDropzone({
                     }
                   >
                     <XIcon className="h-3 w-3" />
-                  </Button>
+                  </XButton>
 
                   <div className="absolute top-1 left-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
                     {index + 1}
@@ -242,7 +242,7 @@ export function XDropzone({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <Label className="mb-2">Files Upload</Label>
+      <XLabel className="mb-2">Files Upload</XLabel>
 
       <div
         {...getRootProps()}
@@ -257,7 +257,7 @@ export function XDropzone({
             "hover:border"
         )}
       >
-        <Input {...getInputProps()} className="hidden" />
+        <input {...getInputProps()} className="hidden" />
 
         {!multiple && uploadedFiles.length > 0 ? (
           renderSingleModePreview()

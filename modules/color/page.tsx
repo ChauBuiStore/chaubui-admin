@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui";
+import { XButton } from "@/components/common";
 import { PaletteIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
 import { ColorsList } from "./components/list";
@@ -47,10 +47,10 @@ export function ColorsPage() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={handleCreateColor}>
+          <XButton onClick={handleCreateColor}>
             <PlusIcon className="h-4 w-4" />
             Add Color
-          </Button>
+          </XButton>
         </div>
       </div>
 

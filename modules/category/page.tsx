@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { XButton } from "@/components/common";
 import { FolderIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
 import { CategoriesList } from "./components/list";
@@ -48,10 +48,10 @@ export function CategoriesPage() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={handleCreateCategory}>
+          <XButton onClick={handleCreateCategory}>
             <PlusIcon className="h-4 w-4" />
             Add Category
-          </Button>
+          </XButton>
         </div>
       </div>
 

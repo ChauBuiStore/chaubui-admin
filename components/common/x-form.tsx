@@ -1,40 +1,52 @@
 "use client";
 
 import {
-  Button,
-  Checkbox,
+  XCheckbox,
+  XInput,
+  XLabel,
+  XRadioGroup,
+  XSelect,
+  XTextarea,
+} from "@/components/common";
+import {
   Form,
-  Input,
-  RadioGroup,
-  RadioGroupItem,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Textarea,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui";
+
+import { FORM_TYPES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { Eye, EyeOff } from "lucide-react";
 import React, { forwardRef, useEffect, useState } from "react";
-import { FieldValues, useForm } from "react-hook-form";
+import {
+  ControllerRenderProps,
+  FieldPath,
+  FieldValues,
+  useForm,
+} from "react-hook-form";
 import { z } from "zod";
+
+const getFieldType = (type?: string): XFormField["type"] => {
+  const validTypes = [
+    FORM_TYPES.INPUT,
+    FORM_TYPES.SELECT,
+    FORM_TYPES.TEXTAREA,
+    FORM_TYPES.RADIO,
+    FORM_TYPES.CHECKBOX,
+  ] as const;
+  return validTypes.includes(type as (typeof validTypes)[number])
+    ? (type as XFormField["type"])
+    : FORM_TYPES.INPUT;
+};
 
 export interface XFormField {
   name: string;
-  type:
-    | "text"
-    | "email"
-    | "password"
-    | "number"
-    | "tel"
-    | "url"
-    | "select"
-    | "textarea"
-    | "radio"
-    | "checkbox";
+  type?: string;
+  subType?: "text" | "email" | "password" | "number" | "tel" | "url";
   label?: string;
   placeholder?: string;
   required?: boolean;
@@ -49,6 +61,14 @@ export interface XFormField {
   rows?: number;
   orientation?: "horizontal" | "vertical";
   checkboxLabel?: string;
+  component?: React.ComponentType<Record<string, unknown>>;
+  componentProps?: Record<string, unknown>;
+  fields?: string[];
+  isMultiField?: boolean;
+  isArray?: boolean;
+  arrayItemSchema?: z.ZodSchema<unknown>;
+  maxItems?: number;
+  minItems?: number;
 }
 
 export interface XFormProps<T = Record<string, unknown>> {
@@ -64,259 +84,212 @@ export interface XFormProps<T = Record<string, unknown>> {
   onFormReady?: (form: ReturnType<typeof useForm>) => void;
 }
 
-const XForm = forwardRef<HTMLFormElement, XFormProps<Record<string, unknown>>>(
-  (props, ref) => {
-    const {
-      schema,
-      fields,
-      onSubmit,
-      spacing = "md",
-      loading = false,
-      disabled = false,
-      className,
-      onSuccess,
-      onError,
-      onFormReady,
-      ...restProps
-    } = props;
-    const [showPasswordStates, setShowPasswordStates] = useState<
-      Record<string, boolean>
-    >({});
+function XFormInner<T extends Record<string, unknown>>(
+  props: XFormProps<T>,
+  ref: React.ForwardedRef<HTMLFormElement>
+) {
+  const {
+    schema,
+    fields,
+    onSubmit,
+    spacing = "md",
+    loading = false,
+    disabled = false,
+    className,
+    onSuccess,
+    onError,
+    onFormReady,
+    ...restProps
+  } = props;
+  const [showPasswordStates, setShowPasswordStates] = useState<
+    Record<string, boolean>
+  >({});
 
-    const form = useForm<FieldValues>({
-      // @ts-expect-error: zodResolver has complex type constraints that don't align perfectly with our generic setup
-      resolver: zodResolver(schema),
-      defaultValues: fields.reduce((acc, field) => {
-        acc[field.name] = field.type === "number" ? 0 : "";
-        return acc;
-      }, {} as FieldValues),
-    });
+  const form = useForm<FieldValues>({
+    // @ts-expect-error - schema is not typed
+    resolver: zodResolver(schema),
+    defaultValues: fields.reduce((acc, field) => {
+      acc[field.name] = field.type === FORM_TYPES.NUMBER ? 0 : "";
+      return acc;
+    }, {} as FieldValues),
+  });
 
-    const mutation = useMutation({
-      mutationFn: async (data: FieldValues) => {
-        const result = onSubmit(data as Record<string, unknown>);
-        return result instanceof Promise ? await result : result;
-      },
-      onSuccess: (data) => {
-        onSuccess?.(data);
-        form.reset();
-      },
-      onError: (error) => {
-        onError?.(error);
-      },
-    });
+  useEffect(() => {
+    if (onFormReady) {
+      onFormReady(form);
+    }
+  }, [form, onFormReady]);
 
-    useEffect(() => {
-      if (onFormReady) {
-        onFormReady(form);
-      }
-    }, [form, onFormReady]);
+  const handleSubmit = form.handleSubmit(async (data: FieldValues) => {
+    try {
+      const result = onSubmit(data as T);
+      const awaited = result instanceof Promise ? await result : result;
+      onSuccess?.(awaited);
+    } catch (error) {
+      onError?.(error as Error);
+    }
+  });
 
-    const handleSubmit = form.handleSubmit((data: FieldValues) => {
-      mutation.mutate(data);
-    });
+  const togglePassword = (fieldName: string) => {
+    setShowPasswordStates((prev) => ({
+      ...prev,
+      [fieldName]: !prev[fieldName],
+    }));
+  };
 
-    const togglePassword = (fieldName: string) => {
-      setShowPasswordStates((prev) => ({
-        ...prev,
-        [fieldName]: !prev[fieldName],
-      }));
-    };
+  const spacingClasses = {
+    none: "space-y-0",
+    sm: "space-y-3",
+    md: "space-y-6",
+    lg: "space-y-8",
+  };
 
-    const spacingClasses = {
-      none: "space-y-0",
-      sm: "space-y-3",
-      md: "space-y-6",
-      lg: "space-y-8",
-    };
+  const isFormLoading = loading;
 
-    const isFormLoading = loading || mutation.isPending;
+  return (
+    <Form {...form}>
+      <form
+        ref={ref}
+        onSubmit={handleSubmit}
+        className={cn(
+          spacingClasses[spacing],
+          (isFormLoading || disabled) && "opacity-50 pointer-events-none",
+          className
+        )}
+        {...restProps}
+      >
+        {fields.map((field) => {
+          const fieldType = getFieldType(field.type);
+          const fieldError = form.formState.errors[field.name];
+          const hasError = !!fieldError;
+          const errorMessage = fieldError?.message as string;
+          const isFieldDisabled = disabled || isFormLoading || !!field.disabled;
 
-    return (
-      <Form {...form}>
-        <form
-          ref={ref}
-          onSubmit={handleSubmit}
-          className={cn(
-            spacingClasses[spacing],
-            isFormLoading && "opacity-50 pointer-events-none",
-            disabled && "opacity-50 pointer-events-none",
-            className
-          )}
-          {...restProps}
-        >
-          {fields.map((field) => {
-            const fieldError = form.formState.errors[field.name];
-            const hasError = !!fieldError;
-            const errorMessage = fieldError?.message as string;
-            const isFieldDisabled = disabled || isFormLoading || field.disabled;
+          if (fieldType === FORM_TYPES.SELECT) {
+            return (
+              <FormField
+                key={field.name}
+                name={field.name as never}
+                render={({
+                  field: rhfField,
+                }: {
+                  field: ControllerRenderProps<
+                    FieldValues,
+                    FieldPath<FieldValues>
+                  >;
+                }) => (
+                  <FormItem>
+                    {field.label && (
+                      <FormLabel className="gap-1">{field.label}</FormLabel>
+                    )}
+                    <FormControl>
+                      <XSelect
+                        options={field.options || []}
+                        value={(rhfField.value as string) || ""}
+                        onValueChange={(value) => rhfField.onChange(value)}
+                        disabled={isFieldDisabled}
+                        placeholder={field.placeholder}
+                        className={cn(
+                          hasError &&
+                            "border-destructive focus:border-destructive focus:ring-destructive"
+                        )}
+                      />
+                    </FormControl>
+                    {!hasError && field.helperText && (
+                      <FormDescription>{field.helperText}</FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            );
+          }
 
-            if (field.type === "select") {
+          if (field.component) {
+            const CustomComponent = field.component;
+            const customComponentClassName = cn(
+              (field.componentProps as { className?: string } | undefined)
+                ?.className,
+              hasError &&
+                "border-destructive focus:border-destructive focus:ring-destructive"
+            );
+
+            if (field.isArray) {
+              const arrayValue = (form.watch(field.name) as unknown[]) || [];
+              const rawErrors = form.formState.errors[field.name];
+              const arrayErrors =
+                rawErrors &&
+                typeof rawErrors === "object" &&
+                !Array.isArray(rawErrors)
+                  ? (rawErrors as { [key: number]: { message: string } })
+                  : {};
+
               return (
                 <div key={field.name} className="space-y-2">
                   {field.label && (
-                    <label className="text-sm font-medium text-foreground">
+                    <XLabel className="gap-1" required={field.required}>
                       {field.label}
-                      {field.required && (
-                        <span className="text-destructive ml-1">*</span>
-                      )}
-                    </label>
+                    </XLabel>
                   )}
-                  <Select
-                    value={form.watch(field.name) || ""}
-                    onValueChange={(value) => form.setValue(field.name, value)}
+                  <CustomComponent
+                    values={arrayValue}
+                    onChange={(newValues: unknown[]) => {
+                      form.setValue(field.name, newValues, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      });
+                    }}
                     disabled={isFieldDisabled}
-                  >
-                    <SelectTrigger
-                      className={cn(
-                        hasError &&
-                          "border-destructive focus:border-destructive focus:ring-destructive"
-                      )}
-                    >
-                      <SelectValue placeholder={field.placeholder} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {field.options?.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {hasError && (
-                    <p className="text-xs text-destructive">{errorMessage}</p>
-                  )}
-                  {!hasError && field.helperText && (
-                    <p className="text-xs text-muted-foreground">
-                      {field.helperText}
-                    </p>
-                  )}
-                </div>
-              );
-            }
-
-            if (field.type === "textarea") {
-              return (
-                <div key={field.name} className="space-y-2">
-                  {field.label && (
-                    <label className="text-sm font-medium text-foreground">
-                      {field.label}
-                      {field.required && (
-                        <span className="text-destructive ml-1">*</span>
-                      )}
-                    </label>
-                  )}
-                  <Textarea
-                    {...form.register(field.name)}
+                    errors={arrayErrors}
+                    maxItems={field.maxItems}
+                    minItems={field.minItems}
+                    className={customComponentClassName}
                     placeholder={field.placeholder}
-                    disabled={isFieldDisabled}
-                    rows={field.rows || 4}
-                    className={cn(
-                      "resize-none",
-                      hasError &&
-                        "border-destructive focus:border-destructive focus:ring-destructive"
-                    )}
+                    {...(field.componentProps || {})}
                   />
-                  {hasError && (
-                    <p className="text-xs text-destructive">{errorMessage}</p>
-                  )}
-                  {!hasError && field.helperText && (
-                    <p className="text-xs text-muted-foreground">
-                      {field.helperText}
-                    </p>
-                  )}
                 </div>
               );
             }
 
-            if (field.type === "radio") {
+            if (field.isMultiField && field.fields) {
+              const multiFieldValues = field.fields.reduce((acc, fieldName) => {
+                acc[fieldName] = form.watch(fieldName) || "";
+                return acc;
+              }, {} as Record<string, unknown>);
+
+              const multiFieldErrors = field.fields.reduce((acc, fieldName) => {
+                const fieldError = form.formState.errors[fieldName];
+                if (fieldError) {
+                  acc[fieldName] = fieldError.message as string;
+                }
+                return acc;
+              }, {} as Record<string, string>);
+
               return (
                 <div key={field.name} className="space-y-2">
                   {field.label && (
-                    <label className="text-sm font-medium text-foreground">
+                    <XLabel className="gap-1" required={field.required}>
                       {field.label}
-                      {field.required && (
-                        <span className="text-destructive ml-1">*</span>
-                      )}
-                    </label>
+                    </XLabel>
                   )}
-                  <RadioGroup
-                    value={form.watch(field.name) || ""}
-                    onValueChange={(value) => form.setValue(field.name, value)}
+                  <CustomComponent
+                    values={multiFieldValues}
+                    onChange={(values: Record<string, unknown>) => {
+                      Object.entries(values).forEach(([key, fieldValue]) => {
+                        form.setValue(key, fieldValue, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        });
+                      });
+                    }}
                     disabled={isFieldDisabled}
-                    className={cn(
-                      field.orientation === "horizontal"
-                        ? "flex flex-row flex-wrap gap-4"
-                        : "flex flex-col gap-3"
-                    )}
-                  >
-                    {field.options?.map((option) => (
-                      <div
-                        key={option.value}
-                        className="flex items-center space-x-2"
-                      >
-                        <RadioGroupItem
-                          value={option.value}
-                          id={`${field.name}-${option.value}`}
-                          disabled={isFieldDisabled}
-                        />
-                        <label
-                          htmlFor={`${field.name}-${option.value}`}
-                          className={cn(
-                            "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
-                            isFieldDisabled && "opacity-50 cursor-not-allowed"
-                          )}
-                        >
-                          {option.label}
-                        </label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                  {hasError && (
-                    <p className="text-xs text-destructive">{errorMessage}</p>
-                  )}
-                  {!hasError && field.helperText && (
-                    <p className="text-xs text-muted-foreground">
-                      {field.helperText}
-                    </p>
-                  )}
-                </div>
-              );
-            }
-
-            if (field.type === "checkbox") {
-              return (
-                <div key={field.name} className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={field.name}
-                      checked={form.watch(field.name) || false}
-                      onCheckedChange={(checked) =>
-                        form.setValue(field.name, checked)
-                      }
-                      disabled={isFieldDisabled}
-                    />
-                    <label
-                      htmlFor={field.name}
-                      className={cn(
-                        "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
-                        isFieldDisabled && "opacity-50 cursor-not-allowed"
-                      )}
-                    >
-                      {field.checkboxLabel || field.label}
-                      {field.required && (
-                        <span className="text-destructive ml-1">*</span>
-                      )}
-                    </label>
-                  </div>
-                  {hasError && (
-                    <p className="text-xs text-destructive">{errorMessage}</p>
-                  )}
-                  {!hasError && field.helperText && (
-                    <p className="text-xs text-muted-foreground">
-                      {field.helperText}
-                    </p>
-                  )}
+                    errors={multiFieldErrors}
+                    className={customComponentClassName}
+                    placeholder={field.placeholder}
+                    {...(field.componentProps || {})}
+                  />
                 </div>
               );
             }
@@ -324,92 +297,252 @@ const XForm = forwardRef<HTMLFormElement, XFormProps<Record<string, unknown>>>(
             return (
               <div key={field.name} className="space-y-2">
                 {field.label && (
-                  <label className="text-sm font-medium text-foreground">
+                  <XLabel className="gap-1" required={field.required}>
                     {field.label}
-                    {field.required && (
-                      <span className="text-destructive ml-1">*</span>
-                    )}
-                  </label>
+                  </XLabel>
                 )}
-                <div className="relative">
-                  {field.leftIcon && (
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      {field.leftIcon}
-                    </div>
-                  )}
-                  {field.prefix && (
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                      {field.prefix}
-                    </div>
-                  )}
-                  <Input
-                    {...form.register(field.name)}
-                    type={
-                      field.type === "password"
-                        ? showPasswordStates[field.name]
-                          ? "text"
-                          : "password"
-                        : field.type
+                <CustomComponent
+                  value={(form.watch(field.name) as string) || ""}
+                  onChange={(value: unknown) => {
+                    if (
+                      typeof value === "object" &&
+                      value !== null &&
+                      !Array.isArray(value)
+                    ) {
+                      Object.entries(value).forEach(([key, fieldValue]) => {
+                        form.setValue(key, fieldValue, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                          shouldTouch: true,
+                        });
+                      });
+                    } else {
+                      form.setValue(field.name, value as never, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      });
                     }
-                    placeholder={field.placeholder}
-                    disabled={isFieldDisabled}
-                    className={cn(
-                      "h-12",
-                      field.leftIcon || field.prefix ? "pl-10" : "",
-                      field.rightIcon ||
-                        field.suffix ||
-                        field.type === "password"
-                        ? "pr-10"
-                        : "",
-                      hasError &&
-                        "border-destructive focus:border-destructive focus:ring-destructive"
-                    )}
-                  />
-                  {(field.rightIcon ||
-                    field.suffix ||
-                    field.type === "password") && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                      {field.rightIcon}
-                      {field.suffix && (
-                        <span className="text-sm text-muted-foreground">
-                          {field.suffix}
-                        </span>
-                      )}
-                      {field.type === "password" && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => togglePassword(field.name)}
-                          className="h-auto p-0 text-muted-foreground hover:text-foreground"
-                        >
-                          {showPasswordStates[field.name] ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
-                {hasError && (
-                  <p className="text-xs text-destructive">{errorMessage}</p>
-                )}
-                {!hasError && field.helperText && (
-                  <p className="text-xs text-muted-foreground">
-                    {field.helperText}
-                  </p>
-                )}
+                  }}
+                  disabled={isFieldDisabled}
+                  hasError={hasError}
+                  errorMessage={errorMessage}
+                  className={customComponentClassName}
+                  placeholder={field.placeholder}
+                  {...(field.componentProps || {})}
+                />
               </div>
             );
-          })}
-        </form>
-      </Form>
-    );
-  }
-);
+          }
 
-XForm.displayName = "XForm";
+          if (fieldType === FORM_TYPES.TEXTAREA) {
+            return (
+              <FormField
+                key={field.name}
+                name={field.name as never}
+                render={({
+                  field: rhfField,
+                }: {
+                  field: ControllerRenderProps<
+                    FieldValues,
+                    FieldPath<FieldValues>
+                  >;
+                }) => (
+                  <FormItem>
+                    {field.label && (
+                      <FormLabel className="gap-1">{field.label}</FormLabel>
+                    )}
+                    <FormControl>
+                      <XTextarea
+                        {...(rhfField as unknown as Record<string, unknown>)}
+                        placeholder={field.placeholder}
+                        disabled={isFieldDisabled}
+                        rows={field.rows || 4}
+                        className={cn(
+                          "resize-none",
+                          hasError &&
+                            "border-destructive focus:border-destructive focus:ring-destructive"
+                        )}
+                      />
+                    </FormControl>
+                    {!hasError && field.helperText && (
+                      <FormDescription>{field.helperText}</FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            );
+          }
+
+          if (fieldType === FORM_TYPES.RADIO) {
+            return (
+              <FormField
+                key={field.name}
+                name={field.name as never}
+                render={({
+                  field: rhfField,
+                }: {
+                  field: ControllerRenderProps<
+                    FieldValues,
+                    FieldPath<FieldValues>
+                  >;
+                }) => (
+                  <FormItem>
+                    {field.label && (
+                      <FormLabel className="gap-1">{field.label}</FormLabel>
+                    )}
+                    <FormControl>
+                      <XRadioGroup
+                        options={field.options || []}
+                        value={(rhfField.value as string) || ""}
+                        onValueChange={(value) => rhfField.onChange(value)}
+                        orientation={field.orientation}
+                        disabled={isFieldDisabled}
+                        label={field.label}
+                        required={field.required}
+                        error={hasError ? String(errorMessage) : undefined}
+                        name={field.name}
+                      />
+                    </FormControl>
+                    {!hasError && field.helperText && (
+                      <FormDescription>{field.helperText}</FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            );
+          }
+
+          if (fieldType === FORM_TYPES.CHECKBOX) {
+            return (
+              <FormField
+                key={field.name}
+                name={field.name as never}
+                render={({
+                  field: rhfField,
+                }: {
+                  field: ControllerRenderProps<
+                    FieldValues,
+                    FieldPath<FieldValues>
+                  >;
+                }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center space-x-2">
+                        <XCheckbox
+                          id={field.name}
+                          checked={!!rhfField.value}
+                          onCheckedChange={(checked) =>
+                            rhfField.onChange(checked)
+                          }
+                          disabled={isFieldDisabled}
+                          label={field.checkboxLabel || field.label}
+                        />
+                      </div>
+                    </FormControl>
+                    {!hasError && field.helperText && (
+                      <FormDescription>{field.helperText}</FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            );
+          }
+
+          return (
+            <FormField
+              key={field.name}
+              name={field.name as never}
+              render={({
+                field: rhfField,
+              }: {
+                field: ControllerRenderProps<
+                  FieldValues,
+                  FieldPath<FieldValues>
+                >;
+              }) => (
+                <FormItem>
+                  {field.label && (
+                    <FormLabel className="gap-1">{field.label}</FormLabel>
+                  )}
+                  <FormControl>
+                    <div className="relative">
+                      {field.leftIcon && (
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          {field.leftIcon}
+                        </div>
+                      )}
+                      {field.prefix && (
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                          {field.prefix}
+                        </div>
+                      )}
+                      <XInput
+                        {...(rhfField as unknown as Record<string, unknown>)}
+                        type={
+                          fieldType === FORM_TYPES.INPUT &&
+                          field.subType === FORM_TYPES.PASSWORD
+                            ? FORM_TYPES.PASSWORD
+                            : field.subType || FORM_TYPES.TEXT
+                        }
+                        showPassword={
+                          fieldType === FORM_TYPES.INPUT &&
+                          field.subType === FORM_TYPES.PASSWORD
+                            ? !!showPasswordStates[field.name]
+                            : undefined
+                        }
+                        onTogglePassword={
+                          fieldType === FORM_TYPES.INPUT &&
+                          field.subType === FORM_TYPES.PASSWORD
+                            ? () => togglePassword(field.name)
+                            : undefined
+                        }
+                        placeholder={field.placeholder}
+                        disabled={isFieldDisabled}
+                        className={cn(
+                          "h-10",
+                          field.leftIcon || field.prefix ? "pl-10" : "",
+                          field.rightIcon || field.suffix ? "pr-10" : "",
+                          hasError &&
+                            "border-destructive focus:border-destructive focus:ring-destructive"
+                        )}
+                      />
+                      {(field.rightIcon || field.suffix) && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                          {field.rightIcon}
+                          {field.suffix && (
+                            <span className="text-sm text-muted-foreground">
+                              {field.suffix}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </FormControl>
+                  {!hasError && field.helperText && (
+                    <FormDescription>{field.helperText}</FormDescription>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          );
+        })}
+      </form>
+    </Form>
+  );
+}
+
+const XForm = forwardRef(XFormInner) as unknown as <
+  T extends Record<string, unknown>
+>(
+  props: XFormProps<T> & React.RefAttributes<HTMLFormElement>
+) => React.ReactElement & { displayName?: string };
+
+(XForm as unknown as { displayName?: string }).displayName = "XForm";
 
 export default XForm;
+export { XForm };

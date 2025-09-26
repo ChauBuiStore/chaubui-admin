@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { XButton } from "@/components/common";
 import { PackageIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
 import { ProductsList } from "./components/list";
 import { useProduct } from "./hooks";
-import { CreateProduct, EditProduct, DeleteProduct } from "./modals";
+import { CreateProduct, DeleteProduct, EditProduct } from "./modals";
 
 export function ProductsPage() {
   const {
@@ -41,7 +41,7 @@ export function ProductsPage() {
   }, [setShowCreateForm]);
 
   return (
-    <div>
+    <>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl">
@@ -50,13 +50,13 @@ export function ProductsPage() {
           <h1 className="text-2xl font-bold text-foreground">Product Management</h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button
+          <XButton
             onClick={handleCreateProduct}
             className="flex items-center gap-2"
           >
             <PlusIcon className="h-4 w-4" />
             Add Product
-          </Button>
+          </XButton>
         </div>
       </div>
 
@@ -72,7 +72,6 @@ export function ProductsPage() {
         onSearchChange={handleSearchChange}
       />
 
-      {/* Modals */}
       <CreateProduct
         open={showCreateForm}
         onOpenChange={setShowCreateForm}
@@ -102,6 +101,6 @@ export function ProductsPage() {
         product={selectedProduct}
         selectedProducts={selectedProducts}
       />
-    </div>
+    </>
   );
 }

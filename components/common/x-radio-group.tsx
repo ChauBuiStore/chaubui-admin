@@ -3,12 +3,14 @@
 import {
   FormControl,
   FormItem,
-  FormLabel,
   FormMessage,
   RadioGroup,
   RadioGroupItem,
 } from "@/components/ui";
+import { XLabel } from "@/components/common";
 import { cn } from "@/lib/utils";
+
+type Orientation = "horizontal" | "vertical";
 
 export interface RadioOption {
   value: string;
@@ -21,7 +23,7 @@ export interface XRadioGroupProps {
   options: RadioOption[];
   value?: string;
   onValueChange?: (value: string) => void;
-  orientation?: "horizontal" | "vertical";
+  orientation?: Orientation;
   size?: "sm" | "md" | "lg";
   className?: string;
   disabled?: boolean;
@@ -52,7 +54,7 @@ export function XRadioGroup({
     lg: "gap-4",
   };
 
-  const orientationClasses = {
+  const orientationClasses: Record<Orientation, string> = {
     horizontal: "flex flex-row flex-wrap",
     vertical: "flex flex-col",
   };
@@ -66,10 +68,9 @@ export function XRadioGroup({
   return (
     <FormItem className={className}>
       {label && (
-        <FormLabel className="text-sm font-medium text-foreground">
+        <XLabel required={required} error={!!error}>
           {label}
-          {required && <span className="text-destructive ml-1">*</span>}
-        </FormLabel>
+        </XLabel>
       )}
 
       {description && (
@@ -102,7 +103,7 @@ export function XRadioGroup({
                   )}
                 />
                 <div className="flex flex-col">
-                  <label
+                  <XLabel
                     htmlFor={`${name || "radio"}-${option.value}`}
                     className={cn(
                       "font-medium cursor-pointer",
@@ -112,7 +113,7 @@ export function XRadioGroup({
                     )}
                   >
                     {option.label}
-                  </label>
+                  </XLabel>
                   {option.description && (
                     <p className={cn(
                       "text-muted-foreground mt-1",

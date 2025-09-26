@@ -3,7 +3,8 @@
 import { httpClient } from "@/lib/configs";
 import { AuthService } from "@/lib/services";
 import { ApiResponse, AuthResponse, LoginCredentials } from "@/lib/types";
-import { isTokenValid } from "@/lib/utils/token-validation";
+import { authCookies } from "@/lib/utils/cookies.utils";
+import { isTokenValid } from "@/lib/utils/token.utils";
 import {
   createContext,
   ReactNode,
@@ -35,13 +36,13 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
   useEffect(() => {
     const initAuth = () => {
       try {
-        const storedToken = localStorage.getItem("auth_token");
+        const storedToken = authCookies.get();
         if (storedToken) {
           const isValid = isTokenValid(storedToken);
           if (isValid) {
             setToken(storedToken);
           } else {
-            localStorage.removeItem("auth_token");
+            authCookies.remove();
           }
         }
       } catch {
@@ -56,7 +57,7 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
 
   const logoutSilently = () => {
     setToken(null);
-    localStorage.removeItem("auth_token");
+    authCookies.remove();
   };
 
   useEffect(() => {
@@ -74,7 +75,7 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
 
       if (result.status === 'success' && result.data?.accessToken) {
         setToken(result.data.accessToken);
-        localStorage.setItem("auth_token", result.data.accessToken);
+        authCookies.set(result.data.accessToken);
       }
 
       return result;
@@ -88,7 +89,7 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
     try {
       const result = await AuthService.logout();
       setToken(null);
-      localStorage.removeItem("auth_token");
+      authCookies.remove();
       return result;
     } finally {
       setIsLoading(false);

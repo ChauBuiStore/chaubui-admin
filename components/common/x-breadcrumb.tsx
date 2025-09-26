@@ -1,5 +1,6 @@
 "use client";
 
+import { XButton, XDropdownMenu } from "@/components/common";
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -8,10 +9,6 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
 } from "@/components/ui";
 import { useBreadcrumb } from "@/lib/hooks";
 import Link from "next/link";
@@ -43,25 +40,30 @@ export function XBreadcrumb() {
               return (
                 <React.Fragment key="ellipsis-group">
                   <BreadcrumbItem>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger className="flex h-9 w-9 items-center justify-center">
-                        <BreadcrumbEllipsis className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start">
-                        {breadcrumbs.slice(1, -1).map((item) => (
-                          <DropdownMenuItem key={item.href || item.label}>
-                            {item.href ? (
-                              <Link href={item.href} className="flex w-full">
-                                {item.label}
-                              </Link>
-                            ) : (
-                              item.label
-                            )}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <XDropdownMenu
+                      align="start"
+                      trigger={
+                        <XButton className="flex h-9 w-9 items-center justify-center">
+                          <BreadcrumbEllipsis className="h-4 w-4" />
+                          <span className="sr-only">Toggle menu</span>
+                        </XButton>
+                      }
+                    >
+                      {breadcrumbs.slice(1, -1).map((item) => (
+                        <button
+                          key={item.href || item.label}
+                          className="w-full text-left px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
+                        >
+                          {item.href ? (
+                            <Link href={item.href} className="flex w-full">
+                              {item.label}
+                            </Link>
+                          ) : (
+                            item.label
+                          )}
+                        </button>
+                      ))}
+                    </XDropdownMenu>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
                 </React.Fragment>

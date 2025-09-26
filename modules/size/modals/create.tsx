@@ -1,14 +1,8 @@
 "use client";
 
-import { XFormDialog } from "@/components/common";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input
-} from "@/components/ui";
+import { XDialog, XForm, XFormField } from "@/components/common";
+import { FORM_TYPES } from "@/lib/constants";
+import { useRef } from "react";
 import { FieldValues } from "react-hook-form";
 import { createSizeSchema } from "../schemas";
 
@@ -25,46 +19,45 @@ export function CreateSize({
   onSubmit,
   loading,
 }: CreateSizeProps) {
+  const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
     try {
       await onSubmit(data);
       onOpenChange(false);
-    } catch { }
+    } catch {}
   };
 
+  const fields: XFormField[] = [
+    {
+      name: "name",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.TEXT,
+      label: "Size Name",
+      placeholder: "Enter size name",
+      required: true,
+    },
+  ];
+
   return (
-    <XFormDialog
+    <XDialog
       open={open}
       onOpenChange={onOpenChange}
       title="Add New Size"
-      onSubmit={handleSubmit}
-      loading={loading}
-      schema={createSizeSchema}
-      defaultValues={{
-        name: "",
-      }}
-      saveText="Add"
+      onConfirm={() => formRef.current?.requestSubmit()}
       onCancel={() => onOpenChange(false)}
+      confirmText="Add"
+      cancelText="Cancel"
+      loading={loading}
+      size="md"
     >
-      {(form) => {
-        return (
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Size Name *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter size name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        );
-      }}
-    </XFormDialog>
+      <XForm
+        ref={formRef}
+        schema={createSizeSchema}
+        fields={fields}
+        onSubmit={handleSubmit}
+        loading={loading}
+        onSuccess={() => onOpenChange(false)}
+      />
+    </XDialog>
   );
 }

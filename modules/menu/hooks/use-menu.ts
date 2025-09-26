@@ -3,10 +3,10 @@
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { MenuService } from "@/lib/services";
+import { CreateMenuData, Menu, UpdateMenuData } from "@/modules/menu/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
-import { Menu, CreateMenuData, UpdateMenuData } from "../types";
 
 export function useMenu() {
   const queryClient = useQueryClient();
@@ -28,12 +28,11 @@ export function useMenu() {
     showError((error as Error).message);
   }
 
-  const menus = menusData?.data?.data || [];
-  const pagination = menusData?.data?.meta;
+  const menus = menusData?.data || [];
+  const pagination = menusData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateMenuData) =>
-      MenuService.createMenu(data),
+    mutationFn: (data: CreateMenuData) => MenuService.createMenu(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
       success("Menu created successfully!");
@@ -54,7 +53,6 @@ export function useMenu() {
       showError((error as Error).message);
     },
   });
-
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => MenuService.deleteMenu(id),
@@ -82,9 +80,7 @@ export function useMenu() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
   const [editingMenu, setEditingMenu] = useState<Menu | null>(null);
-  const [selectedMenu, setSelectedMenu] = useState<Menu | null>(
-    null
-  );
+  const [selectedMenu, setSelectedMenu] = useState<Menu | null>(null);
   const [selectedMenus, setSelectedMenus] = useState<Menu[]>([]);
 
   const handleCreateSubmit = async (data: FieldValues) => {
@@ -125,7 +121,6 @@ export function useMenu() {
     }
   };
 
-
   const handleDeleteMenu = (menu: Menu) => {
     setSelectedMenu(menu);
     setSelectedMenus([]);
@@ -143,7 +138,7 @@ export function useMenu() {
       setFilter({
         page,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        keyword: filters.keyword || ""
+        keyword: filters.keyword || "",
       });
     },
     [setFilter, filters.keyword]
@@ -154,7 +149,7 @@ export function useMenu() {
       setFilter({
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        keyword: filters.keyword || ""
+        keyword: filters.keyword || "",
       });
     },
     [setFilter, filters.keyword]
@@ -165,7 +160,7 @@ export function useMenu() {
       setFilter({
         keyword: searchTerm,
         page: PAGINATION_CONSTANTS.PAGE,
-        limit: PAGINATION_CONSTANTS.LIMIT
+        limit: PAGINATION_CONSTANTS.LIMIT,
       });
     },
     [setFilter]

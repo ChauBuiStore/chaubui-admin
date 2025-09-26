@@ -1,18 +1,13 @@
 "use client";
 
 import {
-  Button,
-  Checkbox,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  XButton,
+  XCheckbox,
+  XDropdownMenu,
+  XLabel,
+  XSelect,
+} from "@/components/common";
+import {
   Table,
   TableBody,
   TableCell,
@@ -22,6 +17,7 @@ import {
 } from "@/components/ui";
 import { useSearchParams } from "@/lib/hooks";
 import { PaginationMeta } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -90,7 +86,7 @@ const SelectAllCheckbox = <T,>({
 
   return (
     <div className="flex items-center justify-center">
-      <Checkbox
+      <XCheckbox
         ref={checkboxRef}
         checked={table.getIsAllRowsSelected()}
         onCheckedChange={(value) => {
@@ -122,7 +118,7 @@ const createSelectColumn = <T,>(
 
     return (
       <div className="flex items-center justify-center">
-        <Checkbox
+        <XCheckbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
@@ -192,7 +188,6 @@ const createActionsColumn = <T,>(config?: ActionsConfig<T>): ColumnDef<T> => ({
       actions.push({
         label: "Delete",
         onClick: onDelete,
-        variant: "destructive",
       });
     }
 
@@ -202,42 +197,49 @@ const createActionsColumn = <T,>(config?: ActionsConfig<T>): ColumnDef<T> => ({
 
     return (
       <div className="flex justify-end">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
+        <XDropdownMenu
+          trigger={
+            <XButton
               variant="ghost"
               className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-              size="icon"
             >
               <MoreVertical />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32">
-            {actions.map((action, index) => {
-              const isDisabled = action.disabled?.(row.original) || false;
-              const isHidden = action.hidden?.(row.original) || false;
+            </XButton>
+          }
+          align="end"
+          contentClassName="w-32"
+          showChevron={false}
+        >
+          {actions.map((action, index) => {
+            const isDisabled = action.disabled?.(row.original) || false;
+            const isHidden = action.hidden?.(row.original) || false;
+            const isDeleteAction = action.label?.toLowerCase() === "delete";
 
-              if (isHidden) {
-                return null;
-              }
+            if (isHidden) {
+              return null;
+            }
 
-              return (
-                <div key={`${action.label}-${index}`}>
-                  <DropdownMenuItem
-                    onClick={() => !isDisabled && action.onClick(row.original)}
-                    disabled={isDisabled}
-                    variant={action.variant}
-                    className="flex items-center gap-2"
-                  >
-                    {action.icon}
-                    {action.label}
-                  </DropdownMenuItem>
-                </div>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+            return (
+              <div key={`${action.label}-${index}`} className="space-y-3">
+                <XButton
+                  onClick={() => !isDisabled && action.onClick(row.original)}
+                  disabled={isDisabled}
+                  variant={action.variant ?? "ghost"}
+                  size="sm"
+                  className={cn(
+                    "px-2 py-2 text-sm hover:text-accent-foreground justify-start",
+                    isDeleteAction &&
+                      "text-destructive hover:text-destructive hover:bg-destructive/10",
+                    isDisabled && "opacity-50 cursor-not-allowed"
+                  )}
+                  fullWidth
+                >
+                  {action.label}
+                </XButton>
+              </div>
+            );
+          })}
+        </XDropdownMenu>
       </div>
     );
   },
@@ -250,7 +252,7 @@ const PaginationControls = <T,>({
   onPageChange,
   onPageSizeChange,
 }: PaginationControlsProps<T>) => {
-  const pageSizes = [10, 20, 30, 40, 50];
+  const pageSizes = [20, 50, 100];
 
   const currentPage = pagination
     ? Number(pagination.currentPage)
@@ -272,7 +274,7 @@ const PaginationControls = <T,>({
             table.setPageSize(newPageSize);
           }
         }
-      } catch { }
+      } catch {}
     },
     [table, onPageSizeChange]
   );
@@ -328,33 +330,19 @@ const PaginationControls = <T,>({
       </div>
       <div className="flex w-full items-center gap-8 lg:w-fit">
         <div className="flex items-center gap-2">
-          <Label htmlFor="rows-per-page" className="text-sm font-medium">
+          <XLabel htmlFor="rows-per-page" className="text-sm font-medium">
             Rows per page
-          </Label>
-          <Select
-            value={`${pagination
+          </XLabel>
+          <XSelect
+            className="w-20"
+            options={pageSizes.map((s) => ({ value: `${s}`, label: `${s}` }))}
+            value={`${
+              pagination
                 ? pagination.itemsPerPage
                 : table.getState().pagination?.pageSize || pageSizes[0]
-              }`}
-            onValueChange={handlePageSizeChange}
-          >
-            <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-              <SelectValue
-                placeholder={
-                  pagination
-                    ? pagination.itemsPerPage
-                    : table.getState().pagination?.pageSize || pageSizes[0]
-                }
-              />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {pageSizes.map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            }`}
+            onValueChange={(val) => handlePageSizeChange(val as string)}
+          />
         </div>
         <div
           className="flex w-fit items-center justify-center text-sm font-medium"
@@ -363,7 +351,7 @@ const PaginationControls = <T,>({
           Page {currentPage} of {totalPages}
         </div>
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
-          <Button
+          <XButton
             variant="outline"
             className="h-8 w-8 p-0"
             onClick={handleFirstPage}
@@ -372,41 +360,38 @@ const PaginationControls = <T,>({
             title="Go to first page"
           >
             <ChevronsLeft />
-          </Button>
+          </XButton>
 
-          <Button
+          <XButton
             variant="outline"
             className="size-8"
-            size="icon"
             onClick={handlePreviousPage}
             disabled={!canPreviousPage}
             aria-label="Go to previous page"
             title="Go to previous page"
           >
             <ChevronLeft />
-          </Button>
-          <Button
+          </XButton>
+          <XButton
             variant="outline"
             className="size-8"
-            size="icon"
             onClick={handleNextPage}
             disabled={!canNextPage}
             aria-label="Go to next page"
             title="Go to next page"
           >
             <ChevronRight />
-          </Button>
-          <Button
+          </XButton>
+          <XButton
             variant="outline"
             className="size-8"
-            size="icon"
             onClick={handleLastPage}
             disabled={!canNextPage}
             aria-label="Go to last page"
             title="Go to last page"
           >
             <ChevronsRight />
-          </Button>
+          </XButton>
         </div>
       </div>
     </div>
@@ -435,15 +420,15 @@ const BulkDeleteButton = <T,>({
   };
 
   return (
-    <Button
-      variant="destructive"
+    <XButton
+      variant="outline"
       size="sm"
       onClick={handleBulkDelete}
-      className="flex items-center mr-4 ml-0"
+      className="flex items-center mr-4 ml-0 text-destructive border-destructive hover:text-destructive"
     >
       <Trash2 className="h-4 w-4" />
       Delete ({selectedRows.length})
-    </Button>
+    </XButton>
   );
 };
 
@@ -463,9 +448,9 @@ const XTableHeader = <T,>({ table }: TableHeaderProps<T>) => {
                 {header.isPlaceholder
                   ? null
                   : flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
               </TableHead>
             );
           })}
@@ -732,7 +717,7 @@ export function XTable<T = Record<string, unknown>>({
     getRowId: memoizedGetRowId,
     enableRowSelection: enableSelection,
     onRowSelectionChange: handleRowSelectionChange,
-    onColumnFiltersChange: () => { },
+    onColumnFiltersChange: () => {},
     onPaginationChange: serverPagination ? undefined : setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -741,14 +726,14 @@ export function XTable<T = Record<string, unknown>>({
       : getPaginationRowModel(),
     ...(serverPagination
       ? {
-        pageCount:
-          serverPagination.totalPages ||
-          Math.ceil(
-            (serverPagination.totalItems || 0) /
-            (serverPagination.itemsPerPage || 10)
-          ),
-        manualPagination: true,
-      }
+          pageCount:
+            serverPagination.totalPages ||
+            Math.ceil(
+              (serverPagination.totalItems || 0) /
+                (serverPagination.itemsPerPage || 10)
+            ),
+          manualPagination: true,
+        }
       : {}),
     filterFns: {
       exact: ((row, columnId, value) => {
@@ -791,12 +776,27 @@ export function XTable<T = Record<string, unknown>>({
       {(filterConfig?.enabled ||
         filterConfig?.search?.enabled ||
         searchConfig?.enabled) && (
-          <div className="mb-4">
-            <div className="inline-flex items-center">
-              {filterConfig?.enabled ? (
+        <div className="mb-4">
+          <div className="inline-flex items-center">
+            {filterConfig?.enabled ? (
+              <XFilter
+                filters={filterConfig?.filters || []}
+                triggerText={filterConfig?.triggerText || "Advanced Search"}
+                filterValues={urlFilters as Record<string, string | string[]>}
+                setFilter={setFilter}
+                clearFilters={() => {
+                  Object.keys(urlFilters).forEach((key) => {
+                    setFilter(key, "");
+                  });
+                }}
+                searchConfig={filterConfig?.search || searchConfig}
+                onSearchChange={onSearchChange}
+              />
+            ) : (
+              (filterConfig?.search?.enabled || searchConfig?.enabled) && (
                 <XFilter
-                  filters={filterConfig?.filters || []}
-                  triggerText={filterConfig?.triggerText || "Advanced Search"}
+                  filters={[]}
+                  triggerText=""
                   filterValues={urlFilters as Record<string, string | string[]>}
                   setFilter={setFilter}
                   clearFilters={() => {
@@ -807,26 +807,11 @@ export function XTable<T = Record<string, unknown>>({
                   searchConfig={filterConfig?.search || searchConfig}
                   onSearchChange={onSearchChange}
                 />
-              ) : (
-                (filterConfig?.search?.enabled || searchConfig?.enabled) && (
-                  <XFilter
-                    filters={[]}
-                    triggerText=""
-                    filterValues={urlFilters as Record<string, string | string[]>}
-                    setFilter={setFilter}
-                    clearFilters={() => {
-                      Object.keys(urlFilters).forEach((key) => {
-                        setFilter(key, "");
-                      });
-                    }}
-                    searchConfig={filterConfig?.search || searchConfig}
-                    onSearchChange={onSearchChange}
-                  />
-                )
-              )}
-            </div>
+              )
+            )}
           </div>
-        )}
+        </div>
+      )}
       <Table className="mb-4">
         <XTableHeader table={table} />
         <XTableBody table={table} columns={finalColumns} loading={loading} />

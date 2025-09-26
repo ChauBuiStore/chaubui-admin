@@ -9,7 +9,10 @@ export const createColorSchema = z.object({
   code: z
     .string()
     .min(1, "Color code cannot be empty")
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Color code must be in valid hex format (#RRGGBB)")
+    .regex(
+      /^#[0-9A-Fa-f]{6}$/,
+      "Color code must be in valid hex format (#RRGGBB)"
+    )
     .transform((val) => val.toUpperCase()),
 });
 
@@ -22,6 +25,9 @@ export const updateColorSchema = z.object({
   code: z
     .string()
     .min(1, "Color code cannot be empty")
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Color code must be in valid hex format (#RRGGBB)")
+    .regex(
+      /^#[0-9A-Fa-f]{6}$/,
+      "Color code must be in valid hex format (#RRGGBB)"
+    )
     .transform((val) => val.toUpperCase()),
 });

@@ -123,3 +123,70 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Tiptap Editor Custom Styles */
+.ProseMirror {
+  @apply text-foreground;
+  min-height: 150px;
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  @apply text-muted-foreground;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror h1 {
+  @apply text-2xl font-bold;
+}
+
+.ProseMirror h2 {
+  @apply text-xl font-bold;
+}
+
+.ProseMirror h3 {
+  @apply text-lg font-bold;
+}
+
+.ProseMirror ul {
+  @apply list-disc list-inside;
+}
+
+.ProseMirror ol {
+  @apply list-decimal list-inside;
+}
+
+.ProseMirror li {
+  @apply my-1;
+}
+
+.ProseMirror strong {
+  @apply font-bold;
+}
+
+.ProseMirror em {
+  @apply italic;
+}
+
+.ProseMirror s {
+  @apply line-through;
+}
+
+.ProseMirror[data-text-align="left"] {
+  text-align: left;
+}
+
+.ProseMirror[data-text-align="center"] {
+  text-align: center;
+}
+
+.ProseMirror[data-text-align="right"] {
+  text-align: right;
+}
+
+.ProseMirror[data-text-align="justify"] {
+  text-align: justify;
+}

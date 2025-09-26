@@ -2,14 +2,14 @@
 
 import { ActionsConfig, XTable } from "@/components/common/x-table";
 import { PaginationMeta } from "@/lib/types";
+import { formatPrice } from "@/lib/utils/currency.utils";
+import { Product } from "@/modules/product/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
-import { Product } from "../types/product.type";
-import { Colors } from "./colors";
+import { Color } from "./color";
 import { Images } from "./images";
-import { Sizes } from "./sizes";
+import { Size } from "./size";
 import { Stock } from "./stock";
-import { formatPrice } from "@/lib/utils/currency";
 
 interface ProductsListProps {
   products: Product[];
@@ -22,7 +22,6 @@ interface ProductsListProps {
   onPageSizeChange?: (pageSize: number) => void;
   onSearchChange?: (searchTerm: string) => void;
 }
-
 
 export function ProductsList({
   products,
@@ -73,20 +72,20 @@ export function ProductsList({
             <div className="flex items-center gap-1.5">
               {product.category.group ? (
                 <>
-                  <span className="px-2 py-0.5 bg-muted text-foreground/80 text-xs rounded font-medium">
+                  <span className="px-2 py-1 bg-muted text-foreground/80 text-xs rounded-full border border-muted/20 font-medium">
                     {product.category.group.name}
                   </span>
                   {product.category.name && (
                     <>
                       <span className="text-muted-foreground">›</span>
-                      <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded font-medium border border-primary/20">
+                      <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium border border-primary/20">
                         {product.category.name}
                       </span>
                     </>
                   )}
                 </>
               ) : (
-                <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded font-medium border border-primary/20">
+                <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium border border-primary/20">
                   {product.category.name}
                 </span>
               )}
@@ -111,7 +110,7 @@ export function ProductsList({
         header: "Colors",
         cell: ({ row }) => {
           const product = row.original;
-          return <Colors product={product} />;
+          return <Color product={product} />;
         },
       },
       {
@@ -119,7 +118,7 @@ export function ProductsList({
         header: "Sizes",
         cell: ({ row }) => {
           const product = row.original;
-          return <Sizes product={product} />;
+          return <Size product={product} />;
         },
       },
       {

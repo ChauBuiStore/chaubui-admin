@@ -1,10 +1,14 @@
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { CategoryGroupService, CategoryService } from "@/lib/services";
+import {
+  Category,
+  CreateCategoryData,
+  UpdateCategoryData,
+} from "@/modules/category/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
-import { Category, CreateCategoryData, UpdateCategoryData } from "../types";
 
 export function useCategory() {
   const queryClient = useQueryClient();
@@ -32,9 +36,9 @@ export function useCategory() {
     showError((error as Error).message);
   }
 
-  const categories = categoriesData?.data?.data || [];
-  const categoryGroups = categoryGroupsData?.data?.data || [];
-  const pagination = categoriesData?.data?.meta;
+  const categories = categoriesData?.data || [];
+  const categoryGroups = categoryGroupsData?.data || [];
+  const pagination = categoriesData?.meta;
 
   const createMutation = useMutation({
     mutationFn: (data: CreateCategoryData) =>
@@ -150,7 +154,7 @@ export function useCategory() {
       setFilter({
         page,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        keyword: filters.keyword || ""
+        keyword: filters.keyword || "",
       });
     },
     [setFilter, filters.keyword]
@@ -161,7 +165,7 @@ export function useCategory() {
       setFilter({
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        keyword: filters.keyword || ""
+        keyword: filters.keyword || "",
       });
     },
     [setFilter, filters.keyword]
@@ -172,7 +176,7 @@ export function useCategory() {
       setFilter({
         keyword: searchTerm,
         page: PAGINATION_CONSTANTS.PAGE,
-        limit: PAGINATION_CONSTANTS.LIMIT
+        limit: PAGINATION_CONSTANTS.LIMIT,
       });
     },
     [setFilter]

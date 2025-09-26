@@ -1,16 +1,10 @@
 "use client";
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { AlertCircle, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Product } from "../types/product.type";
-import { ProductVariant } from "../types/product-variant.type";
+import { XButton, XPopover } from "@/components/common";
+import { formatPrice } from "@/lib/utils/currency.utils";
 import { Color } from "@/modules/color/types";
-import { formatPrice } from "@/lib/utils/currency";
+import { Product, ProductVariant } from "@/modules/product/types";
+import { AlertCircle, Info } from "lucide-react";
 
 interface StockProps {
   product: Product;
@@ -31,9 +25,9 @@ export function Stock({ product }: StockProps) {
         >
           {totalStock}
         </span>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost"
+        <XPopover
+          trigger={
+            <XButton variant="ghost"
               className="w-0 h-0 hover:opacity-70 transition-opacity"
               title="View variant details"
             >
@@ -42,9 +36,11 @@ export function Stock({ product }: StockProps) {
               ) : (
                 <AlertCircle className="w-4 h-4 text-destructive" />
               )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-72 p-3" align="start">
+            </XButton>
+          }
+          align="start"
+          contentClassName="w-72 p-3"
+        >
             <div className="space-y-3">
               <div className="flex items-center justify-between border-b pb-2">
                 <h4 className="font-semibold text-sm">
@@ -55,7 +51,6 @@ export function Stock({ product }: StockProps) {
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {product.variants && product.variants.length > 0 ? (
                   (() => {
-                    // Nhóm variants theo màu sắc
                     const groupedByColor = product.variants.reduce((acc, variant) => {
                       const colorKey = variant.color?.id || 'no-color';
                       if (!acc[colorKey]) {
@@ -72,7 +67,6 @@ export function Stock({ product }: StockProps) {
 
                     return Object.values(groupedByColor).map((colorGroup, groupIndex) => (
                       <div key={groupIndex} className="border rounded-lg overflow-hidden">
-                        {/* Color Header */}
                         <div className={`px-3 py-2 flex items-center justify-between ${colorGroup.totalStock > 0 ? 'bg-muted' : 'bg-destructive/10'}`}>
                           <div className="flex items-center gap-2">
                             {colorGroup.color ? (
@@ -96,7 +90,6 @@ export function Stock({ product }: StockProps) {
                           </div>
                         </div>
 
-                        {/* Size variants for this color */}
                         <div className="divide-y">
                           {colorGroup.variants.map((variant, variantIndex) => (
                             <div key={variantIndex} className={`px-3 py-2 flex items-center justify-between text-sm ${variant.stock === 0 ? 'bg-destructive/5 opacity-75' : ''}`}>
@@ -158,8 +151,7 @@ export function Stock({ product }: StockProps) {
                 </span>
               </div>
             </div>
-          </PopoverContent>
-        </Popover>
+          </XPopover>
       </div>
     </div>
   );

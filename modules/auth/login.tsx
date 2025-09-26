@@ -1,64 +1,59 @@
 "use client";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui";
+import { XButton, XCard, XForm, XFormField } from "@/components/common";
+import { AUTH_MESSAGES, FORM_TYPES, ROUTES } from "@/lib/constants";
 import { useAuth, useToast } from "@/lib/hooks";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { type LoginFormData, loginSchema } from "@/modules/auth/schema";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Lock, LogIn, Mail, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { loginSchema, type LoginFormData } from "./schema";
-import { XInput, XButton, XCard } from "@/components/common";
+import { useRef } from "react";
 
 export function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
   const router = useRouter();
-  const { login: authLogin, isAuthenticated } = useAuth();
+  const { login: authLogin } = useAuth();
   const { success, error } = useToast();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.replace("/dashboard");
-    }
-  }, [isAuthenticated, router]);
-
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
 
   const loginMutation = useMutation({
     mutationFn: authLogin,
     onSuccess: (result) => {
-      if (result.status === "success" && result.data?.accessToken) {
-        console.log('result-1', result);
-        success(result.message || "Login successful");
-        router.push("/dashboard");
+      if (result?.status === "success" && result?.data?.accessToken) {
+        success(result.message || AUTH_MESSAGES.LOGIN_SUCCESS);
+        router.push(ROUTES.DASHBOARD);
       } else {
-        console.log('result-2', result);
-        error(result.message || "Login failed");
+        error(result?.message || AUTH_MESSAGES.LOGIN_FAILED);
       }
     },
-    onError: (err) => {
-      console.log('result-3', err);
-      error(err.message || "An error occurred during login");
+    onError: (err: Error) => {
+      error(err.message || AUTH_MESSAGES.LOGIN_ERROR);
     },
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    loginMutation.mutate(data);
+  const handleSubmit = async (data: LoginFormData) => {
+    loginMutation.mutateAsync(data);
   };
+
+  const fields: XFormField[] = [
+    {
+      name: "email",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.EMAIL,
+      label: "Email",
+      placeholder: "Enter your email",
+      required: true,
+      leftIcon: <Mail className="h-4 w-4" />,
+    },
+    {
+      name: "password",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.PASSWORD,
+      label: "Password",
+      placeholder: "Enter your password",
+      required: true,
+      leftIcon: <Lock className="h-4 w-4" />,
+    },
+  ];
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -85,76 +80,28 @@ export function LoginPage() {
 
         <XCard
           variant="elevated"
-          shadow="lg"
-          padding="lg"
           className="animate-in fade-in slide-in-from-bottom-8 duration-500"
         >
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field, fieldState }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel className="text-foreground font-medium flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Email Address
-                    </FormLabel>
-                    <FormControl>
-                      <XInput
-                        {...field}
-                        type="email"
-                        placeholder="Enter your email"
-                        hasError={!!fieldState.error}
-                        errorMessage={fieldState.error?.message}
-                        disabled={loginMutation.isPending}
-                        size="lg"
-                      />
-                    </FormControl>
-                    <FormMessage className="text-destructive" />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field, fieldState }) => (
-                  <FormItem className="space-y-2">
-                    <FormLabel className="text-foreground font-medium flex items-center gap-2">
-                      <Lock className="h-4 w-4" />
-                      Password
-                    </FormLabel>
-                    <FormControl>
-                      <XInput
-                        {...field}
-                        type="password"
-                        showPassword={showPassword}
-                        onTogglePassword={() => setShowPassword(!showPassword)}
-                        placeholder="Enter your password"
-                        hasError={!!fieldState.error}
-                        errorMessage={fieldState.error?.message}
-                        disabled={loginMutation.isPending}
-                        size="lg"
-                      />
-                    </FormControl>
-                    <FormMessage className="text-destructive" />
-                  </FormItem>
-                )}
-              />
-
-              <XButton
-                type="submit"
-                size="lg"
-                fullWidth
-                loading={loginMutation.isPending}
-                rightIcon={<ArrowRight className="h-5 w-5" />}
-                className="bg-primary text-primary-foreground hover:opacity-90 font-semibold rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                Sign In
-              </XButton>
-            </form>
-          </Form>
+          <XForm
+            ref={formRef}
+            schema={loginSchema}
+            onSubmit={handleSubmit}
+            fields={fields}
+            spacing="lg"
+            className="space-y-6"
+          />
+          <div className="mt-6">
+            <XButton
+              fullWidth
+              disabled={loginMutation.isPending}
+              rightIcon={<ArrowRight className="h-5 w-5" />}
+              className="bg-primary text-primary-foreground hover:opacity-90 font-semibold rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              onClick={() => formRef.current?.requestSubmit()}
+              enableEnterKey={true}
+            >
+              {loginMutation.isPending ? "Signing in..." : "Sign In"}
+            </XButton>
+          </div>
         </XCard>
       </div>
     </div>

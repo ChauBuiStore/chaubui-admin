@@ -1,5 +1,5 @@
 export * from "./list";
 export * from "./images";
-export * from "./colors";
-export * from "./sizes";
+export * from "./color";
+export * from "./size";
 export * from "./stock";

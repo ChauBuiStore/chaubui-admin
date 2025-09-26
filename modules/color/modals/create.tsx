@@ -1,17 +1,10 @@
 "use client";
 
-import { XFormDialog } from "@/components/common/x-dialog";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+  import { XColorPicker, XDialog, XForm, XFormField } from "@/components/common";
+import { FORM_TYPES } from "@/lib/constants";
+import { useRef } from "react";
 import { FieldValues } from "react-hook-form";
 import { createColorSchema } from "../schemas";
-import { XColorPicker } from "@/components/common";
 
 interface CreateColorProps {
   open: boolean;
@@ -26,69 +19,51 @@ export function CreateColor({
   onSubmit,
   loading,
 }: CreateColorProps) {
-
+  const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
     try {
       await onSubmit(data);
       onOpenChange(false);
-    } catch {
-    }
+    } catch {}
   };
 
+  const fields: XFormField[] = [
+    {
+      name: "name",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.TEXT,
+      label: "Color Name",
+      placeholder: "Enter color name",
+      required: true,
+    },
+    {
+      name: "code",
+      label: "Color Code",
+      required: true,
+      component: XColorPicker,
+    },
+  ];
+
   return (
-    <XFormDialog
+    <XDialog
       open={open}
       onOpenChange={onOpenChange}
       title="Add New Color"
-      onSubmit={handleSubmit}
-      loading={loading}
-      schema={createColorSchema}
-      defaultValues={{
-        name: "",
-        code: "",
-      }}
-      saveText="Add"
+      onConfirm={() => formRef.current?.requestSubmit()}
       onCancel={() => onOpenChange(false)}
+      confirmText="Add"
+      cancelText="Cancel"
+      loading={loading}
+      size="md"
     >
-      {(form) => {
-        return (
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Color Name *</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter color name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="code"
-              render={({ field, fieldState }) => (
-                <FormItem>
-                  <FormLabel>Color Code *</FormLabel>
-                  <FormControl>
-                    <XColorPicker
-                      value={field.value}
-                      onChange={(color) => field.onChange(color)}
-                      hasError={!!fieldState.error}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        );
-      }}
-    </XFormDialog>
+      <XForm
+        ref={formRef}
+        schema={createColorSchema}
+        fields={fields}
+        onSubmit={handleSubmit}
+        spacing="md"
+        onSuccess={() => onOpenChange(false)}
+      />
+    </XDialog>
   );
 }

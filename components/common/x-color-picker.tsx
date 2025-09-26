@@ -1,14 +1,12 @@
 "use client";
 
 import {
-  Button,
-  Input,
-  Label,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Separator,
-} from "@/components/ui";
+  XButton,
+  XInput,
+  XLabel,
+  XPopover,
+  XSeparator,
+} from "@/components/common";
 import { hexToHsl, hslToHex } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
 import { PaletteIcon } from "lucide-react";
@@ -21,6 +19,7 @@ interface XColorPickerProps {
   className?: string;
   disabled?: boolean;
   hasError?: boolean;
+  errorMessage?: string;
 }
 
 export function XColorPicker({
@@ -30,6 +29,7 @@ export function XColorPicker({
   className,
   disabled = false,
   hasError = false,
+  errorMessage,
 }: XColorPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
@@ -157,113 +157,124 @@ export function XColorPicker({
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex items-center gap-2">
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
-          <PopoverTrigger asChild>
-            <Button
+        <XPopover
+          open={isOpen}
+          onOpenChange={setIsOpen}
+          trigger={
+            <XButton
               type="button"
               variant="outline"
               disabled={disabled}
-              className="w-auto h-9 px-3"
+              className={cn(
+                "w-auto h-9 px-3",
+                hasError && "border-destructive"
+              )}
             >
               <div
-                className="w-4 h-4 rounded border mr-2"
+                className={cn(
+                  "w-4 h-4 rounded border mr-2",
+                  hasError && "border-destructive"
+                )}
                 style={{ backgroundColor: value }}
               />
               <PaletteIcon className="w-4 h-4" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 p-4" align="start">
+            </XButton>
+          }
+          align="start"
+          contentClassName="w-80 p-4"
+        >
+          <div className="space-y-4">
+            <div className="text-sm font-medium">Select Color</div>
+
             <div className="space-y-4">
-              <div className="text-sm font-medium">Select Color</div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-xs">Color Palette</Label>
-                  <div className="relative">
+              <div className="space-y-2">
+                <XLabel className="text-xs">Color Palette</XLabel>
+                <div className="relative">
+                  <div
+                    ref={colorPickerRef}
+                    className="w-full h-32 rounded border cursor-crosshair relative overflow-hidden"
+                    style={{
+                      background: `linear-gradient(to right, hsl(${hsl.h}, 100%, 50%), hsl(${hsl.h}, 0%, 50%)), linear-gradient(to top, hsl(${hsl.h}, 100%, 0%), hsl(${hsl.h}, 100%, 50%))`,
+                    }}
+                    onMouseDown={handleColorPickerMouseDown}
+                  >
                     <div
-                      ref={colorPickerRef}
-                      className="w-full h-32 rounded border cursor-crosshair relative overflow-hidden"
+                      className="absolute w-3 h-3 rounded-full border-2 border-white shadow-lg pointer-events-none"
                       style={{
-                        background: `linear-gradient(to right, hsl(${hsl.h}, 100%, 50%), hsl(${hsl.h}, 0%, 50%)), linear-gradient(to top, hsl(${hsl.h}, 100%, 0%), hsl(${hsl.h}, 100%, 50%))`,
+                        left: `${hsl.s}%`,
+                        top: `${100 - hsl.l}%`,
+                        transform: "translate(-50%, -50%)",
                       }}
-                      onMouseDown={handleColorPickerMouseDown}
-                    >
-                      <div
-                        className="absolute w-3 h-3 rounded-full border-2 border-white shadow-lg pointer-events-none"
-                        style={{
-                          left: `${hsl.s}%`,
-                          top: `${100 - hsl.l}%`,
-                          transform: "translate(-50%, -50%)",
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <Label className="text-xs">Hue</Label>
-                  <div className="relative">
-                    <div
-                      ref={hueSliderRef}
-                      className="w-full h-4 rounded border cursor-pointer relative overflow-hidden"
-                      style={{
-                        background:
-                          "linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)",
-                      }}
-                      onMouseDown={handleHueSliderMouseDown}
-                    >
-                      <div
-                        className="absolute w-1 h-full bg-white border pointer-events-none"
-                        style={{ left: `${(hsl.h / 360) * 100}%` }}
-                      />
-                    </div>
+                    />
                   </div>
                 </div>
               </div>
 
-              <Separator />
+              <XSeparator />
 
               <div className="space-y-2">
-                <Label className="text-xs">Hex color</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="text"
-                    placeholder={placeholder || "#000000"}
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    onBlur={handleInputBlur}
-                    aria-invalid={
-                      hasError ||
-                      !!(inputValue && !/^#[0-9A-Fa-f]{6}$/.test(inputValue))
-                    }
-                    className="flex-1 text-xs"
-                  />
+                <XLabel className="text-xs">Hue</XLabel>
+                <div className="relative">
                   <div
-                    className={cn(
-                      "w-9 h-9 rounded border flex-shrink-0",
-                      (hasError ||
-                        (inputValue &&
-                          !/^#[0-9A-Fa-f]{6}$/.test(inputValue))) &&
-                        "border-destructive"
-                    )}
+                    ref={hueSliderRef}
+                    className="w-full h-4 rounded border cursor-pointer relative overflow-hidden"
                     style={{
-                      backgroundColor: /^#[0-9A-Fa-f]{6}$/.test(inputValue)
-                        ? inputValue
-                        : "#f3f4f6",
+                      background:
+                        "linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)",
                     }}
-                  />
+                    onMouseDown={handleHueSliderMouseDown}
+                  >
+                    <div
+                      className="absolute w-1 h-full bg-white border pointer-events-none"
+                      style={{ left: `${(hsl.h / 360) * 100}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </PopoverContent>
-        </Popover>
+
+            <XSeparator />
+
+            <div className="space-y-2">
+              <XLabel className="text-xs">Hex color</XLabel>
+              <div className="flex items-center gap-2">
+                <XInput
+                  type="text"
+                  placeholder={placeholder || "#000000"}
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  onBlur={handleInputBlur}
+                  aria-invalid={
+                    hasError ||
+                    !!(inputValue && !/^#[0-9A-Fa-f]{6}$/.test(inputValue))
+                  }
+                  className="flex-1 text-xs"
+                />
+                <div
+                  className={cn(
+                    "w-9 h-9 rounded border flex-shrink-0",
+                    (hasError ||
+                      (inputValue && !/^#[0-9A-Fa-f]{6}$/.test(inputValue))) &&
+                      "border-destructive"
+                  )}
+                  style={{
+                    backgroundColor: /^#[0-9A-Fa-f]{6}$/.test(inputValue)
+                      ? inputValue
+                      : "#f3f4f6",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </XPopover>
 
         <span className="text-xs font-mono text-muted-foreground select-all">
           {inputValue?.toUpperCase()}
         </span>
       </div>
+      {errorMessage && (
+        <p className="text-xs text-destructive mt-1">{errorMessage}</p>
+      )}
     </div>
   );
 }

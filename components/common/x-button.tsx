@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useEffect, useRef } from "react";
 
 export interface XButtonProps
   extends Omit<React.ComponentProps<typeof Button>, "size"> {
@@ -20,6 +20,7 @@ export interface XButtonProps
   rightIcon?: React.ReactNode;
   fullWidth?: boolean;
   wrapperClassName?: string;
+  enableEnterKey?: boolean;
 }
 
 export const XButton = forwardRef<HTMLButtonElement, XButtonProps>(
@@ -35,20 +36,46 @@ export const XButton = forwardRef<HTMLButtonElement, XButtonProps>(
       className,
       children,
       disabled,
+      enableEnterKey = false,
+      onClick,
       ...props
     },
     ref
   ) => {
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const combinedRef = ref || buttonRef;
+
     const sizeClasses = {
       sm: "h-8 px-3 text-xs",
       md: "h-9 px-4 text-sm",
       lg: "h-10 px-6 text-base",
     };
 
+    useEffect(() => {
+      if (!enableEnterKey) return;
+
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "Enter" && !disabled && !loading && onClick) {
+          event.preventDefault();
+          const syntheticEvent = {
+            type: 'click',
+            currentTarget: event.target as HTMLButtonElement,
+            target: event.target as HTMLButtonElement,
+            preventDefault: () => {},
+            stopPropagation: () => {},
+          } as unknown as React.MouseEvent<HTMLButtonElement>;
+          onClick(syntheticEvent);
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }, [enableEnterKey, disabled, loading, onClick]);
+
     return (
       <div className={cn(fullWidth && "w-full", wrapperClassName)}>
         <Button
-          ref={ref}
+          ref={combinedRef}
           variant={variant}
           disabled={disabled || loading}
           className={cn(
@@ -57,6 +84,7 @@ export const XButton = forwardRef<HTMLButtonElement, XButtonProps>(
             loading && "cursor-not-allowed",
             className
           )}
+          onClick={onClick}
           {...props}
         >
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

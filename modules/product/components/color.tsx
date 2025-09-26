@@ -1,12 +1,12 @@
 "use client";
 
-import { Product } from "../types/product.type";
+import { Product } from "@/modules/product/types";
 
-interface ColorsProps {
+interface ColorProps {
   product: Product;
 }
 
-export function Colors({ product }: ColorsProps) {
+export function Color({ product }: ColorProps) {
   const variantColors =
     product.variants?.map((variant) => variant.color).filter(Boolean) || [];
 

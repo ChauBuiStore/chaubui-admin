@@ -1,22 +1,23 @@
 "use client";
 
 import {
+  XButton,
   XDropzone,
   XFormDialog,
+  XInput,
   XRadioGroup,
+  XScrollArea,
   XSelect,
+  XTextEditor,
 } from "@/components/common";
 import {
-  Button,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  Input,
-  ScrollArea,
-  Textarea,
 } from "@/components/ui";
+import { mergeNewUploads, removeImageById } from "@/lib/helpers";
 import { FileUpload } from "@/lib/types";
 import { Color } from "@/modules/color/types";
 import { Size } from "@/modules/size/types";
@@ -24,9 +25,7 @@ import { PlusIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FieldValues, useFieldArray, UseFormReturn } from "react-hook-form";
 import { UpdateProductFormData, updateProductSchema } from "../schemas";
-import { ProductImage, VariantType } from "../types";
-import { Product } from "../types/product.type";
-import { mergeNewUploads, removeImageById } from "@/lib/helpers";
+import { Product, ProductImage, VariantType } from "../types";
 
 interface EditProductProps {
   open: boolean;
@@ -61,7 +60,9 @@ function ProductEditFormFields({
   useEffect(() => {
     if (productImages && productImages.length > 0) {
       const convertedImages = productImages
-        .filter((img) => Boolean(img && img.file && img.file.id && img.file.url))
+        .filter((img) =>
+          Boolean(img && img.file && img.file.id && img.file.url)
+        )
         .map((img) => ({
           id: img.file!.id,
           fileName: img.file!.fileName || img.alt || "Image",
@@ -99,19 +100,36 @@ function ProductEditFormFields({
   const variantType = form.watch("variantType");
 
   useEffect(() => {
-    if (variantType && variantType !== VariantType.NONE) {
-      if (variantFields.length === 0) {
-        appendVariant({
-          sizeId: undefined,
-          colorId: undefined,
-          originalPrice: 0,
-          salePrice: undefined,
-          discountPercent: undefined,
-          stock: 0,
-        });
+    if (!variantType || variantType === VariantType.NONE) {
+      if (variantFields.length > 0) {
+        for (let i = variantFields.length - 1; i >= 0; i--) {
+          removeVariantField(i);
+        }
       }
+      return;
     }
-  }, [variantType, variantFields.length, appendVariant]);
+
+    if (variantFields.length === 0) {
+      appendVariant({
+        sizeId: undefined,
+        colorId: undefined,
+        originalPrice: 0,
+        salePrice: undefined,
+        discountPercent: undefined,
+        stock: 0,
+      });
+    }
+  }, [variantType, variantFields.length, appendVariant, removeVariantField]);
+
+  useEffect(() => {
+    if (variantType) {
+      form.clearErrors("variants");
+      variantFields.forEach((_, index) => {
+        form.clearErrors(`variants.${index}.colorId`);
+        form.clearErrors(`variants.${index}.sizeId`);
+      });
+    }
+  }, [variantType, form, variantFields]);
 
   const addVariant = () => {
     appendVariant({
@@ -134,22 +152,18 @@ function ProductEditFormFields({
   const safeSizes = Array.isArray(sizes) ? sizes : [];
 
   return (
-    <ScrollArea className="h-[600px]">
+    <XScrollArea className="h-[600px]">
       <div className="space-y-6">
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-foreground">
-            Basic Information
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem className="md:col-span-2">
-                  <FormLabel>Product Name *</FormLabel>
+                <FormItem className="md:col-span-3">
+                  <FormLabel>Name *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter product name" {...field} />
+                    <XInput placeholder="Enter name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -183,11 +197,12 @@ function ProductEditFormFields({
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Base Price (VND) *</FormLabel>
+                  <FormLabel>Price</FormLabel>
                   <FormControl>
-                    <Input
+                    <XInput
                       type="number"
-                      placeholder="Enter base price"
+                      placeholder="Enter price"
+                      hideSpinner
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -196,6 +211,28 @@ function ProductEditFormFields({
                 </FormItem>
               )}
             />
+
+            {variantType === VariantType.NONE && (
+              <FormField
+                control={form.control}
+                name="stock"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stock</FormLabel>
+                    <FormControl>
+                      <XInput
+                        type="number"
+                        placeholder="Enter stock"
+                        hideSpinner
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
 
           <FormField
@@ -203,13 +240,12 @@ function ProductEditFormFields({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Product Description *</FormLabel>
+                <FormLabel>Description *</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Enter product description"
-                    className="resize-none"
-                    rows={3}
-                    {...field}
+                  <XTextEditor
+                    placeholder="Nhập mô tả sản phẩm..."
+                    value={field.value}
+                    onChange={field.onChange}
                   />
                 </FormControl>
                 <FormMessage />
@@ -237,7 +273,9 @@ function ProductEditFormFields({
                     onFileDelete={(fileId) => {
                       const currentImages = field.value || [];
                       field.onChange(removeImageById(currentImages, fileId));
-                      setUploadResponseImages((prev) => prev.filter((f) => f.id !== fileId));
+                      setUploadResponseImages((prev) =>
+                        prev.filter((f) => f.id !== fileId)
+                      );
                     }}
                   />
                 </FormControl>
@@ -282,7 +320,7 @@ function ProductEditFormFields({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium text-foreground">Variants</h3>
-              <Button
+              <XButton
                 type="button"
                 variant="outline"
                 size="sm"
@@ -291,7 +329,7 @@ function ProductEditFormFields({
               >
                 <PlusIcon className="h-4 w-4" />
                 Add Variant
-              </Button>
+              </XButton>
             </div>
 
             <div className="space-y-4">
@@ -305,7 +343,7 @@ function ProductEditFormFields({
                       Variant {index + 1}
                     </h4>
                     {variantFields.length > 1 && (
-                      <Button
+                      <XButton
                         type="button"
                         variant="ghost"
                         size="sm"
@@ -313,7 +351,7 @@ function ProductEditFormFields({
                         className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 p-0"
                       >
                         <TrashIcon className="h-4 w-4" />
-                      </Button>
+                      </XButton>
                     )}
                   </div>
 
@@ -433,9 +471,10 @@ function ProductEditFormFields({
                               Original Price (VND) *
                             </FormLabel>
                             <FormControl>
-                              <Input
+                              <XInput
                                 type="number"
                                 placeholder="0"
+                                hideSpinner
                                 {...field}
                                 onChange={(e) =>
                                   field.onChange(Number(e.target.value))
@@ -458,9 +497,10 @@ function ProductEditFormFields({
                               Stock *
                             </FormLabel>
                             <FormControl>
-                              <Input
+                              <XInput
                                 type="number"
                                 placeholder="0"
+                                hideSpinner
                                 {...field}
                                 onChange={(e) =>
                                   field.onChange(Number(e.target.value))
@@ -482,9 +522,10 @@ function ProductEditFormFields({
                                 Sale Price (VND)
                               </FormLabel>
                               <FormControl>
-                                <Input
+                                <XInput
                                   type="number"
                                   placeholder="0"
+                                  hideSpinner
                                   {...field}
                                   value={field.value ?? ""}
                                   onChange={(e) =>
@@ -510,9 +551,10 @@ function ProductEditFormFields({
                                 Discount (%)
                               </FormLabel>
                               <FormControl>
-                                <Input
+                                <XInput
                                   type="number"
                                   placeholder="0"
+                                  hideSpinner
                                   {...field}
                                   value={field.value ?? ""}
                                   onChange={(e) =>
@@ -537,7 +579,7 @@ function ProductEditFormFields({
           </div>
         )}
       </div>
-    </ScrollArea>
+    </XScrollArea>
   );
 }
 
@@ -569,6 +611,7 @@ export function EditProduct({
         categoryId: product.category.id,
         variantType:
           product.variants?.length > 0 ? VariantType.COMBO : VariantType.NONE,
+        stock: product.variants?.length ? undefined : 0,
         images:
           product.images
             ?.filter((img) => {

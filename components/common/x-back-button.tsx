@@ -1,21 +1,27 @@
 "use client";
 
+import { XButton } from "@/components/common";
 import { CornerUpLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui";
 
 interface XBackButtonProps {
   text?: string;
   href?: string;
   className?: string;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
 }
 
-export function XBackButton({ 
-  text = "Back to home page", 
-  href, 
+export function XBackButton({
+  text = "Back to home page",
+  href,
   className = "inline-flex items-center justify-center gap-2 !bg-transparent hover:text-destructive",
-  variant = "ghost"
+  variant = "ghost",
 }: XBackButtonProps) {
   const router = useRouter();
 
@@ -28,13 +34,9 @@ export function XBackButton({
   };
 
   return (
-    <Button
-      variant={variant}
-      onClick={handleGoBack}
-      className={className}
-    >
-      <CornerUpLeft  />
+    <XButton variant={variant} onClick={handleGoBack} className={className}>
+      <CornerUpLeft />
       {text}
-    </Button>
+    </XButton>
   );
 }

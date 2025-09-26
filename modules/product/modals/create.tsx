@@ -1,22 +1,23 @@
 "use client";
 
 import {
+  XButton,
   XDropzone,
   XFormDialog,
+  XInput,
   XRadioGroup,
+  XScrollArea,
   XSelect,
+  XTextEditor
 } from "@/components/common";
 import {
-  Button,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  Input,
-  ScrollArea,
-  Textarea,
 } from "@/components/ui";
+import { mergeNewUploads, removeImageById } from "@/lib/helpers";
 import { FileUpload } from "@/lib/types";
 import { Color } from "@/modules/color/types";
 import { Size } from "@/modules/size/types";
@@ -24,7 +25,6 @@ import { PlusIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FieldValues, useFieldArray, UseFormReturn } from "react-hook-form";
 import { CreateProductFormData, createProductSchema } from "../schemas";
-import { mergeNewUploads, removeImageById } from "@/lib/helpers";
 import { VariantType } from "../types";
 
 interface CreateProductProps {
@@ -73,10 +73,10 @@ function ProductFormFields({
       appendVariant({
         sizeId: undefined,
         colorId: undefined,
-        originalPrice: 0,
+        originalPrice: undefined,
         salePrice: undefined,
         discountPercent: undefined,
-        stock: 0,
+        stock: undefined,
       });
     }
   }, [variantType, variantFields.length, appendVariant, removeVariant]);
@@ -95,10 +95,10 @@ function ProductFormFields({
     appendVariant({
       sizeId: undefined,
       colorId: undefined,
-      originalPrice: 0,
+      originalPrice: undefined,
       salePrice: undefined,
       discountPercent: undefined,
-      stock: 0,
+      stock: undefined,
     });
   };
 
@@ -123,18 +123,22 @@ function ProductFormFields({
   const safeSizes = Array.isArray(sizes) ? sizes : [];
 
   return (
-    <ScrollArea className="h-[500px]">
+    <XScrollArea className="h-[500px]">
       <div className="space-y-6">
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem className="md:col-span-2">
-                  <FormLabel>Name *</FormLabel>
+                <FormItem className="md:col-span-3">
                   <FormControl>
-                    <Input placeholder="Enter name" {...field} />
+                    <XInput
+                      label="Name"
+                      required
+                      placeholder="Enter name"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -169,11 +173,32 @@ function ProductFormFields({
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price</FormLabel>
                   <FormControl>
-                    <Input
+                    <XInput
+                      label="Price"
                       type="number"
                       placeholder="Enter price"
+                      hideSpinner
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="stock"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <XInput
+                      label="Stock"
+                      type="number"
+                      placeholder="Enter stock"
+                      hideSpinner
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -189,13 +214,13 @@ function ProductFormFields({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description *</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Enter description"
-                    className="resize-none"
-                    rows={3}
-                    {...field}
+                  <XTextEditor
+                    label="Description"
+                    required
+                    placeholder="Nhập mô tả sản phẩm..."
+                    value={field.value}
+                    onChange={field.onChange}
                   />
                 </FormControl>
                 <FormMessage />
@@ -209,7 +234,9 @@ function ProductFormFields({
           onFileDelete={(fileId) => {
             const currentImages = form.getValues("images") || [];
             form.setValue("images", removeImageById(currentImages, fileId));
-            setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId));
+            setUploadedFiles((prev) =>
+              prev.filter((file) => file.id !== fileId)
+            );
           }}
           maxFiles={10}
           maxSize={5}
@@ -255,7 +282,7 @@ function ProductFormFields({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-foreground">Variants</h4>
-              <Button
+              <XButton
                 type="button"
                 variant="outline"
                 size="sm"
@@ -264,7 +291,7 @@ function ProductFormFields({
               >
                 <PlusIcon className="h-4 w-4" />
                 Add
-              </Button>
+              </XButton>
             </div>
 
             <div className="space-y-4">
@@ -282,7 +309,7 @@ function ProductFormFields({
                       {variantFields &&
                         Array.isArray(variantFields) &&
                         variantFields.length > 1 && (
-                          <Button
+                          <XButton
                             type="button"
                             variant="ghost"
                             size="sm"
@@ -290,7 +317,7 @@ function ProductFormFields({
                             className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 p-0"
                           >
                             <TrashIcon className="h-4 w-4" />
-                          </Button>
+                          </XButton>
                         )}
                     </div>
 
@@ -327,13 +354,11 @@ function ProductFormFields({
                             name={`variants.${index}.originalPrice`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-medium">
-                                  Original Price
-                                </FormLabel>
                                 <FormControl>
-                                  <Input
+                                  <XInput
+                                    label="Original Price"
                                     type="number"
-                                    placeholder="0"
+                                    hideSpinner
                                     {...field}
                                     onChange={(e) =>
                                       field.onChange(Number(e.target.value))
@@ -350,13 +375,11 @@ function ProductFormFields({
                             name={`variants.${index}.stock`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-medium">
-                                  Stock
-                                </FormLabel>
                                 <FormControl>
-                                  <Input
+                                  <XInput
+                                    label="Stock"
                                     type="number"
-                                    placeholder="0"
+                                    hideSpinner
                                     {...field}
                                     onChange={(e) =>
                                       field.onChange(Number(e.target.value))
@@ -400,13 +423,11 @@ function ProductFormFields({
                             name={`variants.${index}.salePrice`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-medium">
-                                  Sale Price
-                                </FormLabel>
                                 <FormControl>
-                                  <Input
+                                  <XInput
+                                    label="Sale Price"
                                     type="number"
-                                    placeholder="0"
+                                    hideSpinner
                                     {...field}
                                     value={field.value ?? ""}
                                     onChange={(e) =>
@@ -428,13 +449,11 @@ function ProductFormFields({
                             name={`variants.${index}.discountPercent`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-medium">
-                                  Discount (%)
-                                </FormLabel>
                                 <FormControl>
-                                  <Input
+                                  <XInput
+                                    label="Discount (%)"
                                     type="number"
-                                    placeholder="0"
+                                    hideSpinner
                                     {...field}
                                     value={field.value ?? ""}
                                     onChange={(e) =>
@@ -515,13 +534,12 @@ function ProductFormFields({
                               name={`variants.${index}.stock`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-sm font-medium">
-                                    Stock
-                                  </FormLabel>
                                   <FormControl>
-                                    <Input
+                                  <XInput
+                                      label="Stock"
                                       type="number"
-                                      placeholder="0"
+                                      placeholder="Enter stock"
+                                      hideSpinner
                                       {...field}
                                       onChange={(e) =>
                                         field.onChange(Number(e.target.value))
@@ -538,13 +556,12 @@ function ProductFormFields({
                               name={`variants.${index}.discountPercent`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-sm font-medium">
-                                    Discount (%)
-                                  </FormLabel>
                                   <FormControl>
-                                    <Input
+                                  <XInput
+                                      label="Discount (%)"
                                       type="number"
-                                      placeholder="0"
+                                      placeholder="Enter discount"
+                                      hideSpinner
                                       {...field}
                                       value={field.value ?? ""}
                                       onChange={(e) =>
@@ -569,13 +586,12 @@ function ProductFormFields({
                             name={`variants.${index}.originalPrice`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-medium">
-                                  Original Price
-                                </FormLabel>
                                 <FormControl>
-                                  <Input
+                                  <XInput
+                                    label="Original Price"
                                     type="number"
-                                    placeholder="0"
+                                    placeholder="Enter original price"
+                                    hideSpinner
                                     {...field}
                                     onChange={(e) =>
                                       field.onChange(Number(e.target.value))
@@ -592,13 +608,12 @@ function ProductFormFields({
                             name={`variants.${index}.salePrice`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-medium">
-                                  Sale Price
-                                </FormLabel>
                                 <FormControl>
-                                  <Input
+                                  <XInput
+                                    label="Sale Price"
                                     type="number"
-                                    placeholder="0"
+                                    placeholder="Enter sale price"
+                                    hideSpinner
                                     {...field}
                                     value={field.value ?? ""}
                                     onChange={(e) =>
@@ -623,7 +638,7 @@ function ProductFormFields({
           </div>
         )}
       </div>
-    </ScrollArea>
+    </XScrollArea>
   );
 }
 
@@ -649,7 +664,7 @@ export function CreateProduct({
 
   return (
     <XFormDialog
-      size="3xl"
+      size="4xl"
       open={open}
       onOpenChange={onOpenChange}
       title="Add New Product"
@@ -659,7 +674,8 @@ export function CreateProduct({
       defaultValues={{
         name: "",
         description: "",
-        price: 0,
+        price: undefined,
+        stock: undefined,
         categoryId: "",
         variantType: VariantType.NONE,
         images: [],

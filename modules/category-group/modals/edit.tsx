@@ -1,14 +1,9 @@
 "use client";
 
-import { XFormDialog } from "@/components/common/x-dialog";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { XDialog } from "@/components/common/x-dialog";
+import XForm, { XFormField } from "@/components/common/x-form";
+import { FORM_TYPES } from "@/lib/constants";
+import { useRef } from "react";
 import { FieldValues } from "react-hook-form";
 import { updateCategoryGroupSchema } from "../schemas";
 import { CategoryGroup } from "../types/categories-group.type";
@@ -28,6 +23,7 @@ export function EditCategoryGroup({
   loading,
   categoryGroup,
 }: EditCategoryGroupProps) {
+  const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
     try {
       await onSubmit(data);
@@ -36,42 +32,42 @@ export function EditCategoryGroup({
     }
   };
 
+  const formFields: XFormField[] = [
+    {
+      name: "name",
+      type: FORM_TYPES.INPUT,
+      label: "Category Group Name",
+      placeholder: "Enter category group name",
+      required: true,
+    },
+  ];
+
   return (
-    <XFormDialog
+    <XDialog
       open={open}
       onOpenChange={onOpenChange}
       title="Edit Category Group"
-      onSubmit={handleSubmit}
-      loading={loading}
-      schema={updateCategoryGroupSchema}
-      defaultValues={{
-        name: categoryGroup?.name || "",
-      }}
-      saveText="Update"
+      onConfirm={() => formRef.current?.requestSubmit()}
       onCancel={() => onOpenChange(false)}
+      confirmText="Update"
+      cancelText="Cancel"
+      loading={loading}
+      size="md"
     >
-      {(form) => {
-        return (
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category Group Name *</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter category group name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        );
-      }}
-    </XFormDialog>
+      <XForm
+        ref={formRef}
+        schema={updateCategoryGroupSchema}
+        fields={formFields}
+        onSubmit={handleSubmit}
+        loading={loading}
+        onSuccess={() => onOpenChange(false)}
+        spacing="md"
+        onFormReady={(form) => {
+          form.reset({
+            name: categoryGroup?.name || "",
+          });
+        }}
+      />
+    </XDialog>
   );
 }

@@ -14,6 +14,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui";
+import { ROUTES } from "@/lib/constants";
 import { useAuth, useToast } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 import {
@@ -49,49 +50,49 @@ interface SidebarSubItem {
 const sidebarItems: SidebarItem[] = [
   {
     title: "Dashboard Management",
-    href: "/dashboard",
+    href: ROUTES.DASHBOARD,
     icon: HomeIcon,
     description: "Dashboard management",
   },
   {
     title: "Menu Management",
-    href: "/menu",
+    href: ROUTES.MENU,
     icon: MenuIcon,
     description: "Menu management",
   },
   {
     title: "Color Management",
-    href: "/colors",
+    href: ROUTES.COLOR,
     icon: PaletteIcon,
     description: "Color management",
   },
   {
     title: "Size Management",
-    href: "/sizes",
+    href: ROUTES.SIZE,
     icon: RulerIcon,
     description: "Size management",
   },
   {
     title: "Category Management",
-    href: "#",
+    href: ROUTES.CATEGORY,
     icon: FolderIcon,
     description: "Category management",
     children: [
       {
         title: "Category Group",
-        href: "/categories-group",
+        href: ROUTES.CATEGORY_GROUP,
         icon: FolderOpenIcon,
       },
       {
         title: "Category",
-        href: "/categories",
+        href: ROUTES.CATEGORY,
         icon: FolderTreeIcon,
       },
     ],
   },
   {
     title: "Product Management",
-    href: "/products",
+    href: ROUTES.PRODUCT,
     icon: PackageIcon,
     description: "Product management",
   },
@@ -142,7 +143,7 @@ export function Sidebar({ className }: SidebarProps) {
       const result = await logout();
       if (result) {
         toast("Logout successful", { type: "success" });
-        router.push("/login");
+        router.push(ROUTES.LOGIN);
       } else {
         toast("An error occurred during logout", {
           type: "error",

@@ -1,5 +1,6 @@
-import { env, isClient } from "./env";
-import { ApiResponse, ApiErrorResponse } from "@/lib/types/response.type";
+const isClient = typeof window !== "undefined";
+import { ApiErrorResponse, ApiResponse } from "@/lib/types/response.type";
+import { authCookies } from "@/lib/utils/cookies.utils";
 
 interface HttpClientConfig {
   baseURL: string;
@@ -40,7 +41,7 @@ class HttpClient {
   }
 
   private getToken(): string | null {
-    return typeof isClient ? localStorage.getItem("auth_token") : null;
+    return isClient ? authCookies.get() : null;
   }
 
   private getAuthHeaders(): Record<string, string> {
@@ -87,7 +88,7 @@ class HttpClient {
 
     if (response.status === 401) {
       if (isClient) {
-        localStorage.removeItem("auth_token");
+        authCookies.remove();
       }
 
       if (this.config.onTokenExpired) {
@@ -270,5 +271,5 @@ class HttpClient {
 }
 
 export const httpClient = new HttpClient({
-  baseURL: env.API_BASE_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4200/api",
 });

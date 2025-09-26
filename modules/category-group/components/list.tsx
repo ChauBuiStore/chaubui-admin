@@ -4,7 +4,7 @@ import { ActionsConfig, XTable } from "@/components/common/x-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { CategoryGroup } from "../types/categories-group.type";
-import { PaginationMeta } from "@/lib/types/pagination.type";
+import { PaginationMeta } from "@/lib/types";
 
 interface CategoriesListProps {
   categoriesGroup: CategoryGroup[];

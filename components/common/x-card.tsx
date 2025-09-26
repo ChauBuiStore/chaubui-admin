@@ -1,37 +1,42 @@
 "use client";
 
-import { Card } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui";
 import { cn } from "@/lib/utils";
 import React, { forwardRef } from "react";
 
-export interface XCardProps extends React.ComponentProps<typeof Card> {
+export interface XCardProps
+  extends Omit<React.ComponentProps<typeof Card>, "title"> {
   variant?: "default" | "outline" | "elevated" | "ghost";
-  size?: "sm" | "md" | "lg";
-  padding?: "none" | "sm" | "md" | "lg";
-  rounded?: "none" | "sm" | "md" | "lg" | "xl";
-  shadow?: "none" | "sm" | "md" | "lg" | "xl";
-  hover?: boolean;
-  clickable?: boolean;
-  loading?: boolean;
-  disabled?: boolean;
   wrapperClassName?: string;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  action?: React.ReactNode;
+  headerClassName?: string;
+  contentClassName?: string;
+  titleClassName?: string;
+  descriptionClassName?: string;
 }
 
 export const XCard = forwardRef<HTMLDivElement, XCardProps>(
   (
     {
       variant = "default",
-      size = "md",
-      padding = "md",
-      rounded = "md",
-      shadow = "md",
-      hover = false,
-      clickable = false,
-      loading = false,
-      disabled = false,
       wrapperClassName,
       className,
       children,
+      title,
+      description,
+      action,
+      headerClassName,
+      contentClassName,
+      titleClassName,
+      descriptionClassName,
       ...props
     },
     ref
@@ -43,53 +48,51 @@ export const XCard = forwardRef<HTMLDivElement, XCardProps>(
       ghost: "bg-transparent border-0",
     };
 
-    const sizeClasses = {
-      sm: "max-w-sm",
-      md: "max-w-md",
-      lg: "max-w-lg",
-    };
-
-    const paddingClasses = {
-      none: "p-0",
-      sm: "p-3",
-      md: "p-6",
-      lg: "p-8",
-    };
-
-    const roundedClasses = {
-      none: "rounded-none",
-      sm: "rounded-sm",
-      md: "rounded-md",
-      lg: "rounded-lg",
-      xl: "rounded-xl",
-    };
-
-    const shadowClasses = {
-      none: "shadow-none",
-      sm: "shadow-sm",
-      md: "shadow-md",
-      lg: "shadow-lg",
-      xl: "shadow-xl",
-    };
-
     return (
-      <div className={cn(sizeClasses[size], wrapperClassName)}>
+      <div className={cn(wrapperClassName)}>
         <Card
           ref={ref}
           className={cn(
             variantClasses[variant],
-            paddingClasses[padding],
-            roundedClasses[rounded],
-            shadowClasses[shadow],
-            hover && "hover:shadow-lg hover:scale-[1.02] transition-all duration-200",
-            clickable && "cursor-pointer",
-            loading && "opacity-50 cursor-not-allowed",
-            disabled && "opacity-50 cursor-not-allowed",
             className
           )}
           {...props}
         >
-          {children}
+          {(title || description || action) && (
+            <CardHeader className={cn(headerClassName)}>
+              <div className="flex items-center justify-between">
+                <div className="space-y-1.5">
+                  {title && (
+                    <CardTitle
+                      className={cn(
+                        "text-2xl font-semibold leading-none tracking-tight",
+                        titleClassName
+                      )}
+                    >
+                      {title}
+                    </CardTitle>
+                  )}
+                  {description && (
+                    <CardDescription
+                      className={cn(
+                        "text-sm text-muted-foreground",
+                        descriptionClassName
+                      )}
+                    >
+                      {description}
+                    </CardDescription>
+                  )}
+                </div>
+                {action && <div className="flex items-center">{action}</div>}
+              </div>
+            </CardHeader>
+          )}
+
+          {children && (
+            <CardContent className={cn(contentClassName)}>
+              {children}
+            </CardContent>
+          )}
         </Card>
       </div>
     );

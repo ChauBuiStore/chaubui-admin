@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui";
+import { XButton } from "@/components/common";
 import { MenuIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
 import { MenusList } from "./components";
@@ -47,10 +47,10 @@ export function MenusPage() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={handleCreateMenu}>
+          <XButton onClick={handleCreateMenu}>
             <PlusIcon className="h-4 w-4" />
             Add Menu
-          </Button>
+          </XButton>
         </div>
       </div>
 

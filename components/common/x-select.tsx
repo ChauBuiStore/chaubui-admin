@@ -1,9 +1,7 @@
 "use client";
 
+import { XBadge, XButton, XCheckbox } from "@/components/common";
 import {
-  Badge,
-  Button,
-  Checkbox,
   Select,
   SelectContent,
   SelectItem,
@@ -126,7 +124,7 @@ export function XSelect({
 
     return (
       <div className={cn("w-full relative", className)}>
-        <Button
+        <XButton
           type="button"
           variant="outline"
           className={cn(
@@ -144,7 +142,7 @@ export function XSelect({
                 selectedLabels.map((label, index) => {
                   const val = Array.isArray(value) ? value[index] : "";
                   return (
-                    <Badge
+                    <XBadge
                       key={val}
                       variant="secondary"
                       className="flex items-center gap-1 text-xs bg-primary/10 text-primary border border-primary/20 hover:bg-primary/15 max-w-[140px]"
@@ -159,7 +157,7 @@ export function XSelect({
                       >
                         <X className="h-2 w-2" />
                       </div>
-                    </Badge>
+                    </XBadge>
                   );
                 })
               ) : (
@@ -174,7 +172,7 @@ export function XSelect({
               )}
             </div>
           </div>
-        </Button>
+        </XButton>
 
         {isOpen && (
           <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md max-h-[300px]">
@@ -190,9 +188,9 @@ export function XSelect({
                     )}
                     onClick={() => handleValueChange(option.value)}
                   >
-                    <Checkbox
+                    <XCheckbox
                       checked={isSelected}
-                      onChange={() => {}}
+                      onCheckedChange={() => {}}
                       className="pointer-events-none"
                     />
                     <span className="flex-1">{option.label}</span>

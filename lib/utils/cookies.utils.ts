@@ -54,7 +54,11 @@ export function removeCookie(
 ): void {
   if (typeof document === "undefined") return;
 
+  // Xóa cookie với nhiều cách để đảm bảo nó được xóa hoàn toàn
   document.cookie = `${name}=; path=${path}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  document.cookie = `${name}=; path=/; domain=${window.location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  document.cookie = `${name}=; path=/; domain=.${window.location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 }
 
 export const authCookies = {

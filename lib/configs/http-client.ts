@@ -21,6 +21,14 @@ class HttpClient {
     this.config = config;
   }
 
+  setOnTokenExpired(callback: () => void): void {
+    this.config.onTokenExpired = callback;
+  }
+
+  clearOnTokenExpired(): void {
+    this.config.onTokenExpired = undefined;
+  }
+
   private buildUrl(endpoint: string, params?: Record<string, unknown>): string {
     let url = `${this.config.baseURL}${endpoint}`;
 

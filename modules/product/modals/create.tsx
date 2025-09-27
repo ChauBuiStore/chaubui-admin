@@ -238,8 +238,6 @@ function ProductFormFields({
               prev.filter((file) => file.id !== fileId)
             );
           }}
-          maxFiles={10}
-          maxSize={5}
           multiple={true}
         />
 
@@ -535,7 +533,7 @@ function ProductFormFields({
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
-                                  <XInput
+                                    <XInput
                                       label="Stock"
                                       type="number"
                                       placeholder="Enter stock"
@@ -557,7 +555,7 @@ function ProductFormFields({
                               render={({ field }) => (
                                 <FormItem>
                                   <FormControl>
-                                  <XInput
+                                    <XInput
                                       label="Discount (%)"
                                       type="number"
                                       placeholder="Enter discount"

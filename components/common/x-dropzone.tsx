@@ -26,8 +26,8 @@ interface XDropzoneProps {
 export function XDropzone({
   onUploadSuccess,
   onFileDelete,
-  maxFiles = 5,
-  maxSize = 5,
+  maxFiles = 10,
+  maxSize = 10,
   accept = {
     "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
   },
@@ -56,8 +56,8 @@ export function XDropzone({
     mutationFn: async (files: File[]) => {
       const response = await UploadService.upload(files);
 
-      if (response.data?.data) {
-        return response.data.data;
+      if (response.data) {
+        return response.data;
       } else {
         return [];
       }
@@ -73,8 +73,7 @@ export function XDropzone({
 
       onUploadSuccess?.(responseArray as FileUpload[]);
       success(
-        `Successfully uploaded ${responseArray.length} file${
-          responseArray.length > 1 ? "s" : ""
+        `Successfully uploaded ${responseArray.length} file${responseArray.length > 1 ? "s" : ""
         }`
       );
     },
@@ -98,8 +97,7 @@ export function XDropzone({
       const totalFiles = uploadedFiles.length + acceptedFiles.length;
       if (totalFiles > maxFiles) {
         showError(
-          `Maximum ${maxFiles} files allowed. You have ${
-            uploadedFiles.length
+          `Maximum ${maxFiles} files allowed. You have ${uploadedFiles.length
           } files, can only add ${maxFiles - uploadedFiles.length} more.`
         );
         return;
@@ -251,10 +249,10 @@ export function XDropzone({
           isDragActive && "border-primary bg-primary/10",
           disabled && "opacity-50 cursor-not-allowed",
           (uploadMutation.isPending || deleteMutation.isPending) &&
-            "border-primary bg-primary/10 cursor-not-allowed",
+          "border-primary bg-primary/10 cursor-not-allowed",
           !(uploadMutation.isPending || deleteMutation.isPending) &&
-            !disabled &&
-            "hover:border"
+          !disabled &&
+          "hover:border"
         )}
       >
         <input {...getInputProps()} className="hidden" />

@@ -1,8 +1,8 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
-import type { ApiResponse, Upload } from "@/lib/types";
+import type { ApiResponse, FileUpload } from "@/lib/types";
 
 class UploadService {
-  static async upload(files: File | File[]): Promise<ApiResponse<Upload>> {
+  static async upload(files: File | File[]): Promise<ApiResponse<FileUpload[]>> {
     const fileArray = Array.isArray(files) ? files : [files];
 
     if (fileArray.length === 0) {
@@ -14,7 +14,7 @@ class UploadService {
       formData.append(`files`, file);
     });
 
-    const response = await httpClient.postFormData<Upload>(
+    const response = await httpClient.postFormData<FileUpload[]>(
       ENDPOINTS.UPLOAD.UPLOAD,
       formData
     );

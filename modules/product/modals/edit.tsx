@@ -262,8 +262,6 @@ function ProductEditFormFields({
               <FormItem>
                 <FormControl>
                   <XDropzone
-                    maxFiles={5}
-                    maxSize={5}
                     initialFiles={uploadResponseImages}
                     onUploadSuccess={(files) => {
                       setUploadedFiles(files);
@@ -359,30 +357,30 @@ function ProductEditFormFields({
                     <div className="space-y-3">
                       {(variantType === VariantType.COLOR ||
                         variantType === VariantType.COMBO) && (
-                        <FormField
-                          control={form.control}
-                          name={`variants.${index}.colorId`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-sm font-medium">
-                                Color *
-                              </FormLabel>
-                              <FormControl>
-                                <XSelect
-                                  placeholder="Select color"
-                                  options={safeColors.map((color) => ({
-                                    value: color.id,
-                                    label: color.name,
-                                  }))}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
+                          <FormField
+                            control={form.control}
+                            name={`variants.${index}.colorId`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm font-medium">
+                                  Color *
+                                </FormLabel>
+                                <FormControl>
+                                  <XSelect
+                                    placeholder="Select color"
+                                    options={safeColors.map((color) => ({
+                                      value: color.id,
+                                      label: color.name,
+                                    }))}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
 
                       {variantType === VariantType.SIZE && (
                         <FormField
@@ -600,65 +598,65 @@ export function EditProduct({
     try {
       await onSubmit(data);
       onOpenChange(false);
-    } catch {}
+    } catch { }
   };
 
   const defaultValues = product
     ? {
-        name: product.name,
-        description: product.description,
-        price: Number(product.price) || 0,
-        categoryId: product.category.id,
-        variantType:
-          product.variants?.length > 0 ? VariantType.COMBO : VariantType.NONE,
-        stock: product.variants?.length ? undefined : 0,
-        images:
-          product.images
-            ?.filter((img) => {
-              const hasValidFile = img.file && img.file.id && img.file.url;
-              if (!hasValidFile) {
-                return false;
-              }
-              return true;
-            })
-            ?.map((img, index) => ({
-              fileId: img.file.id,
-              alt: img.alt || img.file.fileName || `Image ${index + 1}`,
-              sortOrder: index + 1,
-              isThumbnail: index === 0,
-            })) || [],
-        variants:
-          product.variants?.map((variant) => ({
-            sizeId: variant.size?.id || "",
-            colorId: variant.color?.id || "",
-            originalPrice: Number(variant.originalPrice) || 0,
-            salePrice: variant.salePrice
-              ? Number(variant.salePrice)
-              : undefined,
-            discountPercent: variant.discountPercent
-              ? Number(variant.discountPercent)
-              : undefined,
-            stock: Number(variant.stock) || 0,
+      name: product.name,
+      description: product.description,
+      price: Number(product.price) || 0,
+      categoryId: product.category.id,
+      variantType:
+        product.variants?.length > 0 ? VariantType.COMBO : VariantType.NONE,
+      stock: product.variants?.length ? undefined : 0,
+      images:
+        product.images
+          ?.filter((img) => {
+            const hasValidFile = img.file && img.file.id && img.file.url;
+            if (!hasValidFile) {
+              return false;
+            }
+            return true;
+          })
+          ?.map((img, index) => ({
+            fileId: img.file.id,
+            alt: img.alt || img.file.fileName || `Image ${index + 1}`,
+            sortOrder: index + 1,
+            isThumbnail: index === 0,
           })) || [],
-      }
+      variants:
+        product.variants?.map((variant) => ({
+          sizeId: variant.size?.id || "",
+          colorId: variant.color?.id || "",
+          originalPrice: Number(variant.originalPrice) || 0,
+          salePrice: variant.salePrice
+            ? Number(variant.salePrice)
+            : undefined,
+          discountPercent: variant.discountPercent
+            ? Number(variant.discountPercent)
+            : undefined,
+          stock: Number(variant.stock) || 0,
+        })) || [],
+    }
     : {
-        name: "",
-        description: "",
-        price: 0,
-        categoryId: "",
-        variantType: VariantType.NONE,
-        images: [],
-        variants: [
-          {
-            sizeId: "",
-            colorId: "",
-            originalPrice: 0,
-            salePrice: undefined,
-            discountPercent: undefined,
-            stock: 0,
-          },
-        ],
-      };
+      name: "",
+      description: "",
+      price: 0,
+      categoryId: "",
+      variantType: VariantType.NONE,
+      images: [],
+      variants: [
+        {
+          sizeId: "",
+          colorId: "",
+          originalPrice: 0,
+          salePrice: undefined,
+          discountPercent: undefined,
+          stock: 0,
+        },
+      ],
+    };
 
   return (
     <XFormDialog

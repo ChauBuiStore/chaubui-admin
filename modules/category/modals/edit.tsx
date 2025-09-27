@@ -30,7 +30,7 @@ export function EditCategory({
     try {
       await onSubmit(data);
       onOpenChange(false);
-    } catch {}
+    } catch { }
   };
 
   const formFields: XFormField[] = [
@@ -40,14 +40,6 @@ export function EditCategory({
       label: "Category Name",
       placeholder: "Enter category name",
       required: true,
-    },
-    {
-      name: "description",
-      type: FORM_TYPES.TEXTAREA,
-      label: "Description",
-      placeholder: "Enter category description",
-      required: true,
-      rows: 4,
     },
     {
       name: "groupId",
@@ -82,7 +74,6 @@ export function EditCategory({
         onFormReady={(form) => {
           form.reset({
             name: category?.name || "",
-            description: category?.description || "",
             groupId: category?.group?.id || "",
           });
         }}

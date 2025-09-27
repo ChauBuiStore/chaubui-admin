@@ -190,7 +190,7 @@ export function XSelect({
                   >
                     <XCheckbox
                       checked={isSelected}
-                      onCheckedChange={() => {}}
+                      onCheckedChange={() => { }}
                       className="pointer-events-none"
                     />
                     <span className="flex-1">{option.label}</span>
@@ -218,10 +218,17 @@ export function XSelect({
     );
   }
 
+  const isValidValue = options.some(option => option.value === value);
+  const selectValue = isValidValue ? value : undefined;
+
   return (
     <Select
-      value={value as string}
-      onValueChange={(value: string) => onValueChange?.(value)}
+      value={selectValue as string}
+      onValueChange={(newValue: string) => {
+        if (newValue !== value && newValue !== '') {
+          onValueChange?.(newValue);
+        }
+      }}
       open={isOpen}
       onOpenChange={handleOpenChange}
       disabled={disabled}

@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 
 import { ActionsConfig, XTable } from "@/components/common/x-table";
@@ -9,7 +10,6 @@ import { formatDate } from "@/lib/utils/date.ultis";
 import { Product } from "@/modules/product/types";
 
 import { Color } from "./color";
-import { Images } from "./images";
 import { Price } from "./price";
 import { Size } from "./size";
 import { Stock } from "./stock";
@@ -51,7 +51,24 @@ export function ProductsList({
         header: "Images",
         cell: ({ row }) => {
           const product = row.original;
-          return <Images product={product} />;
+
+          if (!product.thumbnailUrl) {
+            return (
+              <div className="w-[80px] h-[80px] bg-muted rounded-md flex items-center justify-center">
+                <span className="text-muted-foreground text-xs">No Image</span>
+              </div>
+            );
+          }
+
+          return (
+            <Image
+              src={product.thumbnailUrl}
+              alt={product.name || "Product Image"}
+              width={80}
+              height={80}
+              className="rounded-md object-cover h-20"
+            />
+          );
         },
       },
       {

@@ -13,7 +13,6 @@ export * from "./x-dropzone";
 export * from "./x-dropzone-thumbnail";
 export * from "./x-filter";
 export * from "./x-form";
-export * from "./x-image-preview";
 export * from "./x-input";
 export * from "./x-label";
 export * from "./x-popover";

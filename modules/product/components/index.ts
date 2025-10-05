@@ -1,5 +1,4 @@
 export * from "./color";
-export * from "./images";
 export * from "./list";
 export * from "./price";
 export * from "./product-thumbnail";

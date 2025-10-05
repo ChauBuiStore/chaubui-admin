@@ -1,9 +1,11 @@
 "use client";
 
-import { XColorPicker, XDialog, XForm, XFormField } from "@/components/common";
-import { FORM_TYPES } from "@/lib/constants";
 import { useRef } from "react";
 import { FieldValues } from "react-hook-form";
+
+import { XColorPicker, XDialog, XForm, XFormField } from "@/components/common";
+import { FORM_TYPES } from "@/lib/constants";
+
 import { updateColorSchema } from "../schemas";
 import { Color } from "../types/color.type";
 
@@ -12,6 +14,7 @@ interface EditColorProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: FieldValues) => Promise<void>;
   loading: boolean;
+  isLoadingData?: boolean;
   color?: Color | null;
 }
 
@@ -20,6 +23,7 @@ export function EditColor({
   onOpenChange,
   onSubmit,
   loading,
+  isLoadingData,
   color,
 }: EditColorProps) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -32,12 +36,28 @@ export function EditColor({
 
   const fields: XFormField[] = [
     {
-      name: "name",
+      name: "nameVi",
       type: FORM_TYPES.INPUT,
       subType: FORM_TYPES.TEXT,
-      label: "Color Name",
-      placeholder: "Enter color name",
+      label: "NameVi",
+      placeholder: "Enter nameVi",
       required: true,
+    },
+    {
+      name: "nameEn",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.TEXT,
+      label: "NameEn",
+      placeholder: "Enter nameEn",
+      required: true,
+    },
+    {
+      name: "nameKm",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.TEXT,
+      label: "NameKm",
+      placeholder: "Enter nameKm",
+      required: false,
     },
     {
       name: "code",
@@ -64,11 +84,14 @@ export function EditColor({
         schema={updateColorSchema}
         fields={fields}
         onSubmit={handleSubmit}
+        loading={loading || isLoadingData}
         spacing="md"
         onSuccess={() => onOpenChange(false)}
         onFormReady={(form) => {
           form.reset({
-            name: color?.name || "",
+            nameVi: color?.nameVi || "",
+            nameEn: color?.nameEn || "",
+            nameKm: color?.nameKm || "",
             code: color?.code || "",
           });
         }}

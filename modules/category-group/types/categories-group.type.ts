@@ -2,8 +2,9 @@ import { Category } from "@/modules/category/types/categories.type";
 
 export interface CategoryGroup {
   id: string;
-  name: string;
-  description?: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm: string;
   slug: string;
   createdAt: string;
   updatedAt: string;
@@ -11,11 +12,15 @@ export interface CategoryGroup {
 }
 
 export interface CreateCategoryGroupData {
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm: string;
 }
 
 export interface UpdateCategoryGroupData {
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm: string;
 }
 
 export interface CategoryGroupFilters extends Record<string, unknown> {

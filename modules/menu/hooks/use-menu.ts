@@ -1,19 +1,18 @@
 "use client";
 
-import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
-import { useSearchParams, useToast } from "@/lib/hooks";
-import { MenuService } from "@/lib/services";
-import { CreateMenuData, Menu, UpdateMenuData } from "@/modules/menu/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
 
+import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { useSearchParams, useToast } from "@/lib/hooks";
+import { MenuService } from "@/lib/services";
+import { CreateMenuData, Menu, UpdateMenuData } from "@/modules/menu/types";
+
 export function useMenu() {
   const queryClient = useQueryClient();
   const { success, error: showError } = useToast();
-  const { filters, setFilter } = useSearchParams({
-    keyword: undefined,
-  });
+  const { filters, setFilter } = useSearchParams();
 
   const {
     data: menusData,
@@ -35,6 +34,7 @@ export function useMenu() {
     mutationFn: (data: CreateMenuData) => MenuService.createMenu(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU_BY_ID] });
       success("Menu created successfully!");
     },
     onError: (error) => {
@@ -47,6 +47,7 @@ export function useMenu() {
       MenuService.updateMenu(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU_BY_ID] });
       success("Menu updated successfully!");
     },
     onError: (error) => {
@@ -58,6 +59,7 @@ export function useMenu() {
     mutationFn: (id: string) => MenuService.deleteMenu(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU_BY_ID] });
       success("Menu deleted successfully!");
     },
     onError: (error) => {
@@ -79,9 +81,16 @@ export function useMenu() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
-  const [editingMenu, setEditingMenu] = useState<Menu | null>(null);
+  const [editingMenuId, setEditingMenuId] = useState<string | null>(null);
   const [selectedMenu, setSelectedMenu] = useState<Menu | null>(null);
   const [selectedMenus, setSelectedMenus] = useState<Menu[]>([]);
+
+  const { data: editingMenuData, isLoading: isLoadingEditData } = useQuery({
+    queryKey: [QUERY_KEYS.MENU_BY_ID, editingMenuId],
+    queryFn: () => MenuService.getMenuById(editingMenuId!),
+    enabled: !!editingMenuId,
+    select: (data) => data.data,
+  });
 
   const handleCreateSubmit = async (data: FieldValues) => {
     await createMutation.mutateAsync(data as CreateMenuData);
@@ -89,18 +98,18 @@ export function useMenu() {
   };
 
   const handleEditSubmit = async (data: FieldValues) => {
-    if (!editingMenu) return;
+    if (!editingMenuData) return;
 
     await updateMutation.mutateAsync({
-      id: editingMenu.id,
+      id: editingMenuData.id,
       data: data as UpdateMenuData,
     });
     setShowEditForm(false);
-    setEditingMenu(null);
+    setEditingMenuId(null);
   };
 
   const handleEditMenu = (menu: Menu) => {
-    setEditingMenu(menu);
+    setEditingMenuId(menu.id);
     setShowEditForm(true);
   };
 
@@ -137,11 +146,11 @@ export function useMenu() {
     (page: number) => {
       setFilter({
         page,
-        limit: PAGINATION_CONSTANTS.LIMIT,
-        keyword: filters.keyword || "",
+        limit: filters.limit,
+        search: filters.search,
       });
     },
-    [setFilter, filters.keyword]
+    [setFilter, filters.limit, filters.search],
   );
 
   const handlePageSizeChange = useCallback(
@@ -149,21 +158,21 @@ export function useMenu() {
       setFilter({
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        keyword: filters.keyword || "",
+        search: filters.search,
       });
     },
-    [setFilter, filters.keyword]
+    [setFilter, filters.search],
   );
 
   const handleSearchChange = useCallback(
     (searchTerm: string) => {
       setFilter({
-        keyword: searchTerm,
+        search: searchTerm,
         page: PAGINATION_CONSTANTS.PAGE,
-        limit: PAGINATION_CONSTANTS.LIMIT,
+        limit: filters.limit,
       });
     },
-    [setFilter]
+    [setFilter, filters.limit],
   );
 
   return {
@@ -176,8 +185,8 @@ export function useMenu() {
     setShowEditForm,
     showDeleteForm,
     setShowDeleteForm,
-    editingMenu,
-    setEditingMenu,
+    editingMenu: editingMenuData,
+    isLoadingEditData,
     selectedMenu,
     selectedMenus,
     isSubmitting:

@@ -1,6 +1,7 @@
 "use client";
 
 import { XConfirmDialog } from "@/components/common/x-dialog";
+
 import { Category } from "../types/categories.type";
 
 interface DeleteCategoryModalProps {
@@ -32,14 +33,12 @@ export function DeleteCategory({
 
   const getDescription = () => {
     if (isBulkDelete) {
-      const categoryNames = selectedCategories
-        .map((cat) => cat.name)
-        .join(", ");
+      const categoryNames = selectedCategories.map((cat) => cat.nameEn).join(", ");
       return `Are you sure you want to delete ${selectedCategories.length} categories?\n\nCategories: ${categoryNames}\n\nThis action cannot be undone.`;
     }
 
     if (isSingleDelete) {
-      return `Are you sure you want to delete category "${category?.name}"?\n\nThis action cannot be undone.`;
+      return `Are you sure you want to delete category "${category?.nameEn}"?\n\nThis action cannot be undone.`;
     }
 
     return "Are you sure you want to delete the selected items?";

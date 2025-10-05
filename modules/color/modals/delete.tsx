@@ -1,6 +1,7 @@
 "use client";
 
 import { XConfirmDialog } from "@/components/common/x-dialog";
+
 import { Color } from "../types/color.type";
 
 interface DeleteColorModalProps {
@@ -32,14 +33,12 @@ export function DeleteColor({
 
   const getDescription = () => {
     if (isBulkDelete) {
-      const colorNames = selectedColors
-        .map((color) => color.name)
-        .join(", ");
+      const colorNames = selectedColors.map((color) => color.nameEn).join(", ");
       return `Are you sure you want to delete ${selectedColors.length} colors?\n\nColors: ${colorNames}\n\nThis action cannot be undone.`;
     }
 
     if (isSingleDelete) {
-      return `Are you sure you want to delete color "${color?.name}"?\n\nThis action cannot be undone.`;
+      return `Are you sure you want to delete color "${color?.nameEn}"?\n\nThis action cannot be undone.`;
     }
 
     return "Are you sure you want to delete the selected items?";

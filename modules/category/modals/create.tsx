@@ -1,10 +1,12 @@
 "use client";
 
+import { useRef } from "react";
+import { FieldValues } from "react-hook-form";
+
 import { XDialog } from "@/components/common/x-dialog";
 import XForm, { XFormField } from "@/components/common/x-form";
 import { FORM_TYPES } from "@/lib/constants";
-import { useRef } from "react";
-import { FieldValues } from "react-hook-form";
+
 import { createCategorySchema } from "../schemas";
 
 interface CreateCategoryProps {
@@ -12,7 +14,7 @@ interface CreateCategoryProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: FieldValues) => Promise<void>;
   loading: boolean;
-  categoryGroups?: Array<{ id: string; name: string }>;
+  categoryGroups?: Array<{ id: string; nameEn: string }>;
 }
 
 export function CreateCategory({
@@ -27,16 +29,30 @@ export function CreateCategory({
     try {
       await onSubmit(data);
       onOpenChange(false);
-    } catch { }
+    } catch {}
   };
 
   const formFields: XFormField[] = [
     {
-      name: "name",
+      name: "nameVi",
       type: FORM_TYPES.INPUT,
-      label: "Category Name",
-      placeholder: "Enter category name",
+      label: "NameVi",
+      placeholder: "Enter nameVi",
       required: true,
+    },
+    {
+      name: "nameEn",
+      type: FORM_TYPES.INPUT,
+      label: "NameEn",
+      placeholder: "Enter nameEn",
+      required: true,
+    },
+    {
+      name: "nameKm",
+      type: FORM_TYPES.INPUT,
+      label: "NameKm",
+      placeholder: "Enter nameKm",
+      required: false,
     },
     {
       name: "groupId",
@@ -44,7 +60,7 @@ export function CreateCategory({
       label: "Category Group",
       placeholder: "Select category group",
       required: true,
-      options: categoryGroups.map((g) => ({ value: g.id, label: g.name })),
+      options: categoryGroups.map((g) => ({ value: g.id, label: g.nameEn })),
     },
   ];
 
@@ -52,7 +68,7 @@ export function CreateCategory({
     <XDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Add New Sub Category"
+      title="Add Category"
       onConfirm={() => formRef.current?.requestSubmit()}
       onCancel={() => onOpenChange(false)}
       confirmText="Add"

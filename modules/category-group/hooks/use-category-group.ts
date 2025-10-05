@@ -1,3 +1,7 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
+import { FieldValues } from "react-hook-form";
+
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { CategoryGroupService } from "@/lib/services";
@@ -6,9 +10,6 @@ import {
   CreateCategoryGroupData,
   UpdateCategoryGroupData,
 } from "@/modules/category-group/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
-import { FieldValues } from "react-hook-form";
 
 export function useCategoryGroup() {
   const queryClient = useQueryClient();
@@ -23,7 +24,7 @@ export function useCategoryGroup() {
     error,
     isLoading,
   } = useQuery({
-    queryKey: [QUERY_KEYS.CATEGORY_GROUPS, filters],
+    queryKey: [QUERY_KEYS.CATEGORY_GROUP, filters],
     queryFn: () => CategoryGroupService.getCategoryGroups(filters),
   });
 
@@ -35,10 +36,9 @@ export function useCategoryGroup() {
   const meta = categoryGroupData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateCategoryGroupData) =>
-      CategoryGroupService.createCategoryGroup(data),
+    mutationFn: (data: CreateCategoryGroupData) => CategoryGroupService.createCategoryGroup(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       success("Category group created successfully!");
     },
     onError: (error) => {
@@ -50,7 +50,8 @@ export function useCategoryGroup() {
     mutationFn: ({ id, data }: { id: string; data: UpdateCategoryGroupData }) =>
       CategoryGroupService.updateCategoryGroup(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP_BY_ID] });
       success("Category group updated successfully!");
     },
     onError: (error) => {
@@ -61,7 +62,7 @@ export function useCategoryGroup() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => CategoryGroupService.deleteCategoryGroup(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       success("Category group deleted successfully!");
     },
     onError: (error) => {
@@ -70,10 +71,9 @@ export function useCategoryGroup() {
   });
 
   const bulkDeleteMutation = useMutation({
-    mutationFn: (ids: string[]) =>
-      CategoryGroupService.bulkDeleteCategoryGroups(ids),
+    mutationFn: (ids: string[]) => CategoryGroupService.bulkDeleteCategoryGroups(ids),
     onSuccess: (_, ids) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       success(`Successfully deleted ${ids.length} category groups!`);
     },
     onError: (error) => {
@@ -84,13 +84,16 @@ export function useCategoryGroup() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
-  const [editingCategoryGroup, setEditingCategoryGroup] =
-    useState<CategoryGroup | null>(null);
-  const [selectedCategoryGroup, setSelectedCategoryGroup] =
-    useState<CategoryGroup | null>(null);
-  const [selectedCategoryGroups, setSelectedCategoryGroups] = useState<
-    CategoryGroup[]
-  >([]);
+  const [editingCategoryGroupId, setEditingCategoryGroupId] = useState<string | null>(null);
+  const [selectedCategoryGroup, setSelectedCategoryGroup] = useState<CategoryGroup | null>(null);
+  const [selectedCategoryGroups, setSelectedCategoryGroups] = useState<CategoryGroup[]>([]);
+
+  const { data: editingCategoryGroup, isLoading: isLoadingEditData } = useQuery({
+    queryKey: [QUERY_KEYS.CATEGORY_GROUP_BY_ID, editingCategoryGroupId],
+    queryFn: () => CategoryGroupService.getCategoryGroupById(editingCategoryGroupId!),
+    enabled: !!editingCategoryGroupId,
+    select: (data) => data.data,
+  });
 
   const handleCreateSubmit = async (data: FieldValues) => {
     await createMutation.mutateAsync(data as CreateCategoryGroupData);
@@ -101,27 +104,24 @@ export function useCategoryGroup() {
     if (!editingCategoryGroup) return;
 
     await updateMutation.mutateAsync({
-      id: editingCategoryGroup.id,
+      id: editingCategoryGroup.id || "",
       data: data as UpdateCategoryGroupData,
     });
     setShowEditForm(false);
-    setEditingCategoryGroup(null);
+    setEditingCategoryGroupId(null);
   };
 
   const handleEditCategory = (category: CategoryGroup) => {
-    setEditingCategoryGroup(category);
+    setEditingCategoryGroupId(category.id);
     setShowEditForm(true);
   };
 
   const handleDeleteConfirm = async () => {
     try {
       if (selectedCategoryGroup && selectedCategoryGroups.length === 0) {
-        if (
-          selectedCategoryGroup.categories &&
-          selectedCategoryGroup.categories.length > 0
-        ) {
+        if (selectedCategoryGroup.categories && selectedCategoryGroup.categories.length > 0) {
           showError(
-            `Cannot delete category group "${selectedCategoryGroup.name}" because it contains child categories. Please delete child categories first.`
+            `Không thể xóa nhóm danh mục "${selectedCategoryGroup.nameVi}" vì còn danh mục con. Vui lòng xóa danh mục con trước.`,
           );
           setShowDeleteForm(false);
           setSelectedCategoryGroup(null);
@@ -131,16 +131,13 @@ export function useCategoryGroup() {
         await deleteMutation.mutateAsync(selectedCategoryGroup.id);
       } else if (selectedCategoryGroups.length > 0) {
         const categoriesWithChildren = selectedCategoryGroups.filter(
-          (categoryGroup) =>
-            categoryGroup.categories && categoryGroup.categories.length > 0
+          (categoryGroup) => categoryGroup.categories && categoryGroup.categories.length > 0,
         );
 
         if (categoriesWithChildren.length > 0) {
-          const categoryNames = categoriesWithChildren
-            .map((cat) => cat.name)
-            .join(", ");
+          const categoryNames = categoriesWithChildren.map((cat) => cat.nameVi).join(", ");
           showError(
-            `Cannot delete category groups "${categoryNames}" because they contain child categories. Please delete child categories first.`
+            `Không thể xóa các nhóm danh mục "${categoryNames}" vì còn danh mục con. Vui lòng xóa danh mục con trước.`,
           );
           setShowDeleteForm(false);
           setSelectedCategoryGroups([]);
@@ -179,7 +176,7 @@ export function useCategoryGroup() {
         keyword: filters.keyword || undefined,
       });
     },
-    [setFilter, filters.keyword]
+    [setFilter, filters.keyword],
   );
 
   const handlePageSizeChange = useCallback(
@@ -190,7 +187,7 @@ export function useCategoryGroup() {
         keyword: filters.keyword || undefined,
       });
     },
-    [setFilter, filters.keyword]
+    [setFilter, filters.keyword],
   );
 
   const handleSearchChange = useCallback(
@@ -201,7 +198,7 @@ export function useCategoryGroup() {
         limit: PAGINATION_CONSTANTS.LIMIT,
       });
     },
-    [setFilter]
+    [setFilter],
   );
 
   return {
@@ -215,7 +212,7 @@ export function useCategoryGroup() {
     showDeleteForm,
     setShowDeleteForm,
     editingCategoryGroup,
-    setEditingCategoryGroup,
+    isLoadingEditData,
     selectedCategoryGroup,
     selectedCategoryGroups,
     isSubmitting:
@@ -232,5 +229,6 @@ export function useCategoryGroup() {
     handlePageChange,
     handlePageSizeChange,
     handleSearchChange,
+    setEditingCategoryGroupId,
   };
 }

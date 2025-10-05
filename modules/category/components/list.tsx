@@ -1,10 +1,13 @@
 "use client";
 
-import { ActionsConfig, XTable } from "@/components/common/x-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
-import { Category } from "../types/categories.type";
+
+import { ActionsConfig, XTable } from "@/components/common/x-table";
 import { PaginationMeta } from "@/lib/types";
+import { formatDate } from "@/lib/utils/date.ultis";
+
+import { Category } from "../types/categories.type";
 
 interface CategoriesListProps {
   categories: Category[];
@@ -38,11 +41,35 @@ export function CategoriesList({
   const columns: ColumnDef<Category>[] = useMemo(
     () => [
       {
-        accessorKey: "name",
-        header: "Category Name",
+        accessorKey: "nameVi",
+        header: "NameVi",
         cell: ({ row }) => {
           const category = row.original;
-          return <span className="font-medium">{category.name}</span>;
+          return <span className="font-medium">{category.nameVi}</span>;
+        },
+      },
+      {
+        accessorKey: "nameEn",
+        header: "NameEn",
+        cell: ({ row }) => {
+          const category = row.original;
+          return <span className="font-medium">{category.nameEn}</span>;
+        },
+      },
+      {
+        accessorKey: "nameKm",
+        header: "NameKm",
+        cell: ({ row }) => {
+          const category = row.original;
+          return <span className="font-medium">{category.nameKm}</span>;
+        },
+      },
+      {
+        accessorKey: "slug",
+        header: "Slug",
+        cell: ({ row }) => {
+          const category = row.original;
+          return <span className="font-medium">{category.slug}</span>;
         },
       },
       {
@@ -53,7 +80,13 @@ export function CategoriesList({
           return (
             <div className="flex items-center gap-2">
               <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full border border-primary/20">
-                {category.group?.name || "N/A"}
+                {category.group?.nameVi || "N/A"}
+              </span>
+              <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full border border-primary/20">
+                {category.group?.nameEn || "N/A"}
+              </span>
+              <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full border border-primary/20">
+                {category.group?.nameKm || "N/A"}
               </span>
             </div>
           );
@@ -64,11 +97,11 @@ export function CategoriesList({
         header: "Created Date",
         cell: ({ row }) => {
           const category = row.original;
-          return new Date(category.createdAt).toLocaleDateString("en-US");
+          return formatDate(category.createdAt);
         },
       },
     ],
-    []
+    [],
   );
 
   const actionsConfig: ActionsConfig<Category> = useMemo(
@@ -76,7 +109,7 @@ export function CategoriesList({
       onEdit: (category) => onEditCategory(category),
       onDelete: (category) => onDeleteCategory(category),
     }),
-    [onEditCategory, onDeleteCategory]
+    [onEditCategory, onDeleteCategory],
   );
 
   return (
@@ -96,7 +129,7 @@ export function CategoriesList({
       searchConfig={{
         enabled: true,
         columnKey: "search",
-        placeholder: "Search categories...",
+        placeholder: "Search category by name...",
       }}
       filterConfig={{
         enabled: false,

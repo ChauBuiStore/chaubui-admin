@@ -11,7 +11,7 @@ export function parseJWTToken(token: string): TokenInfo {
       return { isValid: false, isExpired: true };
     }
 
-    const parts = token.split('.');
+    const parts = token.split(".");
     if (parts.length !== 3) {
       return { isValid: false, isExpired: true };
     }
@@ -31,7 +31,7 @@ export function parseJWTToken(token: string): TokenInfo {
       isValid: true,
       isExpired,
       expiresAt,
-      payload
+      payload,
     };
   } catch {
     return { isValid: false, isExpired: true };

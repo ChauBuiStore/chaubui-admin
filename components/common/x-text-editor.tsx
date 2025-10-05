@@ -1,13 +1,7 @@
 "use client";
 
-import { XButton, XInput, XLabel, XPopover } from "@/components/common";
-import { cn } from "@/lib/utils";
-import BulletList from "@tiptap/extension-bullet-list";
 import Color from "@tiptap/extension-color";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
-import ListItem from "@tiptap/extension-list-item";
-import OrderedList from "@tiptap/extension-ordered-list";
 import TextAlign from "@tiptap/extension-text-align";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -30,6 +24,9 @@ import {
   Undo2,
 } from "lucide-react";
 import { forwardRef, useEffect, useState } from "react";
+
+import { XButton, XInput, XLabel, XPopover } from "@/components/common";
+import { cn } from "@/lib/utils";
 
 interface XTextEditorProps {
   value?: string;
@@ -57,7 +54,7 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
       onImageUpload,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [isClient, setIsClient] = useState(false);
     const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
@@ -76,8 +73,7 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
       try {
         const imageUrl = await onImageUpload(file);
         return imageUrl;
-      } catch (error) {
-        console.error("Lỗi upload hình ảnh:", error);
+      } catch {
         return URL.createObjectURL(file);
       }
     };
@@ -111,24 +107,22 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
     const editor = useEditor(
       {
         extensions: [
-          StarterKit,
+          StarterKit.configure({
+            link: {
+              openOnClick: false,
+              HTMLAttributes: {
+                class: "text-blue-500 underline cursor-pointer",
+              },
+            },
+          }),
           Color,
           TextStyle,
-          BulletList,
-          OrderedList,
-          ListItem,
           TextAlign.configure({
             types: ["heading", "paragraph"],
           }),
           Image.configure({
             HTMLAttributes: {
               class: "max-w-full h-auto rounded-lg",
-            },
-          }),
-          Link.configure({
-            openOnClick: false,
-            HTMLAttributes: {
-              class: "text-blue-500 underline cursor-pointer",
             },
           }),
         ],
@@ -147,7 +141,7 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
           },
         },
       },
-      [isClient]
+      [isClient],
     );
 
     useEffect(() => {
@@ -168,7 +162,7 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
             className={cn(
               "border rounded-md h-[200px] flex items-center justify-center",
               error ? "border-red-500" : "border-input",
-              disabled && "opacity-50 cursor-not-allowed"
+              disabled && "opacity-50 cursor-not-allowed",
             )}
           >
             <span className="text-muted-foreground">Đang tải editor...</span>
@@ -198,7 +192,7 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
         title={title}
         className={cn(
           "p-2 rounded hover:bg-accent",
-          isActive && "bg-accent text-accent-foreground"
+          isActive && "bg-accent text-accent-foreground",
         )}
       >
         {children}
@@ -216,21 +210,15 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
           className={cn(
             "border rounded-md",
             error ? "border-red-500" : "border-input",
-            disabled && "opacity-50 cursor-not-allowed"
+            disabled && "opacity-50 cursor-not-allowed",
           )}
         >
           <div className="border-b p-2 flex flex-wrap gap-1">
-            <ToolbarButton
-              onClick={() => editor.chain().focus().undo().run()}
-              title="Hoàn tác"
-            >
+            <ToolbarButton onClick={() => editor.chain().focus().undo().run()} title="Hoàn tác">
               <Undo2 className="h-4 w-4" />
             </ToolbarButton>
 
-            <ToolbarButton
-              onClick={() => editor.chain().focus().redo().run()}
-              title="Làm lại"
-            >
+            <ToolbarButton onClick={() => editor.chain().focus().redo().run()} title="Làm lại">
               <Redo2 className="h-4 w-4" />
             </ToolbarButton>
 
@@ -260,9 +248,7 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
             </ToolbarButton>
 
             <ToolbarButton
-              onClick={() =>
-                editor.chain().focus().toggleHeading({ level: 1 }).run()
-              }
+              onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
               isActive={editor.isActive("heading", { level: 1 })}
               title="Heading 1"
             >
@@ -298,9 +284,7 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
             </ToolbarButton>
 
             <ToolbarButton
-              onClick={() =>
-                editor.chain().focus().setTextAlign("center").run()
-              }
+              onClick={() => editor.chain().focus().setTextAlign("center").run()}
               isActive={editor.isActive({ textAlign: "center" })}
               title="Align Center"
             >
@@ -316,9 +300,7 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
             </ToolbarButton>
 
             <ToolbarButton
-              onClick={() =>
-                editor.chain().focus().setTextAlign("justify").run()
-              }
+              onClick={() => editor.chain().focus().setTextAlign("justify").run()}
               isActive={editor.isActive({ textAlign: "justify" })}
               title="Justify"
             >
@@ -347,8 +329,7 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
                   title="Thêm link"
                   className={cn(
                     "p-2 rounded hover:bg-accent w-8",
-                    editor.isActive("link") &&
-                      "bg-accent text-accent-foreground"
+                    editor.isActive("link") && "bg-accent text-accent-foreground",
                   )}
                   variant="ghost"
                   size="sm"
@@ -416,14 +397,11 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
             </ToolbarButton>
           </div>
 
-          <EditorContent
-            editor={editor}
-            className="min-h-[150px] max-h-[300px] overflow-y-auto"
-          />
+          <EditorContent editor={editor} className="min-h-[150px] max-h-[300px] overflow-y-auto" />
         </div>
       </div>
     );
-  }
+  },
 );
 
 XTextEditor.displayName = "XTextEditor";

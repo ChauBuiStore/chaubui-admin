@@ -82,15 +82,15 @@ class HttpClient {
       } else {
         errorData = {
           message: `HTTP ${response.status}: ${response.statusText}`,
-          status: 'error' as const,
-          statusCode: response.status
+          status: "error" as const,
+          statusCode: response.status,
         };
       }
     } catch {
       errorData = {
         message: `HTTP ${response.status}: ${response.statusText}`,
-        status: 'error' as const,
-        statusCode: response.status
+        status: "error" as const,
+        statusCode: response.status,
       };
     }
 
@@ -109,15 +109,13 @@ class HttpClient {
     throw new Error(errorData.message || "Request failed");
   }
 
-  private async parseSuccessResponse<T>(
-    response: Response
-  ): Promise<ApiResponse<T>> {
+  private async parseSuccessResponse<T>(response: Response): Promise<ApiResponse<T>> {
     if (response.status === 204 || response.status === 205) {
       return {
         message: "Success",
         status: "success",
         statusCode: response.status,
-        data: null as T
+        data: null as T,
       };
     }
 
@@ -127,7 +125,7 @@ class HttpClient {
         message: "Success",
         status: "success",
         statusCode: response.status,
-        data: null as T
+        data: null as T,
       };
     }
 
@@ -140,10 +138,7 @@ class HttpClient {
     }
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestConfig = {}
-  ): Promise<ApiResponse<T>> {
+  private async request<T>(endpoint: string, options: RequestConfig = {}): Promise<ApiResponse<T>> {
     const url = this.buildUrl(endpoint, options.params);
     const headers = { ...this.getAuthHeaders(), ...options.headers };
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -171,25 +166,22 @@ class HttpClient {
     } catch (error) {
       clearTimeout(timeoutId);
 
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('Request timeout');
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error("Request timeout");
       }
 
       throw error;
     }
   }
 
-  async get<T>(
-    endpoint: string,
-    options?: RequestConfig
-  ): Promise<ApiResponse<T>> {
+  async get<T>(endpoint: string, options?: RequestConfig): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { ...options, method: "GET" });
   }
 
   async post<T>(
     endpoint: string,
     body?: unknown,
-    options?: RequestConfig
+    options?: RequestConfig,
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       ...options,
@@ -201,7 +193,7 @@ class HttpClient {
   async postFormData<T>(
     endpoint: string,
     formData: FormData,
-    options?: RequestConfig
+    options?: RequestConfig,
   ): Promise<ApiResponse<T>> {
     const url = this.buildUrl(endpoint, options?.params);
     const headers = { ...this.getFormDataHeaders(), ...options?.headers };
@@ -233,19 +225,15 @@ class HttpClient {
     } catch (error) {
       clearTimeout(timeoutId);
 
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('Request timeout');
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error("Request timeout");
       }
 
       throw error;
     }
   }
 
-  async put<T>(
-    endpoint: string,
-    body?: unknown,
-    options?: RequestConfig
-  ): Promise<ApiResponse<T>> {
+  async put<T>(endpoint: string, body?: unknown, options?: RequestConfig): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       ...options,
       method: "PUT",
@@ -256,7 +244,7 @@ class HttpClient {
   async patch<T>(
     endpoint: string,
     body?: unknown,
-    options?: RequestConfig
+    options?: RequestConfig,
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       ...options,
@@ -268,7 +256,7 @@ class HttpClient {
   async delete<T>(
     endpoint: string,
     body?: unknown,
-    options?: RequestConfig
+    options?: RequestConfig,
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       ...options,

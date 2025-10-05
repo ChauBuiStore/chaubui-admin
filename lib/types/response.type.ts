@@ -7,7 +7,7 @@ export interface PaginationMeta {
 
 export interface ApiResponse<T = unknown> {
   message: string;
-  status: 'success' | 'error';
+  status: "success" | "error";
   statusCode: number;
   data?: T;
   meta?: PaginationMeta;
@@ -15,8 +15,7 @@ export interface ApiResponse<T = unknown> {
 
 export interface ApiErrorResponse {
   message: string;
-  status: 'error';
+  status: "error";
   statusCode: number;
   errors?: Record<string, string[]>;
 }
-

@@ -1,8 +1,10 @@
 "use client";
 
-import { XButton } from "@/components/common";
-import { RulerIcon, PlusIcon } from "lucide-react";
+import { PlusIcon, RulerIcon } from "lucide-react";
 import { useCallback } from "react";
+
+import { XButton } from "@/components/common";
+
 import { SizesList } from "./components";
 import { useSize } from "./hooks";
 import { CreateSize, DeleteSize, EditSize } from "./modals";
@@ -19,6 +21,7 @@ export function SizesPage() {
     showDeleteForm,
     setShowDeleteForm,
     editingSize,
+    isLoadingEditData,
     selectedSize,
     selectedSizes,
     isSubmitting,
@@ -78,6 +81,7 @@ export function SizesPage() {
         onOpenChange={setShowEditForm}
         onSubmit={handleEditSubmit}
         loading={isSubmitting}
+        isLoadingData={isLoadingEditData}
         size={editingSize}
       />
 

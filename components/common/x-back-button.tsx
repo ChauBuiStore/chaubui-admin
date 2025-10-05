@@ -1,20 +1,15 @@
 "use client";
 
-import { XButton } from "@/components/common";
 import { CornerUpLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+
+import { XButton } from "@/components/common";
 
 interface XBackButtonProps {
   text?: string;
   href?: string;
   className?: string;
-  variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
 }
 
 export function XBackButton({

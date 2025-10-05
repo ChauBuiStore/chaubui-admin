@@ -1,13 +1,14 @@
 "use client";
 
-import { XButton, XCard, XForm, XFormField } from "@/components/common";
-import { AUTH_MESSAGES, FORM_TYPES, ROUTES } from "@/lib/constants";
-import { useAuth, useToast } from "@/lib/hooks";
-import { type LoginFormData, loginSchema } from "@/modules/auth/schema";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Lock, LogIn, Mail, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
+
+import { XButton, XCard, XForm, XFormField } from "@/components/common";
+import { AUTH_MESSAGES, FORM_TYPES, ROUTES } from "@/lib/constants";
+import { useAuth, useToast } from "@/lib/hooks";
+import { type LoginFormData, loginSchema } from "@/modules/auth/schema";
 
 export function LoginPage() {
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -70,12 +71,8 @@ export function LoginPage() {
             </div>
           </div>
 
-          <h1 className="text-4xl font-bold text-foreground mb-3">
-            Welcome Back
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Sign in to continue with your account
-          </p>
+          <h1 className="text-4xl font-bold text-foreground mb-3">Welcome Back</h1>
+          <p className="text-muted-foreground text-lg">Sign in to continue with your account</p>
         </div>
 
         <XCard

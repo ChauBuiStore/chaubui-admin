@@ -1,10 +1,13 @@
 "use client";
 
-import { ActionsConfig, XTable } from "@/components/common/x-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
-import { CategoryGroup } from "../types/categories-group.type";
+
+import { ActionsConfig, XTable } from "@/components/common/x-table";
 import { PaginationMeta } from "@/lib/types";
+import { formatDate } from "@/lib/utils/date.ultis";
+
+import { CategoryGroup } from "../types/categories-group.type";
 
 interface CategoriesListProps {
   categoriesGroup: CategoryGroup[];
@@ -38,13 +41,27 @@ export function CategoriesGroupList({
   const columns: ColumnDef<CategoryGroup>[] = useMemo(
     () => [
       {
-        accessorKey: "name",
-        header: "Category Name",
+        accessorKey: "nameVi",
+        header: "NameVi",
         cell: ({ row }) => {
           const categoryGroup = row.original;
-          return (
-            <span className="font-medium truncate">{categoryGroup.name}</span>
-          );
+          return <span className="font-medium truncate">{categoryGroup.nameVi}</span>;
+        },
+      },
+      {
+        accessorKey: "nameEn",
+        header: "NameEn",
+        cell: ({ row }) => {
+          const categoryGroup = row.original;
+          return <span className="font-medium truncate">{categoryGroup.nameEn}</span>;
+        },
+      },
+      {
+        accessorKey: "nameKm",
+        header: "NameKm",
+        cell: ({ row }) => {
+          const categoryGroup = row.original;
+          return <span className="font-medium truncate">{categoryGroup.nameKm}</span>;
         },
       },
       {
@@ -52,11 +69,7 @@ export function CategoriesGroupList({
         header: "Slug",
         cell: ({ row }) => {
           const categoryGroup = row.original;
-          return (
-            <span className="font-medium hidden sm:inline-block">
-              {categoryGroup.slug}
-            </span>
-          );
+          return <span className="font-medium">{categoryGroup.slug}</span>;
         },
       },
       {
@@ -64,15 +77,11 @@ export function CategoriesGroupList({
         header: "Created Date",
         cell: ({ row }) => {
           const categoryGroup = row.original;
-          return (
-            <span className="hidden md:inline-block">
-              {new Date(categoryGroup.createdAt).toLocaleDateString("en-US")}
-            </span>
-          );
+          return <span className="font-medium">{formatDate(categoryGroup.createdAt)}</span>;
         },
       },
     ],
-    []
+    [],
   );
 
   const actionsConfig: ActionsConfig<CategoryGroup> = useMemo(
@@ -82,13 +91,11 @@ export function CategoriesGroupList({
         {
           label: "Delete",
           onClick: (category) => onDeleteCategory(category),
-          variant: "destructive" as const,
-          disabled: (category) =>
-            Boolean(category.categories && category.categories.length > 0),
+          disabled: (category) => Boolean(category.categories && category.categories.length > 0),
         },
       ],
     }),
-    [onEditCategory, onDeleteCategory]
+    [onEditCategory, onDeleteCategory],
   );
 
   return (
@@ -108,7 +115,7 @@ export function CategoriesGroupList({
       searchConfig={{
         enabled: true,
         columnKey: "keyword",
-        placeholder: "Search category groups...",
+        placeholder: "Search category group by name...",
       }}
       filterConfig={{
         enabled: false,

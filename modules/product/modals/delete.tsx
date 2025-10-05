@@ -1,6 +1,7 @@
 "use client";
 
 import { XConfirmDialog } from "@/components/common";
+
 import { Product } from "../types";
 
 interface DeleteProductProps {
@@ -38,7 +39,7 @@ export function DeleteProduct({
         <ul className="text-sm space-y-1">
           {selectedProducts.slice(0, 5).map((p) => (
             <li key={p.id} className="text-foreground">
-              • {p.name}
+              • {p.nameEn}
             </li>
           ))}
           {selectedProducts.length > 5 && (
@@ -50,7 +51,7 @@ export function DeleteProduct({
       </div>
     </div>
   ) : (
-    `Are you sure you want to delete product "${product?.name}"?`
+    `Are you sure you want to delete product "${product?.nameEn}"?`
   );
 
   return (

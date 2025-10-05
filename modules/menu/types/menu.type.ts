@@ -1,19 +1,24 @@
 export interface Menu {
   id: string;
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm?: string;
   slug: string;
-  isPublic: boolean;
+  isPublic?: boolean;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
 
 export interface CreateMenuData {
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm?: string;
 }
 
 export interface UpdateMenuData {
-  name?: string;
-  isPublic?: boolean;
+  nameVi: string;
+  nameEn: string;
+  nameKm?: string;
 }
 
 export interface MenuFilters extends Record<string, unknown> {

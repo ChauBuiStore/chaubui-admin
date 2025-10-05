@@ -1,6 +1,8 @@
 export interface CategoryGroup {
   id: string;
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm: string;
   slug: string;
   createdAt: Date | string;
   updatedAt: Date | string;
@@ -8,7 +10,9 @@ export interface CategoryGroup {
 
 export interface Category {
   id: string;
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm: string;
   slug: string;
   description: string;
   group: CategoryGroup;
@@ -20,13 +24,17 @@ export interface Category {
 }
 
 export interface CreateCategoryData {
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm: string;
   description: string;
   groupId: string;
 }
 
 export interface UpdateCategoryData {
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm: string;
   description: string;
   groupId: string;
 }

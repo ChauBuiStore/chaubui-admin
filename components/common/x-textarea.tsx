@@ -1,12 +1,12 @@
 "use client";
 
+import React, { forwardRef } from "react";
+
 import { XLabel } from "@/components/common";
 import { Textarea } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import React, { forwardRef } from "react";
 
-export interface XTextareaProps
-  extends Omit<React.ComponentProps<typeof Textarea>, "size"> {
+export interface XTextareaProps extends Omit<React.ComponentProps<typeof Textarea>, "size"> {
   size?: "sm" | "md" | "lg";
   hasError?: boolean;
   errorMessage?: string;
@@ -45,7 +45,7 @@ export const XTextarea = forwardRef<HTMLTextAreaElement, XTextareaProps>(
       resize = "vertical",
       ...props
     },
-    ref
+    ref,
   ) => {
     const sizeClasses = {
       sm: "min-h-[60px] px-2 py-1 text-xs",
@@ -69,7 +69,7 @@ export const XTextarea = forwardRef<HTMLTextAreaElement, XTextareaProps>(
             className={cn(
               "text-sm font-medium text-foreground",
               disabled && "text-muted-foreground",
-              labelClassName
+              labelClassName,
             )}
           >
             {label}
@@ -82,13 +82,11 @@ export const XTextarea = forwardRef<HTMLTextAreaElement, XTextareaProps>(
           className={cn(
             sizeClasses[size],
             resizeClasses[resize],
-            hasError
-              ? "border-destructive focus:border-destructive focus:ring-destructive"
-              : "",
+            hasError ? "border-destructive focus:border-destructive focus:ring-destructive" : "",
             disabled ? "bg-muted cursor-not-allowed" : "",
             readOnly ? "bg-muted cursor-default" : "",
             textareaClassName,
-            className
+            className,
           )}
           disabled={disabled}
           readOnly={readOnly}
@@ -96,19 +94,15 @@ export const XTextarea = forwardRef<HTMLTextAreaElement, XTextareaProps>(
         />
 
         {hasError && errorMessage && (
-          <p className={cn("text-xs text-destructive", errorClassName)}>
-            {errorMessage}
-          </p>
+          <p className={cn("text-xs text-destructive", errorClassName)}>{errorMessage}</p>
         )}
 
         {!hasError && helperText && (
-          <p className={cn("text-xs text-muted-foreground", helperClassName)}>
-            {helperText}
-          </p>
+          <p className={cn("text-xs text-muted-foreground", helperClassName)}>{helperText}</p>
         )}
       </div>
     );
-  }
+  },
 );
 
 XTextarea.displayName = "XTextarea";

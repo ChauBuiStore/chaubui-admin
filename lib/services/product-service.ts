@@ -1,48 +1,34 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
 import { ApiResponse } from "@/lib/types";
 import {
+  CreateProductData,
   Product,
   ProductFilters,
-  CreateProductData,
   UpdateProductData,
 } from "@/modules/product/types";
 
 class ProductService {
-  static async getProducts(
-    filters?: ProductFilters
-  ): Promise<ApiResponse<Product[]>>
-  {
-    const response = await httpClient.get<Product[]>(
-      ENDPOINTS.PRODUCT.GET_ALL,
-      {
-        params: filters,
-      }
-    );
+  static async getProducts(filters?: ProductFilters): Promise<ApiResponse<Product[]>> {
+    const response = await httpClient.get<Product[]>(ENDPOINTS.PRODUCT.GET_ALL, {
+      params: filters,
+    });
     return response;
   }
 
   static async getProductById(id: string): Promise<ApiResponse<Product>> {
-    const response = await httpClient.get<Product>(
-      ENDPOINTS.PRODUCT.GET_BY_ID.replace(":id", id)
-    );
+    const response = await httpClient.get<Product>(ENDPOINTS.PRODUCT.GET_BY_ID.replace(":id", id));
     return response;
   }
 
   static async createProduct(data: CreateProductData): Promise<ApiResponse<Product>> {
-    const response = await httpClient.post<Product>(
-      ENDPOINTS.PRODUCT.CREATE,
-      data
-    );
+    const response = await httpClient.post<Product>(ENDPOINTS.PRODUCT.CREATE, data);
     return response;
   }
 
-  static async updateProduct(
-    id: string,
-    data: UpdateProductData
-  ): Promise<ApiResponse<Product>> {
+  static async updateProduct(id: string, data: UpdateProductData): Promise<ApiResponse<Product>> {
     const response = await httpClient.put<Product>(
       ENDPOINTS.PRODUCT.UPDATE.replace(":id", id),
-      data
+      data,
     );
     return response;
   }

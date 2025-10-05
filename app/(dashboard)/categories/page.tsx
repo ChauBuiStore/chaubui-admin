@@ -1,5 +1,6 @@
-import { CategoriesPage } from "@/modules/category";
 import { Metadata } from "next";
+
+import { CategoriesPage } from "@/modules/category";
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -7,7 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function CategoriesPageRoot() {
-  return (
-    <CategoriesPage />
-  ); 
+  return <CategoriesPage />;
 }

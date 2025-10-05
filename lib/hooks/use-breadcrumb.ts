@@ -27,19 +27,16 @@ export function useBreadcrumb(): BreadcrumbItem[] {
         categories: "Category Management",
         "categories-group": "Category Group Management",
         colors: "Color Management",
-        menu: "Menu Management",
+        menus: "Menu Management",
         sizes: "Size Management",
         products: "Product Management",
       };
 
       const label =
-        labelMap[segment] ||
-        segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
+        labelMap[segment] || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
 
       if (
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          segment
-        ) ||
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment) ||
         /^\d+$/.test(segment)
       ) {
         return;

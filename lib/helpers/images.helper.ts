@@ -4,7 +4,6 @@ export interface FormImage {
   fileId: string;
   alt: string;
   sortOrder: number;
-  isThumbnail: boolean;
 }
 
 export function normalizeImages(images: FormImage[]): FormImage[] {
@@ -13,30 +12,20 @@ export function normalizeImages(images: FormImage[]): FormImage[] {
     ...img,
     alt: img.alt || `Image ${index + 1}`,
     sortOrder: index + 1,
-    isThumbnail: index === 0,
   }));
 }
 
-export function mergeNewUploads(
-  currentImages: FormImage[],
-  uploads: FileUpload[]
-): FormImage[] {
+export function mergeNewUploads(currentImages: FormImage[], uploads: FileUpload[]): FormImage[] {
   const base = Array.isArray(currentImages) ? currentImages : [];
   const newOnes: FormImage[] = (uploads || []).map((u, idx) => ({
     fileId: u.id,
     alt: u.fileName || `Image ${base.length + idx + 1}`,
     sortOrder: base.length + idx + 1,
-    isThumbnail: false,
   }));
   return normalizeImages([...base, ...newOnes]);
 }
 
-export function removeImageById(
-  currentImages: FormImage[],
-  fileId: string
-): FormImage[] {
+export function removeImageById(currentImages: FormImage[], fileId: string): FormImage[] {
   const remaining = (currentImages || []).filter((img) => img.fileId !== fileId);
   return normalizeImages(remaining);
 }
-
-

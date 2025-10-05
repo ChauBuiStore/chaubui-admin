@@ -1,12 +1,9 @@
-import { SidebarProvider, SidebarInset } from "@/components/ui";
-import { Sidebar, Header } from "@/components/layout";
 import { Suspense } from "react";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import { Header, Sidebar } from "@/components/layout";
+import { SidebarInset, SidebarProvider } from "@/components/ui";
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div className="flex h-screen bg-muted">

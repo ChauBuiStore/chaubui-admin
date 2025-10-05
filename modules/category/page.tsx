@@ -1,11 +1,13 @@
 "use client";
 
-import { XButton } from "@/components/common";
 import { FolderIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
+
+import { XButton } from "@/components/common";
+
 import { CategoriesList } from "./components/list";
-import { CreateCategory, EditCategory, DeleteCategory } from "./modals";
 import { useCategory } from "./hooks";
+import { CreateCategory, DeleteCategory, EditCategory } from "./modals";
 
 export function CategoriesPage() {
   const {

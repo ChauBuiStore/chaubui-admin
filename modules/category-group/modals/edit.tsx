@@ -1,10 +1,12 @@
 "use client";
 
+import { useRef } from "react";
+import { FieldValues } from "react-hook-form";
+
 import { XDialog } from "@/components/common/x-dialog";
 import XForm, { XFormField } from "@/components/common/x-form";
 import { FORM_TYPES } from "@/lib/constants";
-import { useRef } from "react";
-import { FieldValues } from "react-hook-form";
+
 import { updateCategoryGroupSchema } from "../schemas";
 import { CategoryGroup } from "../types/categories-group.type";
 
@@ -13,7 +15,9 @@ interface EditCategoryGroupProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: FieldValues) => Promise<void>;
   loading: boolean;
-  categoryGroup: CategoryGroup | null;
+  categoryGroup?: CategoryGroup;
+  isLoadingData?: boolean;
+  onClose?: () => void;
 }
 
 export function EditCategoryGroup({
@@ -22,36 +26,58 @@ export function EditCategoryGroup({
   onSubmit,
   loading,
   categoryGroup,
+  isLoadingData = false,
+  onClose,
 }: EditCategoryGroupProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
     try {
       await onSubmit(data);
       onOpenChange(false);
-    } catch {
+    } catch {}
+  };
+
+  const handleOpenChange = (newOpen: boolean) => {
+    onOpenChange(newOpen);
+    if (!newOpen && onClose) {
+      onClose();
     }
   };
 
   const formFields: XFormField[] = [
     {
-      name: "name",
+      name: "nameVi",
       type: FORM_TYPES.INPUT,
-      label: "Category Group Name",
-      placeholder: "Enter category group name",
+      label: "NameVi",
+      placeholder: "Enter nameVi",
       required: true,
+    },
+    {
+      name: "nameEn",
+      type: FORM_TYPES.INPUT,
+      label: "NameEn",
+      placeholder: "Enter nameEn",
+      required: true,
+    },
+    {
+      name: "nameKm",
+      type: FORM_TYPES.INPUT,
+      label: "NameKm",
+      placeholder: "Enter nameKm",
+      required: false,
     },
   ];
 
   return (
     <XDialog
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       title="Edit Category Group"
       onConfirm={() => formRef.current?.requestSubmit()}
-      onCancel={() => onOpenChange(false)}
+      onCancel={() => handleOpenChange(false)}
       confirmText="Update"
       cancelText="Cancel"
-      loading={loading}
+      loading={loading || isLoadingData}
       size="md"
     >
       <XForm
@@ -60,11 +86,13 @@ export function EditCategoryGroup({
         fields={formFields}
         onSubmit={handleSubmit}
         loading={loading}
-        onSuccess={() => onOpenChange(false)}
+        onSuccess={() => handleOpenChange(false)}
         spacing="md"
         onFormReady={(form) => {
           form.reset({
-            name: categoryGroup?.name || "",
+            nameVi: categoryGroup?.nameVi || "",
+            nameEn: categoryGroup?.nameEn || "",
+            nameKm: categoryGroup?.nameKm || "",
           });
         }}
       />

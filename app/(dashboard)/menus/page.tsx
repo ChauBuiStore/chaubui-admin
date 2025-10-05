@@ -1,5 +1,6 @@
-import { MenusPage } from "@/modules/menu";
 import { Metadata } from "next";
+
+import { MenusPage } from "@/modules/menu";
 
 export const metadata: Metadata = {
   title: "Menu",

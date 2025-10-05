@@ -1,12 +1,13 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
+import { FieldValues } from "react-hook-form";
+
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { SizeService } from "@/lib/services";
 import { CreateSizeData, Size, UpdateSizeData } from "@/modules/size/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
-import { FieldValues } from "react-hook-form";
 
 export function useSize() {
   const queryClient = useQueryClient();
@@ -24,7 +25,6 @@ export function useSize() {
     queryFn: () => SizeService.getSizes(filters),
   });
 
-
   if (error) {
     showError((error as Error).message);
   }
@@ -33,10 +33,10 @@ export function useSize() {
   const pagination = sizesData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateSizeData) =>
-      SizeService.createSize(data),
+    mutationFn: (data: CreateSizeData) => SizeService.createSize(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZES] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZE_BY_ID] });
       success("Size created successfully!");
     },
     onError: (error) => {
@@ -49,6 +49,7 @@ export function useSize() {
       SizeService.updateSize(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZES] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZE_BY_ID] });
       success("Size updated successfully!");
     },
     onError: (error) => {
@@ -56,11 +57,11 @@ export function useSize() {
     },
   });
 
-
   const deleteMutation = useMutation({
     mutationFn: (id: string) => SizeService.deleteSize(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZES] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZE_BY_ID] });
       success("Size deleted successfully!");
     },
     onError: (error) => {
@@ -82,11 +83,16 @@ export function useSize() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
-  const [editingSize, setEditingSize] = useState<Size | null>(null);
-  const [selectedSize, setSelectedSize] = useState<Size | null>(
-    null
-  );
+  const [editingSizeId, setEditingSizeId] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<Size | null>(null);
   const [selectedSizes, setSelectedSizes] = useState<Size[]>([]);
+
+  const { data: editingSizeData, isLoading: isLoadingEditData } = useQuery({
+    queryKey: [QUERY_KEYS.SIZE_BY_ID, editingSizeId],
+    queryFn: () => SizeService.getSizeById(editingSizeId!),
+    enabled: !!editingSizeId,
+    select: (data) => data.data,
+  });
 
   const handleCreateSubmit = async (data: FieldValues) => {
     await createMutation.mutateAsync(data as CreateSizeData);
@@ -94,18 +100,18 @@ export function useSize() {
   };
 
   const handleEditSubmit = async (data: FieldValues) => {
-    if (!editingSize) return;
+    if (!editingSizeData) return;
 
     await updateMutation.mutateAsync({
-      id: editingSize.id,
+      id: editingSizeData.id,
       data: data as UpdateSizeData,
     });
     setShowEditForm(false);
-    setEditingSize(null);
+    setEditingSizeId(null);
   };
 
   const handleEditSize = (size: Size) => {
-    setEditingSize(size);
+    setEditingSizeId(size.id);
     setShowEditForm(true);
   };
 
@@ -126,7 +132,6 @@ export function useSize() {
     }
   };
 
-
   const handleDeleteSize = (size: Size) => {
     setSelectedSize(size);
     setSelectedSizes([]);
@@ -144,10 +149,10 @@ export function useSize() {
       setFilter({
         page,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        keyword: filters.keyword || ""
+        keyword: filters.keyword || "",
       });
     },
-    [setFilter, filters.keyword]
+    [setFilter, filters.keyword],
   );
 
   const handlePageSizeChange = useCallback(
@@ -155,10 +160,10 @@ export function useSize() {
       setFilter({
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        keyword: filters.keyword || ""
+        keyword: filters.keyword || "",
       });
     },
-    [setFilter, filters.keyword]
+    [setFilter, filters.keyword],
   );
 
   const handleSearchChange = useCallback(
@@ -166,10 +171,10 @@ export function useSize() {
       setFilter({
         keyword: searchTerm,
         page: PAGINATION_CONSTANTS.PAGE,
-        limit: PAGINATION_CONSTANTS.LIMIT
+        limit: PAGINATION_CONSTANTS.LIMIT,
       });
     },
-    [setFilter]
+    [setFilter],
   );
 
   return {
@@ -182,8 +187,8 @@ export function useSize() {
     setShowEditForm,
     showDeleteForm,
     setShowDeleteForm,
-    editingSize,
-    setEditingSize,
+    editingSize: editingSizeData,
+    isLoadingEditData,
     selectedSize,
     selectedSizes,
     isSubmitting:

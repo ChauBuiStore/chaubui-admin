@@ -1,8 +1,10 @@
 "use client";
 
-import { XButton } from "@/components/common";
 import { PackageIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
+
+import { XButton } from "@/components/common";
+
 import { ProductsList } from "./components/list";
 import { useProduct } from "./hooks";
 import { CreateProduct, DeleteProduct, EditProduct } from "./modals";
@@ -24,6 +26,7 @@ export function ProductsPage() {
     editingProduct,
     selectedProduct,
     selectedProducts,
+    isLoadingEditingProduct,
     isSubmitting,
     handleCreateSubmit,
     handleEditSubmit,
@@ -50,10 +53,7 @@ export function ProductsPage() {
           <h1 className="text-2xl font-bold text-foreground">Product Management</h1>
         </div>
         <div className="flex items-center gap-2">
-          <XButton
-            onClick={handleCreateProduct}
-            className="flex items-center gap-2"
-          >
+          <XButton onClick={handleCreateProduct} className="flex items-center gap-2">
             <PlusIcon className="h-4 w-4" />
             Add Product
           </XButton>
@@ -86,7 +86,7 @@ export function ProductsPage() {
         open={showEditForm}
         onOpenChange={setShowEditForm}
         onSubmit={handleEditSubmit}
-        loading={isSubmitting}
+        loading={isSubmitting || isLoadingEditingProduct}
         product={editingProduct}
         categories={categories}
         colors={colors}

@@ -5,5 +5,4 @@ export interface ProductImage {
   file: FileUpload;
   alt: string;
   sortOrder: number;
-  isThumbnail: boolean;
 }

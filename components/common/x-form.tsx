@@ -1,13 +1,11 @@
 "use client";
 
-import {
-  XCheckbox,
-  XInput,
-  XLabel,
-  XRadioGroup,
-  XSelect,
-  XTextarea,
-} from "@/components/common";
+import { zodResolver } from "@hookform/resolvers/zod";
+import React, { forwardRef, useEffect, useState } from "react";
+import { ControllerRenderProps, FieldPath, FieldValues, useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { XCheckbox, XInput, XLabel, XRadioGroup, XSelect, XTextarea } from "@/components/common";
 import {
   Form,
   FormControl,
@@ -17,18 +15,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui";
-
 import { FORM_TYPES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { forwardRef, useEffect, useState } from "react";
-import {
-  ControllerRenderProps,
-  FieldPath,
-  FieldValues,
-  useForm,
-} from "react-hook-form";
-import { z } from "zod";
 
 const getFieldType = (type?: string): XFormField["type"] => {
   const validTypes = [
@@ -86,7 +74,7 @@ export interface XFormProps<T = Record<string, unknown>> {
 
 function XFormInner<T extends Record<string, unknown>>(
   props: XFormProps<T>,
-  ref: React.ForwardedRef<HTMLFormElement>
+  ref: React.ForwardedRef<HTMLFormElement>,
 ) {
   const {
     schema,
@@ -101,9 +89,7 @@ function XFormInner<T extends Record<string, unknown>>(
     onFormReady,
     ...restProps
   } = props;
-  const [showPasswordStates, setShowPasswordStates] = useState<
-    Record<string, boolean>
-  >({});
+  const [showPasswordStates, setShowPasswordStates] = useState<Record<string, boolean>>({});
 
   const form = useForm<FieldValues>({
     // @ts-expect-error - schema is not typed
@@ -154,7 +140,7 @@ function XFormInner<T extends Record<string, unknown>>(
         className={cn(
           spacingClasses[spacing],
           (isFormLoading || disabled) && "opacity-50 pointer-events-none",
-          className
+          className,
         )}
         {...restProps}
       >
@@ -173,25 +159,26 @@ function XFormInner<T extends Record<string, unknown>>(
                 render={({
                   field: rhfField,
                 }: {
-                  field: ControllerRenderProps<
-                    FieldValues,
-                    FieldPath<FieldValues>
-                  >;
+                  field: ControllerRenderProps<FieldValues, FieldPath<FieldValues>>;
                 }) => (
                   <FormItem>
                     {field.label && (
-                      <FormLabel className="gap-1">{field.label}</FormLabel>
+                      <FormLabel className="gap-1" required={field.required}>
+                        {field.label}
+                      </FormLabel>
                     )}
                     <FormControl>
                       <XSelect
                         options={field.options || []}
-                        value={(rhfField.value as string) || ""}
-                        onValueChange={(value) => rhfField.onChange(value)}
+                        value={rhfField.value ? String(rhfField.value) : ""}
+                        onValueChange={(value) => {
+                          rhfField.onChange(value);
+                        }}
                         disabled={isFieldDisabled}
                         placeholder={field.placeholder}
                         className={cn(
                           hasError &&
-                            "border-destructive focus:border-destructive focus:ring-destructive"
+                            "border-destructive focus:border-destructive focus:ring-destructive",
                         )}
                       />
                     </FormControl>
@@ -208,19 +195,15 @@ function XFormInner<T extends Record<string, unknown>>(
           if (field.component) {
             const CustomComponent = field.component;
             const customComponentClassName = cn(
-              (field.componentProps as { className?: string } | undefined)
-                ?.className,
-              hasError &&
-                "border-destructive focus:border-destructive focus:ring-destructive"
+              (field.componentProps as { className?: string } | undefined)?.className,
+              hasError && "border-destructive focus:border-destructive focus:ring-destructive",
             );
 
             if (field.isArray) {
               const arrayValue = (form.watch(field.name) as unknown[]) || [];
               const rawErrors = form.formState.errors[field.name];
               const arrayErrors =
-                rawErrors &&
-                typeof rawErrors === "object" &&
-                !Array.isArray(rawErrors)
+                rawErrors && typeof rawErrors === "object" && !Array.isArray(rawErrors)
                   ? (rawErrors as { [key: number]: { message: string } })
                   : {};
 
@@ -253,18 +236,24 @@ function XFormInner<T extends Record<string, unknown>>(
             }
 
             if (field.isMultiField && field.fields) {
-              const multiFieldValues = field.fields.reduce((acc, fieldName) => {
-                acc[fieldName] = form.watch(fieldName) || "";
-                return acc;
-              }, {} as Record<string, unknown>);
+              const multiFieldValues = field.fields.reduce(
+                (acc, fieldName) => {
+                  acc[fieldName] = form.watch(fieldName) ?? "";
+                  return acc;
+                },
+                {} as Record<string, unknown>,
+              );
 
-              const multiFieldErrors = field.fields.reduce((acc, fieldName) => {
-                const fieldError = form.formState.errors[fieldName];
-                if (fieldError) {
-                  acc[fieldName] = fieldError.message as string;
-                }
-                return acc;
-              }, {} as Record<string, string>);
+              const multiFieldErrors = field.fields.reduce(
+                (acc, fieldName) => {
+                  const fieldError = form.formState.errors[fieldName];
+                  if (fieldError) {
+                    acc[fieldName] = fieldError.message as string;
+                  }
+                  return acc;
+                },
+                {} as Record<string, string>,
+              );
 
               return (
                 <div key={field.name} className="space-y-2">
@@ -302,13 +291,9 @@ function XFormInner<T extends Record<string, unknown>>(
                   </XLabel>
                 )}
                 <CustomComponent
-                  value={(form.watch(field.name) as string) || ""}
+                  value={form.watch(field.name) ?? ""}
                   onChange={(value: unknown) => {
-                    if (
-                      typeof value === "object" &&
-                      value !== null &&
-                      !Array.isArray(value)
-                    ) {
+                    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
                       Object.entries(value).forEach(([key, fieldValue]) => {
                         form.setValue(key, fieldValue, {
                           shouldValidate: true,
@@ -343,14 +328,13 @@ function XFormInner<T extends Record<string, unknown>>(
                 render={({
                   field: rhfField,
                 }: {
-                  field: ControllerRenderProps<
-                    FieldValues,
-                    FieldPath<FieldValues>
-                  >;
+                  field: ControllerRenderProps<FieldValues, FieldPath<FieldValues>>;
                 }) => (
                   <FormItem>
                     {field.label && (
-                      <FormLabel className="gap-1">{field.label}</FormLabel>
+                      <FormLabel className="gap-1" required={field.required}>
+                        {field.label}
+                      </FormLabel>
                     )}
                     <FormControl>
                       <XTextarea
@@ -361,7 +345,7 @@ function XFormInner<T extends Record<string, unknown>>(
                         className={cn(
                           "resize-none",
                           hasError &&
-                            "border-destructive focus:border-destructive focus:ring-destructive"
+                            "border-destructive focus:border-destructive focus:ring-destructive",
                         )}
                       />
                     </FormControl>
@@ -383,19 +367,18 @@ function XFormInner<T extends Record<string, unknown>>(
                 render={({
                   field: rhfField,
                 }: {
-                  field: ControllerRenderProps<
-                    FieldValues,
-                    FieldPath<FieldValues>
-                  >;
+                  field: ControllerRenderProps<FieldValues, FieldPath<FieldValues>>;
                 }) => (
                   <FormItem>
                     {field.label && (
-                      <FormLabel className="gap-1">{field.label}</FormLabel>
+                      <FormLabel className="gap-1" required={field.required}>
+                        {field.label}
+                      </FormLabel>
                     )}
                     <FormControl>
                       <XRadioGroup
                         options={field.options || []}
-                        value={(rhfField.value as string) || ""}
+                        value={rhfField.value ?? ""}
                         onValueChange={(value) => rhfField.onChange(value)}
                         orientation={field.orientation}
                         disabled={isFieldDisabled}
@@ -423,10 +406,7 @@ function XFormInner<T extends Record<string, unknown>>(
                 render={({
                   field: rhfField,
                 }: {
-                  field: ControllerRenderProps<
-                    FieldValues,
-                    FieldPath<FieldValues>
-                  >;
+                  field: ControllerRenderProps<FieldValues, FieldPath<FieldValues>>;
                 }) => (
                   <FormItem>
                     <FormControl>
@@ -434,9 +414,7 @@ function XFormInner<T extends Record<string, unknown>>(
                         <XCheckbox
                           id={field.name}
                           checked={!!rhfField.value}
-                          onCheckedChange={(checked) =>
-                            rhfField.onChange(checked)
-                          }
+                          onCheckedChange={(checked) => rhfField.onChange(checked)}
                           disabled={isFieldDisabled}
                           label={field.checkboxLabel || field.label}
                         />
@@ -459,14 +437,13 @@ function XFormInner<T extends Record<string, unknown>>(
               render={({
                 field: rhfField,
               }: {
-                field: ControllerRenderProps<
-                  FieldValues,
-                  FieldPath<FieldValues>
-                >;
+                field: ControllerRenderProps<FieldValues, FieldPath<FieldValues>>;
               }) => (
                 <FormItem>
                   {field.label && (
-                    <FormLabel className="gap-1">{field.label}</FormLabel>
+                    <FormLabel className="gap-1" required={field.required}>
+                      {field.label}
+                    </FormLabel>
                   )}
                   <FormControl>
                     <div className="relative">
@@ -483,20 +460,17 @@ function XFormInner<T extends Record<string, unknown>>(
                       <XInput
                         {...(rhfField as unknown as Record<string, unknown>)}
                         type={
-                          fieldType === FORM_TYPES.INPUT &&
-                          field.subType === FORM_TYPES.PASSWORD
+                          fieldType === FORM_TYPES.INPUT && field.subType === FORM_TYPES.PASSWORD
                             ? FORM_TYPES.PASSWORD
                             : field.subType || FORM_TYPES.TEXT
                         }
                         showPassword={
-                          fieldType === FORM_TYPES.INPUT &&
-                          field.subType === FORM_TYPES.PASSWORD
+                          fieldType === FORM_TYPES.INPUT && field.subType === FORM_TYPES.PASSWORD
                             ? !!showPasswordStates[field.name]
                             : undefined
                         }
                         onTogglePassword={
-                          fieldType === FORM_TYPES.INPUT &&
-                          field.subType === FORM_TYPES.PASSWORD
+                          fieldType === FORM_TYPES.INPUT && field.subType === FORM_TYPES.PASSWORD
                             ? () => togglePassword(field.name)
                             : undefined
                         }
@@ -507,16 +481,14 @@ function XFormInner<T extends Record<string, unknown>>(
                           field.leftIcon || field.prefix ? "pl-10" : "",
                           field.rightIcon || field.suffix ? "pr-10" : "",
                           hasError &&
-                            "border-destructive focus:border-destructive focus:ring-destructive"
+                            "border-destructive focus:border-destructive focus:ring-destructive",
                         )}
                       />
                       {(field.rightIcon || field.suffix) && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
                           {field.rightIcon}
                           {field.suffix && (
-                            <span className="text-sm text-muted-foreground">
-                              {field.suffix}
-                            </span>
+                            <span className="text-sm text-muted-foreground">{field.suffix}</span>
                           )}
                         </div>
                       )}
@@ -536,10 +508,8 @@ function XFormInner<T extends Record<string, unknown>>(
   );
 }
 
-const XForm = forwardRef(XFormInner) as unknown as <
-  T extends Record<string, unknown>
->(
-  props: XFormProps<T> & React.RefAttributes<HTMLFormElement>
+const XForm = forwardRef(XFormInner) as unknown as <T extends Record<string, unknown>>(
+  props: XFormProps<T> & React.RefAttributes<HTMLFormElement>,
 ) => React.ReactElement & { displayName?: string };
 
 (XForm as unknown as { displayName?: string }).displayName = "XForm";

@@ -1,16 +1,11 @@
 "use client";
 
-import { XBadge, XButton, XCheckbox } from "@/components/common";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui";
+import { ChevronDown, Loader2, X } from "lucide-react";
+import { useCallback, useEffect, useRef } from "react";
+
+import { XBadge, XButton } from "@/components/common";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp, Loader2, X } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 interface SelectOption {
   value: string;
@@ -46,7 +41,6 @@ export function XSelect({
   multiple = false,
   hasError = false,
 }: XSelectProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleLoadMore = useCallback(() => {
@@ -54,29 +48,6 @@ export function XSelect({
       onLoadMore?.();
     }
   }, [hasMoreData, loading, onLoadMore]);
-
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
-  };
-
-  const handleValueChange = (newValue: string) => {
-    if (!multiple) {
-      onValueChange?.(newValue);
-      return;
-    }
-
-    const currentValues = Array.isArray(value) ? value : [];
-    const isSelected = currentValues.includes(newValue);
-
-    let newValues: string[];
-    if (isSelected) {
-      newValues = currentValues.filter((v) => v !== newValue);
-    } else {
-      newValues = [...currentValues, newValue];
-    }
-
-    onValueChange?.(newValues);
-  };
 
   const removeValue = (valueToRemove: string) => {
     if (!multiple) return;
@@ -95,20 +66,14 @@ export function XSelect({
     });
   };
 
-  const isOptionSelected = (optionValue: string) => {
-    if (!multiple) return value === optionValue;
-    return Array.isArray(value) && value.includes(optionValue);
-  };
-
   useEffect(() => {
-    if (!isOpen || !scrollRef.current) return;
+    if (!scrollRef.current) return;
 
     const scrollElement = scrollRef.current;
 
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = scrollElement;
-      const isNearBottom =
-        scrollTop + clientHeight >= scrollHeight - loadThreshold;
+      const isNearBottom = scrollTop + clientHeight >= scrollHeight - loadThreshold;
 
       if (isNearBottom && hasMoreData && !loading) {
         handleLoadMore();
@@ -117,7 +82,7 @@ export function XSelect({
 
     scrollElement.addEventListener("scroll", handleScroll);
     return () => scrollElement.removeEventListener("scroll", handleScroll);
-  }, [isOpen, hasMoreData, loading, loadThreshold, handleLoadMore]);
+  }, [hasMoreData, loading, loadThreshold, handleLoadMore]);
 
   if (multiple) {
     const selectedLabels = getSelectedLabels();
@@ -131,9 +96,8 @@ export function XSelect({
             "w-full h-auto min-h-[40px] px-3 py-2 text-left font-normal",
             !selectedLabels.length && "text-muted-foreground",
             disabled && "cursor-not-allowed opacity-50",
-            hasError && "border-red-500"
+            hasError && "border-red-500",
           )}
-          onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
         >
           <div className="flex items-start justify-between w-full gap-2">
@@ -165,86 +129,40 @@ export function XSelect({
               )}
             </div>
             <div className="flex-shrink-0 mt-1">
-              {isOpen ? (
-                <ChevronUp className="h-4 w-4 opacity-50" />
-              ) : (
-                <ChevronDown className="h-4 w-4 opacity-50" />
-              )}
+              <ChevronDown className="h-4 w-4 opacity-50" />
             </div>
           </div>
         </XButton>
-
-        {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md max-h-[300px]">
-            <div ref={scrollRef} className="max-h-[250px] overflow-y-auto p-1">
-              {options.map((option) => {
-                const isSelected = isOptionSelected(option.value);
-                return (
-                  <div
-                    key={option.value}
-                    className={cn(
-                      "flex items-center space-x-2 px-2 py-2 text-sm cursor-pointer rounded-sm hover:bg-accent",
-                      isSelected && "bg-accent"
-                    )}
-                    onClick={() => handleValueChange(option.value)}
-                  >
-                    <XCheckbox
-                      checked={isSelected}
-                      onCheckedChange={() => { }}
-                      className="pointer-events-none"
-                    />
-                    <span className="flex-1">{option.label}</span>
-                  </div>
-                );
-              })}
-
-              {loading && (
-                <div className="flex items-center justify-center p-2 text-sm text-muted-foreground">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Loading...
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {isOpen && (
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
-        )}
       </div>
     );
   }
 
-  const isValidValue = options.some(option => option.value === value);
-  const selectValue = isValidValue ? value : undefined;
-
   return (
     <Select
-      value={selectValue as string}
+      value={value ? String(value) : ""}
       onValueChange={(newValue: string) => {
-        if (newValue !== value && newValue !== '') {
+        if (newValue && newValue.trim() !== "") {
           onValueChange?.(newValue);
         }
       }}
-      open={isOpen}
-      onOpenChange={handleOpenChange}
       disabled={disabled}
     >
-      <SelectTrigger
-        className={cn("w-full", hasError && "border-destructive", className)}
-      >
+      <SelectTrigger className={cn("w-full", hasError && "border-destructive", className)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent className="max-h-[300px]">
         <div ref={scrollRef} className="max-h-[250px] overflow-y-auto">
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
+          {options.length > 0 ? (
+            options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))
+          ) : !loading ? (
+            <div className="flex items-center justify-center p-4 text-sm text-muted-foreground">
+              No data found.
+            </div>
+          ) : null}
 
           {loading && (
             <div className="flex items-center justify-center p-2 text-sm text-muted-foreground">

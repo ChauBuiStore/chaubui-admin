@@ -1,4 +1,4 @@
-export type CurrencyType = 'VND' | 'USD';
+export type CurrencyType = "VND" | "USD";
 
 export interface CurrencyConfig {
   locale: string;
@@ -10,15 +10,15 @@ export interface CurrencyConfig {
 
 export const CURRENCY_CONFIGS: Record<CurrencyType, CurrencyConfig> = {
   VND: {
-    locale: 'vi-VN',
-    currency: 'VND',
+    locale: "vi-VN",
+    currency: "VND",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-    customSymbol: '₫',
+    customSymbol: "₫",
   },
   USD: {
-    locale: 'en-US',
-    currency: 'USD',
+    locale: "en-US",
+    currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   },
@@ -26,23 +26,23 @@ export const CURRENCY_CONFIGS: Record<CurrencyType, CurrencyConfig> = {
 
 export function formatPrice(
   price: string | number | null | undefined,
-  currency: CurrencyType = 'VND'
+  currency: CurrencyType = "VND",
 ): string {
-  if (price === null || price === undefined || price === '') {
-    return currency === 'VND' ? '0 ₫' : `0 ${getCurrencySymbol(currency)}`;
+  if (price === null || price === undefined || price === "") {
+    return currency === "VND" ? "0 ₫" : `0 ${getCurrencySymbol(currency)}`;
   }
 
-  const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+  const numericPrice = typeof price === "string" ? parseFloat(price) : price;
 
   if (isNaN(numericPrice)) {
-    return currency === 'VND' ? '0 ₫' : `0 ${getCurrencySymbol(currency)}`;
+    return currency === "VND" ? "0 ₫" : `0 ${getCurrencySymbol(currency)}`;
   }
 
   const config = CURRENCY_CONFIGS[currency];
 
-  if (currency === 'VND') {
+  if (currency === "VND") {
     const formatted = new Intl.NumberFormat(config.locale, {
-      style: 'decimal',
+      style: "decimal",
       minimumFractionDigits: config.minimumFractionDigits,
       maximumFractionDigits: config.maximumFractionDigits,
     }).format(numericPrice);
@@ -50,7 +50,7 @@ export function formatPrice(
   }
 
   const formatted = new Intl.NumberFormat(config.locale, {
-    style: 'currency',
+    style: "currency",
     currency: config.currency,
     minimumFractionDigits: config.minimumFractionDigits,
     maximumFractionDigits: config.maximumFractionDigits,
@@ -66,11 +66,11 @@ function getCurrencySymbol(currency: CurrencyType): string {
   }
 
   const formatter = new Intl.NumberFormat(config.locale, {
-    style: 'currency',
+    style: "currency",
     currency: config.currency,
   });
-  return formatter.formatToParts(0).find(part => part.type === 'currency')?.value || '$';
+  return formatter.formatToParts(0).find((part) => part.type === "currency")?.value || "$";
 }
 
-export const formatVND = (price: string | number | null | undefined) => formatPrice(price, 'VND');
-export const formatUSD = (price: string | number | null | undefined) => formatPrice(price, 'USD');
+export const formatVND = (price: string | number | null | undefined) => formatPrice(price, "VND");
+export const formatUSD = (price: string | number | null | undefined) => formatPrice(price, "USD");

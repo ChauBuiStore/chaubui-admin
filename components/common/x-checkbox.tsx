@@ -1,9 +1,10 @@
 "use client";
 
+import React, { forwardRef } from "react";
+
 import { XLabel } from "@/components/common";
 import { Checkbox } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import React, { forwardRef } from "react";
 
 export interface XCheckboxProps extends React.ComponentProps<typeof Checkbox> {
   label?: string;
@@ -15,24 +16,28 @@ export interface XCheckboxProps extends React.ComponentProps<typeof Checkbox> {
 }
 
 export const XCheckbox = forwardRef<HTMLButtonElement, XCheckboxProps>(
-  ({ 
-    label, 
-    helperText, 
-    error = false, 
-    wrapperClassName, 
-    labelClassName, 
-    helperTextClassName,
-    className,
-    ...props 
-  }, ref) => {
+  (
+    {
+      label,
+      helperText,
+      error = false,
+      wrapperClassName,
+      labelClassName,
+      helperTextClassName,
+      className,
+      ...props
+    },
+    ref,
+  ) => {
     return (
       <div className={cn("space-y-2", wrapperClassName)}>
         <div className="flex items-center space-x-2">
           <Checkbox
             ref={ref}
             className={cn(
-              error && "border-destructive data-[state=checked]:bg-destructive data-[state=checked]:border-destructive",
-              className
+              error &&
+                "border-destructive data-[state=checked]:bg-destructive data-[state=checked]:border-destructive",
+              className,
             )}
             {...props}
           />
@@ -41,7 +46,7 @@ export const XCheckbox = forwardRef<HTMLButtonElement, XCheckboxProps>(
               className={cn(
                 "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
                 error && "text-destructive",
-                labelClassName
+                labelClassName,
               )}
               htmlFor={props.id}
             >
@@ -50,17 +55,19 @@ export const XCheckbox = forwardRef<HTMLButtonElement, XCheckboxProps>(
           )}
         </div>
         {helperText && (
-          <p className={cn(
-            "text-xs text-muted-foreground",
-            error && "text-destructive",
-            helperTextClassName
-          )}>
+          <p
+            className={cn(
+              "text-xs text-muted-foreground",
+              error && "text-destructive",
+              helperTextClassName,
+            )}
+          >
             {helperText}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 XCheckbox.displayName = "XCheckbox";

@@ -1,9 +1,12 @@
 "use client";
 
-import { ActionsConfig, XTable } from "@/components/common";
-import { PaginationMeta } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
+
+import { ActionsConfig, XTable } from "@/components/common";
+import { PaginationMeta } from "@/lib/types";
+import { formatDate } from "@/lib/utils/date.ultis";
+
 import { Size } from "../types";
 
 interface SizesListProps {
@@ -38,11 +41,27 @@ export function SizesList({
   const columns: ColumnDef<Size>[] = useMemo(
     () => [
       {
-        accessorKey: "name",
-        header: "Name",
+        accessorKey: "nameVi",
+        header: "NameVi",
         cell: ({ row }) => {
           const size = row.original;
-          return <span className="font-medium">{size.name}</span>;
+          return <span className="font-medium">{size.nameVi}</span>;
+        },
+      },
+      {
+        accessorKey: "nameEn",
+        header: "NameEn",
+        cell: ({ row }) => {
+          const size = row.original;
+          return <span className="font-medium">{size.nameEn}</span>;
+        },
+      },
+      {
+        accessorKey: "nameKm",
+        header: "NameKm",
+        cell: ({ row }) => {
+          const size = row.original;
+          return <span className="font-medium">{size.nameKm}</span>;
         },
       },
       {
@@ -50,11 +69,11 @@ export function SizesList({
         header: "Created Date",
         cell: ({ row }) => {
           const size = row.original;
-          return new Date(size.createdAt).toLocaleDateString("en-US");
+          return formatDate(size.createdAt);
         },
       },
     ],
-    []
+    [],
   );
 
   const actionsConfig: ActionsConfig<Size> = useMemo(
@@ -62,7 +81,7 @@ export function SizesList({
       onEdit: (size) => onEditSize(size),
       onDelete: (size) => onDeleteSize(size),
     }),
-    [onEditSize, onDeleteSize]
+    [onEditSize, onDeleteSize],
   );
 
   return (
@@ -82,7 +101,7 @@ export function SizesList({
       searchConfig={{
         enabled: true,
         columnKey: "search",
-        placeholder: "Search size...",
+        placeholder: "Search size by name...",
       }}
       filterConfig={{
         enabled: false,

@@ -1,17 +1,29 @@
 import { z } from "zod";
 
 export const createMenuSchema = z.object({
-  name: z
+  nameVi: z
     .string()
-    .min(1, "Menu name cannot be empty")
-    .max(100, "Menu name cannot exceed 100 characters")
+    .min(1, "Menu nameVi cannot be empty")
+    .max(100, "Menu nameVi cannot exceed 100 characters")
     .trim(),
+  nameEn: z
+    .string()
+    .min(1, "Menu nameEn cannot be empty")
+    .max(100, "Menu nameEn cannot exceed 100 characters")
+    .trim(),
+  nameKm: z.string().trim().optional(),
 });
 
 export const updateMenuSchema = z.object({
-  name: z
+  nameVi: z
     .string()
-    .min(1, "Menu name cannot be empty")
-    .max(100, "Menu name cannot exceed 100 characters")
+    .min(1, "Menu nameVi cannot be empty")
+    .max(100, "Menu nameVi cannot exceed 100 characters")
     .trim(),
+  nameEn: z
+    .string()
+    .min(1, "Menu nameEn cannot be empty")
+    .max(100, "Menu nameEn cannot exceed 100 characters")
+    .trim(),
+  nameKm: z.string().trim().optional(),
 });

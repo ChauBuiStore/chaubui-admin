@@ -1,18 +1,24 @@
 export interface Color {
   id: string;
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm?: string;
   code: string;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
 
 export interface CreateColorRequest {
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm?: string;
   code: string;
 }
 
 export interface UpdateColorRequest {
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm?: string;
   code: string;
 }
 

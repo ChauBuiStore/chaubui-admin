@@ -1,21 +1,13 @@
 "use client";
 
-import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
-import { useSearchParams, useToast } from "@/lib/hooks";
-import {
-  CategoryService,
-  ColorService,
-  ProductService,
-  SizeService,
-} from "@/lib/services";
-import {
-  CreateProductData,
-  Product,
-  UpdateProductData,
-} from "@/modules/product/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
+
+import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { useSearchParams, useToast } from "@/lib/hooks";
+import { CategoryService, ColorService, ProductService, SizeService } from "@/lib/services";
+import { CreateProductData, Product, UpdateProductData } from "@/modules/product/types";
 
 export function useProduct() {
   const queryClient = useQueryClient();
@@ -24,6 +16,8 @@ export function useProduct() {
   const { filters, setFilter } = useSearchParams({
     search: undefined,
   });
+
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
 
   const {
     data: productsData,
@@ -34,19 +28,25 @@ export function useProduct() {
     queryFn: () => ProductService.getProducts(filters),
   });
 
+  const { data: editingProductData, isLoading: isLoadingEditingProduct } = useQuery({
+    queryKey: [QUERY_KEYS.PRODUCTS, "detail", editingProductId],
+    queryFn: () => ProductService.getProductById(editingProductId!),
+    enabled: !!editingProductId,
+  });
+
   const { data: categoriesData } = useQuery({
-    queryKey: [QUERY_KEYS.CATEGORIES_ALL],
-    queryFn: () => CategoryService.getCategories(),
+    queryKey: [QUERY_KEYS.CATEGORY_ALL],
+    queryFn: () => CategoryService.getCategories({ isAll: true }),
   });
 
   const { data: colorsData } = useQuery({
     queryKey: [QUERY_KEYS.COLORS_ALL],
-    queryFn: () => ColorService.getColors(),
+    queryFn: () => ColorService.getColors({ isAll: true }),
   });
 
   const { data: sizesData } = useQuery({
     queryKey: [QUERY_KEYS.SIZES_ALL],
-    queryFn: () => SizeService.getSizes(),
+    queryFn: () => SizeService.getSizes({ isAll: true }),
   });
 
   if (error) {
@@ -109,7 +109,6 @@ export function useProduct() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
 
@@ -123,21 +122,12 @@ export function useProduct() {
   };
 
   const handleEditSubmit = async (data: FieldValues) => {
-    if (!editingProduct) return;
+    if (!editingProductId) return;
 
     if (data.images?.length > 0) {
       const invalidImages = data.images.filter(
-        (img: {
-          fileId?: string;
-          alt?: string;
-          sortOrder?: number;
-          isThumbnail?: boolean;
-        }) =>
-          !img.fileId ||
-          !img.alt ||
-          typeof img.sortOrder !== "number" ||
-          img.sortOrder < 1 ||
-          typeof img.isThumbnail !== "boolean"
+        (img: { fileId?: string; alt?: string; sortOrder?: number }) =>
+          !img.fileId || !img.alt || typeof img.sortOrder !== "number" || img.sortOrder < 1,
       );
 
       if (invalidImages.length > 0) {
@@ -145,45 +135,47 @@ export function useProduct() {
         return;
       }
 
-      const sortOrders = data.images.map(
-        (img: { sortOrder?: number }) => img.sortOrder as number
-      );
+      const sortOrders = data.images.map((img: { sortOrder?: number }) => img.sortOrder as number);
       const duplicateSortOrders = sortOrders.filter(
-        (order: number, index: number) => sortOrders.indexOf(order) !== index
+        (order: number, index: number) => sortOrders.indexOf(order) !== index,
       );
 
       if (duplicateSortOrders.length > 0) {
-        showError(
-          "Images have duplicate sort orders. Please check and try again."
-        );
-        return;
-      }
-
-      const thumbnailCount = data.images.filter(
-        (img: { isThumbnail?: boolean }) => Boolean(img.isThumbnail)
-      ).length;
-      if (thumbnailCount > 1) {
-        showError(
-          "Only one image can be set as thumbnail. Please check and try again."
-        );
+        showError("Images have duplicate sort orders. Please check and try again.");
         return;
       }
     }
 
     try {
       await updateMutation.mutateAsync({
-        id: editingProduct.id,
+        id: editingProductId,
         data: data as UpdateProductData,
       });
       setShowEditForm(false);
-      setEditingProduct(null);
+      setEditingProductId(null);
     } catch {}
   };
 
   const handleEditProduct = (product: Product) => {
-    setEditingProduct(product);
+    setEditingProductId(product.id);
     setShowEditForm(true);
   };
+
+  const handleCloseEditForm = useCallback((open: boolean) => {
+    setShowEditForm(open);
+    if (!open) {
+      setEditingProductId(null);
+    }
+  }, []);
+
+  // Chỉ mở form khi có dữ liệu product
+  const shouldShowEditForm = showEditForm && !!editingProductData?.data;
+
+  // Loading state cho edit form
+  const isEditFormLoading = showEditForm && (isLoadingEditingProduct || !editingProductData?.data);
+
+  // Đảm bảo editingProduct luôn có giá trị khi form mở
+  const safeEditingProduct = shouldShowEditForm ? editingProductData?.data || null : null;
 
   const handleDeleteConfirm = async () => {
     try {
@@ -222,7 +214,7 @@ export function useProduct() {
         search: filters.search || "",
       });
     },
-    [setFilter, filters.search]
+    [setFilter, filters.search],
   );
 
   const handlePageSizeChange = useCallback(
@@ -233,7 +225,7 @@ export function useProduct() {
         search: filters.search || "",
       });
     },
-    [setFilter, filters.search]
+    [setFilter, filters.search],
   );
 
   const handleSearchChange = useCallback(
@@ -244,7 +236,7 @@ export function useProduct() {
         limit: PAGINATION_CONSTANTS.LIMIT,
       });
     },
-    [setFilter]
+    [setFilter],
   );
 
   return {
@@ -256,14 +248,14 @@ export function useProduct() {
     isLoading,
     showCreateForm,
     setShowCreateForm,
-    showEditForm,
-    setShowEditForm,
+    showEditForm: shouldShowEditForm,
+    setShowEditForm: handleCloseEditForm,
     showDeleteForm,
     setShowDeleteForm,
-    editingProduct,
-    setEditingProduct,
+    editingProduct: safeEditingProduct,
     selectedProduct,
     selectedProducts,
+    isLoadingEditingProduct: isEditFormLoading,
     isSubmitting:
       createMutation.isPending ||
       updateMutation.isPending ||

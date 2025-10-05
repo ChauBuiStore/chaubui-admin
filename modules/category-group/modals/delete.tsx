@@ -1,6 +1,7 @@
 "use client";
 
 import { XConfirmDialog } from "@/components/common/x-dialog";
+
 import { CategoryGroup } from "../types/categories-group.type";
 
 interface DeleteCategoryGroupModalProps {
@@ -32,14 +33,12 @@ export function DeleteCategoryGroup({
 
   const getDescription = () => {
     if (isBulkDelete) {
-      const categoryGroupNames = selectedCategoryGroups
-        .map((cat) => cat.name)
-        .join(", ");
-      
+      const categoryGroupNames = selectedCategoryGroups.map((cat) => cat.nameEn).join(", ");
+
       const hasChildren = selectedCategoryGroups.some(
-        (cat) => cat.categories && cat.categories.length > 0
+        (cat) => cat.categories && cat.categories.length > 0,
       );
-      
+
       return `Are you sure you want to delete ${selectedCategoryGroups.length} category groups?\n\nCategory Groups: ${categoryGroupNames}${
         hasChildren
           ? "\n\n⚠️ Some category groups contain child categories and cannot be deleted."
@@ -49,7 +48,7 @@ export function DeleteCategoryGroup({
 
     if (isSingleDelete) {
       const hasChildren = categoryGroup?.categories && categoryGroup.categories.length > 0;
-      return `Are you sure you want to delete category group "${categoryGroup?.name}"?${
+      return `Are you sure you want to delete category group "${categoryGroup?.nameEn}"?${
         hasChildren
           ? "\n\n⚠️ This category group contains child categories and cannot be deleted."
           : "\n\nThis action cannot be undone."

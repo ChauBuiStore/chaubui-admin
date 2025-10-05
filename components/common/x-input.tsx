@@ -1,13 +1,13 @@
 "use client";
 
-import { XButton, XLabel } from "@/components/common";
-import { Input } from "@/components/ui";
-import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
 import React, { forwardRef, useState } from "react";
 
-export interface XInputProps
-  extends Omit<React.ComponentProps<typeof Input>, "size"> {
+import { XButton, XLabel } from "@/components/common";
+import { Input } from "@/components/ui";
+import { cn } from "@/lib/utils";
+
+export interface XInputProps extends Omit<React.ComponentProps<typeof Input>, "size"> {
   size?: "sm" | "md" | "lg";
   hasError?: boolean;
   errorMessage?: string;
@@ -57,7 +57,7 @@ export const XInput = forwardRef<HTMLInputElement, XInputProps>(
       type = "text",
       ...props
     },
-    ref
+    ref,
   ) => {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const isPasswordType = type === "password";
@@ -97,7 +97,7 @@ export const XInput = forwardRef<HTMLInputElement, XInputProps>(
             className={cn(
               "text-sm font-medium text-foreground",
               disabled && "text-muted-foreground",
-              labelClassName
+              labelClassName,
             )}
           >
             {label}
@@ -119,16 +119,14 @@ export const XInput = forwardRef<HTMLInputElement, XInputProps>(
               sizeClasses[size],
               hasLeftContent ? "pl-10" : "",
               hasRightContent ? "pr-10" : "",
-              hasError
-                ? "border-destructive focus:border-destructive focus:ring-destructive"
-                : "",
+              hasError ? "border-destructive focus:border-destructive focus:ring-destructive" : "",
               disabled ? "bg-muted cursor-not-allowed" : "",
               readOnly ? "bg-muted cursor-default" : "",
               shouldHideSpinner
                 ? "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 : "",
               inputClassName,
-              className
+              className,
             )}
             disabled={disabled}
             readOnly={readOnly}
@@ -139,9 +137,7 @@ export const XInput = forwardRef<HTMLInputElement, XInputProps>(
             <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1">
               {rightIcon}
 
-              {suffix && (
-                <span className="text-sm text-muted-foreground">{suffix}</span>
-              )}
+              {suffix && <span className="text-sm text-muted-foreground">{suffix}</span>}
 
               {shouldShowPasswordToggle && (
                 <XButton
@@ -163,19 +159,15 @@ export const XInput = forwardRef<HTMLInputElement, XInputProps>(
         </div>
 
         {hasError && errorMessage && (
-          <p className={cn("text-xs text-destructive", errorClassName)}>
-            {errorMessage}
-          </p>
+          <p className={cn("text-xs text-destructive", errorClassName)}>{errorMessage}</p>
         )}
 
         {!hasError && helperText && (
-          <p className={cn("text-xs text-muted-foreground", helperClassName)}>
-            {helperText}
-          </p>
+          <p className={cn("text-xs text-muted-foreground", helperClassName)}>{helperText}</p>
         )}
       </div>
     );
-  }
+  },
 );
 
 XInput.displayName = "XInput";

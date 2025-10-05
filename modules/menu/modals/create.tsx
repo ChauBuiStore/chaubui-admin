@@ -1,9 +1,11 @@
 "use client";
 
-import { XDialog, XForm, XFormField } from "@/components/common";
-import { FORM_TYPES } from "@/lib/constants";
 import { useRef } from "react";
 import { FieldValues } from "react-hook-form";
+
+import { XDialog, XForm, XFormField } from "@/components/common";
+import { FORM_TYPES } from "@/lib/constants";
+
 import { createMenuSchema } from "../schemas";
 
 interface CreateMenuProps {
@@ -13,12 +15,7 @@ interface CreateMenuProps {
   loading: boolean;
 }
 
-export function CreateMenu({
-  open,
-  onOpenChange,
-  onSubmit,
-  loading,
-}: CreateMenuProps) {
+export function CreateMenu({ open, onOpenChange, onSubmit, loading }: CreateMenuProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
     try {
@@ -29,12 +26,28 @@ export function CreateMenu({
 
   const fields: XFormField[] = [
     {
-      name: "name",
+      name: "nameVi",
       type: FORM_TYPES.INPUT,
       subType: FORM_TYPES.TEXT,
-      label: "Menu Name",
-      placeholder: "Enter menu name",
+      label: "NameVi",
+      placeholder: "Enter nameVi",
       required: true,
+    },
+    {
+      name: "nameEn",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.TEXT,
+      label: "NameEn",
+      placeholder: "Enter nameEn",
+      required: true,
+    },
+    {
+      name: "nameKm",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.TEXT,
+      label: "NameKm",
+      placeholder: "Enter nameKm",
+      required: false,
     },
   ];
 

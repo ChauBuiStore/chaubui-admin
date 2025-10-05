@@ -1,17 +1,11 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui";
-import { cn } from "@/lib/utils";
 import React, { forwardRef } from "react";
 
-export interface XCardProps
-  extends Omit<React.ComponentProps<typeof Card>, "title"> {
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui";
+import { cn } from "@/lib/utils";
+
+export interface XCardProps extends Omit<React.ComponentProps<typeof Card>, "title"> {
   variant?: "default" | "outline" | "elevated" | "ghost";
   wrapperClassName?: string;
   title?: React.ReactNode;
@@ -39,7 +33,7 @@ export const XCard = forwardRef<HTMLDivElement, XCardProps>(
       descriptionClassName,
       ...props
     },
-    ref
+    ref,
   ) => {
     const variantClasses = {
       default: "bg-card border-border",
@@ -50,14 +44,7 @@ export const XCard = forwardRef<HTMLDivElement, XCardProps>(
 
     return (
       <div className={cn(wrapperClassName)}>
-        <Card
-          ref={ref}
-          className={cn(
-            variantClasses[variant],
-            className
-          )}
-          {...props}
-        >
+        <Card ref={ref} className={cn(variantClasses[variant], className)} {...props}>
           {(title || description || action) && (
             <CardHeader className={cn(headerClassName)}>
               <div className="flex items-center justify-between">
@@ -66,7 +53,7 @@ export const XCard = forwardRef<HTMLDivElement, XCardProps>(
                     <CardTitle
                       className={cn(
                         "text-2xl font-semibold leading-none tracking-tight",
-                        titleClassName
+                        titleClassName,
                       )}
                     >
                       {title}
@@ -74,10 +61,7 @@ export const XCard = forwardRef<HTMLDivElement, XCardProps>(
                   )}
                   {description && (
                     <CardDescription
-                      className={cn(
-                        "text-sm text-muted-foreground",
-                        descriptionClassName
-                      )}
+                      className={cn("text-sm text-muted-foreground", descriptionClassName)}
                     >
                       {description}
                     </CardDescription>
@@ -88,15 +72,11 @@ export const XCard = forwardRef<HTMLDivElement, XCardProps>(
             </CardHeader>
           )}
 
-          {children && (
-            <CardContent className={cn(contentClassName)}>
-              {children}
-            </CardContent>
-          )}
+          {children && <CardContent className={cn(contentClassName)}>{children}</CardContent>}
         </Card>
       </div>
     );
-  }
+  },
 );
 
 XCard.displayName = "XCard";

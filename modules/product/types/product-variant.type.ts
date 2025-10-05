@@ -5,7 +5,7 @@ export enum VariantType {
   COLOR = "COLOR",
   SIZE = "SIZE",
   COMBO = "COMBO",
-  NONE = "NONE"
+  NONE = "NONE",
 }
 
 export interface ProductVariant {

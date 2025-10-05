@@ -1,10 +1,12 @@
 "use client";
 
+import { useRef } from "react";
+import { FieldValues } from "react-hook-form";
+
 import { XDialog } from "@/components/common/x-dialog";
 import XForm, { XFormField } from "@/components/common/x-form";
 import { FORM_TYPES } from "@/lib/constants";
-import { useRef } from "react";
-import { FieldValues } from "react-hook-form";
+
 import { createCategoryGroupSchema } from "../schemas";
 
 interface CreateCategoryGroupProps {
@@ -25,17 +27,30 @@ export function CreateCategoryGroup({
     try {
       await onSubmit(data);
       onOpenChange(false);
-    } catch {
-    }
+    } catch {}
   };
 
   const formFields: XFormField[] = [
     {
-      name: "name",
+      name: "nameVi",
       type: FORM_TYPES.INPUT,
-      label: "Category Group Name",
-      placeholder: "Enter category group name",
+      label: "NameVi",
+      placeholder: "Enter nameVi",
       required: true,
+    },
+    {
+      name: "nameEn",
+      type: FORM_TYPES.INPUT,
+      label: "NameEn",
+      placeholder: "Enter nameEn",
+      required: true,
+    },
+    {
+      name: "nameKm",
+      type: FORM_TYPES.INPUT,
+      label: "NameKm",
+      placeholder: "Enter nameKm",
+      required: false,
     },
   ];
 
@@ -43,7 +58,7 @@ export function CreateCategoryGroup({
     <XDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Add New Category Group"
+      title="Add Category Group"
       onConfirm={() => formRef.current?.requestSubmit()}
       onCancel={() => onOpenChange(false)}
       confirmText="Add"

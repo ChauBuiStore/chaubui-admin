@@ -1,5 +1,8 @@
 "use client";
 
+import { SlidersHorizontal } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
 import {
   XButton,
   XCheckbox,
@@ -10,8 +13,6 @@ import {
   XSeparator,
 } from "@/components/common";
 import { useSearchParams, useToast } from "@/lib/hooks";
-import { SlidersHorizontal } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface FilterOption {
   key: string;
@@ -63,7 +64,7 @@ const SearchInput = ({
       const newValue = e.target.value;
       onValueChange(newValue);
     },
-    [onValueChange]
+    [onValueChange],
   );
 
   const handleKeyDown = useCallback(
@@ -72,7 +73,7 @@ const SearchInput = ({
         onSearch?.(value);
       }
     },
-    [value, onSearch, isLoading]
+    [value, onSearch, isLoading],
   );
 
   return (
@@ -105,9 +106,7 @@ export function XFilter({
 }: XFilterProps) {
   const { error: showError } = useToast();
   const [filterOpen, setFilterOpen] = useState(false);
-  const [tempFilterValues, setTempFilterValues] = useState<
-    Record<string, string | string[]>
-  >({});
+  const [tempFilterValues, setTempFilterValues] = useState<Record<string, string | string[]>>({});
 
   const fallbackSearchParams = useSearchParams();
   const finalFilterValues = filterValues || fallbackSearchParams.filters;
@@ -117,13 +116,14 @@ export function XFilter({
   const cleanFilterValues = useMemo(() => {
     if (!finalFilterValues) return {};
     return Object.entries(finalFilterValues)
-      .filter(
-        ([, value]) => value !== undefined && value !== null && value !== ""
-      )
-      .reduce((acc, [key, value]) => {
-        acc[key] = value as string | string[];
-        return acc;
-      }, {} as Record<string, string | string[]>);
+      .filter(([, value]) => value !== undefined && value !== null && value !== "")
+      .reduce(
+        (acc, [key, value]) => {
+          acc[key] = value as string | string[];
+          return acc;
+        },
+        {} as Record<string, string | string[]>,
+      );
   }, [finalFilterValues]);
 
   useEffect(() => {
@@ -141,21 +141,16 @@ export function XFilter({
     setTempFilterValues((prev) => ({ ...prev, [key]: value }));
   }, []);
 
-  const handleCheckboxChange = useCallback(
-    (key: string, value: string, checked: boolean) => {
-      setTempFilterValues((prev) => {
-        const currentValues = Array.isArray(prev?.[key])
-          ? (prev[key] as string[])
-          : [];
-        const newValues = checked
-          ? [...currentValues, value]
-          : currentValues.filter((v) => v !== value);
+  const handleCheckboxChange = useCallback((key: string, value: string, checked: boolean) => {
+    setTempFilterValues((prev) => {
+      const currentValues = Array.isArray(prev?.[key]) ? (prev[key] as string[]) : [];
+      const newValues = checked
+        ? [...currentValues, value]
+        : currentValues.filter((v) => v !== value);
 
-        return { ...prev, [key]: newValues };
-      });
-    },
-    []
-  );
+      return { ...prev, [key]: newValues };
+    });
+  }, []);
 
   const handleRadioChange = useCallback((key: string, value: string) => {
     setTempFilterValues((prev) => ({ ...prev, [key]: value }));
@@ -241,9 +236,7 @@ export function XFilter({
               disabled={isLoading}
               aria-label="Open advanced search filters"
               className={`rounded-none !bg-transparent hover:text-foreground cursor-pointer focus-visible:ring-0 focus-visible:ring-offset-0 flex-shrink-0 ${
-                searchConfig?.enabled
-                  ? "border-l sm:border-l border-t sm:border-t-0"
-                  : ""
+                searchConfig?.enabled ? "border-l sm:border-l border-t sm:border-t-0" : ""
               }`}
             >
               <SlidersHorizontal className="h-4 w-4" />
@@ -253,28 +246,18 @@ export function XFilter({
         >
           <div className="p-4 space-y-6">
             {filters.map((filter) => (
-              <div
-                key={filter.key}
-                className="grid grid-cols-1 sm:grid-cols-3 items-start gap-4"
-              >
-                <XLabel className="text-sm text-muted-foreground mt-2">
-                  {filter.label}
-                </XLabel>
+              <div key={filter.key} className="grid grid-cols-1 sm:grid-cols-3 items-start gap-4">
+                <XLabel className="text-sm text-muted-foreground mt-2">{filter.label}</XLabel>
                 <div className="sm:col-span-2">
                   {filter.type === "select" ? (
                     <XSelect
-                      options={[
-                        { value: "all", label: "All" },
-                        ...(filter.options || []),
-                      ]}
+                      options={[{ value: "all", label: "All" }, ...(filter.options || [])]}
                       value={
                         tempFilterValues?.[filter.key] === ""
                           ? "all"
                           : String(tempFilterValues?.[filter.key] || "all")
                       }
-                      onValueChange={(value) =>
-                        handleFilterChange(filter.key, value as string)
-                      }
+                      onValueChange={(value) => handleFilterChange(filter.key, value as string)}
                       disabled={isLoading || filter.disabled}
                       placeholder={`Select ${filter.label.toLowerCase()}`}
                       className="w-full"
@@ -282,17 +265,11 @@ export function XFilter({
                   ) : filter.type === "input" ? (
                     <XInput
                       type="text"
-                      value={String(tempFilterValues?.[filter.key] || "")}
+                      value={String(tempFilterValues?.[filter.key] ?? "")}
                       onChange={(e) =>
-                        handleInputChange(
-                          filter.key,
-                          (e.target as HTMLInputElement).value
-                        )
+                        handleInputChange(filter.key, (e.target as HTMLInputElement).value)
                       }
-                      placeholder={
-                        filter.placeholder ||
-                        `Enter ${filter.label.toLowerCase()}`
-                      }
+                      placeholder={filter.placeholder || `Enter ${filter.label.toLowerCase()}`}
                       disabled={isLoading || filter.disabled}
                       aria-label={`Input for ${filter.label}`}
                       className="w-full"
@@ -304,25 +281,16 @@ export function XFilter({
                       aria-label={`Checkbox group for ${filter.label}`}
                     >
                       {filter.options?.map((option) => (
-                        <div
-                          key={option.value}
-                          className="flex items-center space-x-2"
-                        >
+                        <div key={option.value} className="flex items-center space-x-2">
                           <XCheckbox
                             id={`${filter.key}-${option.value}`}
                             checked={
                               Array.isArray(tempFilterValues?.[filter.key])
-                                ? (
-                                    tempFilterValues[filter.key] as string[]
-                                  ).includes(option.value)
+                                ? (tempFilterValues[filter.key] as string[]).includes(option.value)
                                 : false
                             }
                             onCheckedChange={(checked) =>
-                              handleCheckboxChange(
-                                filter.key,
-                                option.value,
-                                checked as boolean
-                              )
+                              handleCheckboxChange(filter.key, option.value, checked as boolean)
                             }
                             disabled={isLoading || filter.disabled}
                             label={option.label}
@@ -338,22 +306,14 @@ export function XFilter({
                       aria-label={`Radio group for ${filter.label}`}
                     >
                       {filter.options?.map((option) => (
-                        <div
-                          key={option.value}
-                          className="flex items-center space-x-2"
-                        >
+                        <div key={option.value} className="flex items-center space-x-2">
                           <input
                             type="radio"
                             id={`${filter.key}-${option.value}`}
                             name={filter.key}
                             value={option.value}
-                            checked={
-                              String(tempFilterValues?.[filter.key] || "") ===
-                              option.value
-                            }
-                            onChange={(e) =>
-                              handleRadioChange(filter.key, e.target.value)
-                            }
+                            checked={String(tempFilterValues?.[filter.key] || "") === option.value}
+                            onChange={(e) => handleRadioChange(filter.key, e.target.value)}
                             disabled={isLoading || filter.disabled}
                             className="h-4 w-4 text-primary focus:ring-primary border"
                           />
@@ -371,7 +331,7 @@ export function XFilter({
               </div>
             ))}
           </div>
-            <XSeparator />
+          <XSeparator />
           <div className="p-4 flex items-center justify-end gap-3">
             <XButton
               variant="outline"
@@ -381,11 +341,7 @@ export function XFilter({
             >
               Reset
             </XButton>
-            <XButton
-              onClick={handleApply}
-              disabled={isLoading}
-              aria-label="Apply filters"
-            >
+            <XButton onClick={handleApply} disabled={isLoading} aria-label="Apply filters">
               {isLoading ? "Searching..." : "Search"}
             </XButton>
           </div>

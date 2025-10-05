@@ -1,6 +1,22 @@
 "use client";
 
 import {
+  ChevronRightIcon,
+  FolderIcon,
+  FolderOpenIcon,
+  FolderTreeIcon,
+  HomeIcon,
+  LogOutIcon,
+  MenuIcon,
+  PackageIcon,
+  PaletteIcon,
+  RulerIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+
+import {
   Sidebar as SidebarComponent,
   SidebarContent,
   SidebarFooter,
@@ -17,21 +33,6 @@ import {
 import { ROUTES } from "@/lib/constants";
 import { useAuth, useToast } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
-import {
-  ChevronRightIcon,
-  FolderIcon,
-  FolderOpenIcon,
-  FolderTreeIcon,
-  HomeIcon,
-  LogOutIcon,
-  MenuIcon,
-  PackageIcon,
-  PaletteIcon,
-  RulerIcon,
-} from "lucide-react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
 
 interface SidebarItem {
   title: string;
@@ -112,16 +113,10 @@ export function Sidebar({ className }: SidebarProps) {
 
   const getExpandedItems = () => {
     const autoExpanded = sidebarItems
-      .filter(
-        (item) =>
-          item.children &&
-          item.children.some((child) => pathname === child.href)
-      )
+      .filter((item) => item.children && item.children.some((child) => pathname === child.href))
       .map((item) => item.href);
 
-    const filteredAutoExpanded = autoExpanded.filter(
-      (item) => !manuallyCollapsed.includes(item)
-    );
+    const filteredAutoExpanded = autoExpanded.filter((item) => !manuallyCollapsed.includes(item));
 
     return [...new Set([...expandedItems, ...filteredAutoExpanded])];
   };
@@ -155,12 +150,7 @@ export function Sidebar({ className }: SidebarProps) {
   };
 
   return (
-    <SidebarComponent
-      className={cn(
-        "bg-background border-r border shadow-xl",
-        className
-      )}
-    >
+    <SidebarComponent className={cn("bg-background border-r border shadow-xl", className)}>
       <SidebarHeader className="bg-primary">
         <div className="flex items-center gap-3 px-4 py-1.5">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-foreground/20 backdrop-blur-sm shadow-lg">
@@ -180,8 +170,7 @@ export function Sidebar({ className }: SidebarProps) {
               {sidebarItems.map((item) => {
                 const isActive = pathname === item.href;
                 const hasActiveChild =
-                  item.children &&
-                  item.children.some((child) => pathname === child.href);
+                  item.children && item.children.some((child) => pathname === child.href);
                 const isExpanded = getExpandedItems().includes(item.href);
                 const Icon = item.icon;
 
@@ -197,7 +186,7 @@ export function Sidebar({ className }: SidebarProps) {
                             ? "bg-primary/10 text-primary border border-primary/20"
                             : hasActiveChild
                               ? "bg-muted text-muted-foreground"
-                              : "hover:bg-muted text-foreground"
+                              : "hover:bg-muted text-foreground",
                         )}
                         onClick={() => toggleExpanded(item.href)}
                       >
@@ -209,7 +198,7 @@ export function Sidebar({ className }: SidebarProps) {
                                 ? "text-primary"
                                 : hasActiveChild
                                   ? "text-muted-foreground"
-                                  : "text-muted-foreground group-hover:text-foreground"
+                                  : "text-muted-foreground group-hover:text-foreground",
                             )}
                           />
                           <span
@@ -219,7 +208,7 @@ export function Sidebar({ className }: SidebarProps) {
                                 ? "text-primary"
                                 : hasActiveChild
                                   ? "text-muted-foreground"
-                                  : "text-foreground group-hover:text-foreground"
+                                  : "text-foreground group-hover:text-foreground",
                             )}
                           >
                             {item.title}
@@ -229,7 +218,7 @@ export function Sidebar({ className }: SidebarProps) {
                               "ml-auto h-4 w-4 transition-transform duration-200",
                               isExpanded
                                 ? "text-muted-foreground rotate-90"
-                                : "text-muted-foreground"
+                                : "text-muted-foreground",
                             )}
                           />
                         </div>
@@ -243,19 +232,16 @@ export function Sidebar({ className }: SidebarProps) {
                           "h-12 px-3 rounded-lg transition-all duration-200 group",
                           isActive
                             ? "bg-primary/10 text-primary border border-primary/20"
-                            : "hover:bg-muted text-foreground"
+                            : "hover:bg-muted text-foreground",
                         )}
                       >
-                        <Link
-                          href={item.href}
-                          className="flex items-center gap-3"
-                        >
+                        <Link href={item.href} className="flex items-center gap-3">
                           <Icon
                             className={cn(
                               "h-5 w-5 transition-colors duration-200",
                               isActive
                                 ? "text-primary"
-                                : "text-muted-foreground group-hover:text-foreground"
+                                : "text-muted-foreground group-hover:text-foreground",
                             )}
                           />
                           <span
@@ -263,7 +249,7 @@ export function Sidebar({ className }: SidebarProps) {
                               "font-medium transition-colors duration-200",
                               isActive
                                 ? "text-primary"
-                                : "text-foreground group-hover:text-foreground"
+                                : "text-foreground group-hover:text-foreground",
                             )}
                           >
                             {item.title}
@@ -287,19 +273,16 @@ export function Sidebar({ className }: SidebarProps) {
                                   "h-10 px-3 rounded-md transition-all duration-200 group",
                                   isChildActive
                                     ? "bg-primary/10 text-primary border border-primary/20"
-                                    : "hover:bg-muted text-muted-foreground"
+                                    : "hover:bg-muted text-muted-foreground",
                                 )}
                               >
-                                <Link
-                                  href={child.href}
-                                  className="flex items-center gap-3"
-                                >
+                                <Link href={child.href} className="flex items-center gap-3">
                                   <ChildIcon
                                     className={cn(
                                       "h-4 w-4 transition-colors duration-200",
                                       isChildActive
                                         ? "text-primary"
-                                        : "text-muted-foreground group-hover:text-foreground"
+                                        : "text-muted-foreground group-hover:text-foreground",
                                     )}
                                   />
                                   <span
@@ -307,7 +290,7 @@ export function Sidebar({ className }: SidebarProps) {
                                       "text-sm font-medium transition-colors duration-200",
                                       isChildActive
                                         ? "text-primary"
-                                        : "text-muted-foreground group-hover:text-foreground"
+                                        : "text-muted-foreground group-hover:text-foreground",
                                     )}
                                   >
                                     {child.title}

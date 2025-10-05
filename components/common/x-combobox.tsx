@@ -1,9 +1,10 @@
 "use client";
 
-import { XButton, XCommand, XPopover } from "@/components/common";
-import { cn } from "@/lib/utils";
 import { ChevronsUpDown } from "lucide-react";
 import { useMemo, useState } from "react";
+
+import { XButton, XCommand, XPopover } from "@/components/common";
+import { cn } from "@/lib/utils";
 
 export interface ComboboxOption {
   value: string;
@@ -67,11 +68,7 @@ export function XCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn(
-            "w-full justify-between",
-            hasError && "border-destructive",
-            className
-          )}
+          className={cn("w-full justify-between", hasError && "border-destructive", className)}
           disabled={disabled}
         >
           <span className={cn(!selectedLabel && "text-muted-foreground")}>
@@ -94,16 +91,18 @@ export function XCombobox({
         searchValue={searchValue}
         debounceMs={debounceMs}
         disableClientFilter={disableClientFilter}
-        groups={[{
-          items: options.map((option) => ({
-            label: option.label,
-            value: option.value,
-            onSelect: () => {
-              onValueChange?.(option.value);
-              setOpen(false);
-            },
-          })),
-        }]}
+        groups={[
+          {
+            items: options.map((option) => ({
+              label: option.label,
+              value: option.value,
+              onSelect: () => {
+                onValueChange?.(option.value);
+                setOpen(false);
+              },
+            })),
+          },
+        ]}
       />
     </XPopover>
   );

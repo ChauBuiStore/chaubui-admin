@@ -1,24 +1,6 @@
 "use client";
 
 import {
-  XButton,
-  XCheckbox,
-  XDropdownMenu,
-  XLabel,
-  XSelect,
-} from "@/components/common";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui";
-import { useSearchParams } from "@/lib/hooks";
-import { PaginationMeta } from "@/lib/types";
-import { cn } from "@/lib/utils";
-import {
   ColumnDef,
   ColumnFiltersState,
   FilterFn,
@@ -39,13 +21,14 @@ import {
   MoreVertical,
   Trash2,
 } from "lucide-react";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { XButton, XCheckbox, XDropdownMenu, XLabel, XSelect } from "@/components/common";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui";
+import { useSearchParams } from "@/lib/hooks";
+import { PaginationMeta } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
 import { XFilter } from "./x-filter";
 
 interface PaginationControlsProps<T> {
@@ -78,9 +61,8 @@ const SelectAllCheckbox = <T,>({
 
   useEffect(() => {
     if (checkboxRef.current) {
-      (
-        checkboxRef.current as HTMLButtonElement & { indeterminate?: boolean }
-      ).indeterminate = isSomeRowsSelected;
+      (checkboxRef.current as HTMLButtonElement & { indeterminate?: boolean }).indeterminate =
+        isSomeRowsSelected;
     }
   }, [isSomeRowsSelected]);
 
@@ -102,13 +84,9 @@ const SelectAllCheckbox = <T,>({
   );
 };
 
-const createSelectColumn = <T,>(
-  canSelectRow?: (row: T) => boolean
-): ColumnDef<T> => ({
+const createSelectColumn = <T,>(canSelectRow?: (row: T) => boolean): ColumnDef<T> => ({
   id: "select",
-  header: ({ table }) => (
-    <SelectAllCheckbox table={table} canSelectRow={canSelectRow} />
-  ),
+  header: ({ table }) => <SelectAllCheckbox table={table} canSelectRow={canSelectRow} />,
   cell: ({ row }) => {
     const canSelect = !canSelectRow || canSelectRow(row.original);
 
@@ -230,7 +208,7 @@ const createActionsColumn = <T,>(config?: ActionsConfig<T>): ColumnDef<T> => ({
                     "px-2 py-2 text-sm hover:text-accent-foreground justify-start",
                     isDeleteAction &&
                       "text-destructive hover:text-destructive hover:bg-destructive/10",
-                    isDisabled && "opacity-50 cursor-not-allowed"
+                    isDisabled && "opacity-50 cursor-not-allowed",
                   )}
                   fullWidth
                 >
@@ -259,9 +237,7 @@ const PaginationControls = <T,>({
     : (table.getState().pagination?.pageIndex || 0) + 1;
   const totalPages = pagination ? pagination.totalPages : table.getPageCount();
   const selectedRows = table.getFilteredSelectedRowModel().rows.length;
-  const totalRows = pagination
-    ? pagination.totalItems
-    : table.getFilteredRowModel().rows.length;
+  const totalRows = pagination ? pagination.totalItems : table.getFilteredRowModel().rows.length;
 
   const handlePageSizeChange = useCallback(
     (value: string) => {
@@ -276,7 +252,7 @@ const PaginationControls = <T,>({
         }
       } catch {}
     },
-    [table, onPageSizeChange]
+    [table, onPageSizeChange],
   );
 
   const handleFirstPage = useCallback(() => {
@@ -311,12 +287,8 @@ const PaginationControls = <T,>({
     }
   }, [table, onPageChange, totalPages]);
 
-  const canPreviousPage = pagination
-    ? currentPage > 1
-    : table.getCanPreviousPage();
-  const canNextPage = pagination
-    ? currentPage < totalPages
-    : table.getCanNextPage();
+  const canPreviousPage = pagination ? currentPage > 1 : table.getCanPreviousPage();
+  const canNextPage = pagination ? currentPage < totalPages : table.getCanNextPage();
 
   return (
     <div
@@ -403,10 +375,7 @@ interface BulkDeleteButtonProps<T> {
   onBulkDelete?: (selectedRows: T[]) => void;
 }
 
-const BulkDeleteButton = <T,>({
-  table,
-  onBulkDelete,
-}: BulkDeleteButtonProps<T>) => {
+const BulkDeleteButton = <T,>({ table, onBulkDelete }: BulkDeleteButtonProps<T>) => {
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const hasSelectedRows = selectedRows.length > 0;
 
@@ -447,10 +416,7 @@ const XTableHeader = <T,>({ table }: TableHeaderProps<T>) => {
               >
                 {header.isPlaceholder
                   ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                  : flexRender(header.column.columnDef.header, header.getContext())}
               </TableHead>
             );
           })}
@@ -460,11 +426,7 @@ const XTableHeader = <T,>({ table }: TableHeaderProps<T>) => {
   );
 };
 
-const XTableBody = <T,>({
-  table,
-  columns,
-  loading = false,
-}: TableBodyProps<T>) => {
+const XTableBody = <T,>({ table, columns, loading = false }: TableBodyProps<T>) => {
   const rows = table.getRowModel().rows;
 
   return (
@@ -491,10 +453,7 @@ const XTableBody = <T,>({
             aria-selected={row.getIsSelected()}
           >
             {row.getVisibleCells().map((cell, cellIndex) => (
-              <TableCell
-                key={cell.id}
-                className={cellIndex === 0 ? "font-medium" : ""}
-              >
+              <TableCell key={cell.id} className={cellIndex === 0 ? "font-medium" : ""}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </TableCell>
             ))}
@@ -545,18 +504,15 @@ const defaultGetRowId = <T,>(row: T): string => {
 
 const applyFilterFnToColumns = <T,>(
   columns: ColumnDef<T>[],
-  filterConfig?: FilterConfig
+  filterConfig?: FilterConfig,
 ): ColumnDef<T>[] => {
   if (!filterConfig?.filters) return columns;
 
   return columns.map((column) => {
-    const columnKey =
-      "accessorKey" in column ? (column.accessorKey as string) : undefined;
+    const columnKey = "accessorKey" in column ? (column.accessorKey as string) : undefined;
     if (!columnKey) return column;
 
-    const filterOption = filterConfig.filters.find(
-      (filter) => filter.key === columnKey
-    );
+    const filterOption = filterConfig.filters.find((filter) => filter.key === columnKey);
     if (!filterOption) return column;
 
     let filterFn: FilterFnOption<T> | undefined;
@@ -616,9 +572,7 @@ export function XTable<T = Record<string, unknown>>({
 
   const columnFilters: ColumnFiltersState = useMemo(() => {
     const availableColumnKeys = columns
-      .map((col) =>
-        "accessorKey" in col ? (col.accessorKey as string) : undefined
-      )
+      .map((col) => ("accessorKey" in col ? (col.accessorKey as string) : undefined))
       .filter(Boolean);
 
     return Object.entries(urlFilters)
@@ -633,9 +587,7 @@ export function XTable<T = Record<string, unknown>>({
   const lastExternalSelection = useRef<T[] | undefined>(undefined);
 
   const finalColumns: ColumnDef<T>[] = useMemo(() => {
-    const actionsColumn = enableActions
-      ? createActionsColumn<T>(actionsConfig)
-      : null;
+    const actionsColumn = enableActions ? createActionsColumn<T>(actionsConfig) : null;
 
     const columnsWithFilterFn = applyFilterFnToColumns(columns, filterConfig);
 
@@ -649,22 +601,12 @@ export function XTable<T = Record<string, unknown>>({
     }
 
     return baseColumns;
-  }, [
-    enableSelection,
-    enableActions,
-    columns,
-    actionsConfig,
-    filterConfig,
-    canSelectRow,
-  ]);
+  }, [enableSelection, enableActions, columns, actionsConfig, filterConfig, canSelectRow]);
 
   const memoizedGetRowId = useCallback(getRowId, [getRowId]);
 
   useEffect(() => {
-    if (
-      externalSelectedRows &&
-      externalSelectedRows !== lastExternalSelection.current
-    ) {
+    if (externalSelectedRows && externalSelectedRows !== lastExternalSelection.current) {
       isExternalUpdate.current = true;
       lastExternalSelection.current = externalSelectedRows;
 
@@ -683,15 +625,9 @@ export function XTable<T = Record<string, unknown>>({
   }, [externalSelectedRows, memoizedGetRowId]);
 
   const handleRowSelectionChange = useCallback(
-    (
-      updaterOrValue:
-        | RowSelectionState
-        | ((old: RowSelectionState) => RowSelectionState)
-    ) => {
+    (updaterOrValue: RowSelectionState | ((old: RowSelectionState) => RowSelectionState)) => {
       const newRowSelection =
-        typeof updaterOrValue === "function"
-          ? updaterOrValue(rowSelection)
-          : updaterOrValue;
+        typeof updaterOrValue === "function" ? updaterOrValue(rowSelection) : updaterOrValue;
 
       setRowSelection(newRowSelection);
 
@@ -703,7 +639,7 @@ export function XTable<T = Record<string, unknown>>({
         onSelectionChange(newSelectedRows);
       }
     },
-    [rowSelection, onSelectionChange, data, memoizedGetRowId]
+    [rowSelection, onSelectionChange, data, memoizedGetRowId],
   );
 
   const table = useReactTable({
@@ -721,17 +657,12 @@ export function XTable<T = Record<string, unknown>>({
     onPaginationChange: serverPagination ? undefined : setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: serverPagination
-      ? undefined
-      : getPaginationRowModel(),
+    getPaginationRowModel: serverPagination ? undefined : getPaginationRowModel(),
     ...(serverPagination
       ? {
           pageCount:
             serverPagination.totalPages ||
-            Math.ceil(
-              (serverPagination.totalItems || 0) /
-                (serverPagination.itemsPerPage || 10)
-            ),
+            Math.ceil((serverPagination.totalItems || 0) / (serverPagination.itemsPerPage || 10)),
           manualPagination: true,
         }
       : {}),
@@ -768,14 +699,8 @@ export function XTable<T = Record<string, unknown>>({
   });
 
   return (
-    <div
-      className={`${className} relative`}
-      role="region"
-      aria-label="Data table"
-    >
-      {(filterConfig?.enabled ||
-        filterConfig?.search?.enabled ||
-        searchConfig?.enabled) && (
+    <div className={`${className} relative`} role="region" aria-label="Data table">
+      {(filterConfig?.enabled || filterConfig?.search?.enabled || searchConfig?.enabled) && (
         <div className="mb-4">
           <div className="inline-flex items-center">
             {filterConfig?.enabled ? (

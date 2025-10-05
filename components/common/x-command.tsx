@@ -1,5 +1,8 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import {
   Command,
   CommandDialog,
@@ -12,8 +15,6 @@ import {
   CommandShortcut,
 } from "@/components/ui";
 import { useDebounce } from "@/lib/hooks";
-import { Loader2 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface XCommandItemConfig {
   label: string;
@@ -91,8 +92,7 @@ export function XCommand({
     if (!el) return;
     const onScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = el;
-      const nearBottom =
-        scrollTop + clientHeight >= scrollHeight - loadThreshold;
+      const nearBottom = scrollTop + clientHeight >= scrollHeight - loadThreshold;
       if (nearBottom && hasMoreData && !loading) handleLoadMore();
     };
     el.addEventListener("scroll", onScroll);
@@ -113,18 +113,14 @@ export function XCommand({
             {group.items.map((item, ii) => (
               <CommandItem key={ii} onSelect={item.onSelect}>
                 {item.label}
-                {item.shortcut && (
-                  <CommandShortcut>{item.shortcut}</CommandShortcut>
-                )}
+                {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
               </CommandItem>
             ))}
           </CommandGroup>
         ))}
         {groups.length > 1 &&
           groups.map((_, gi) =>
-            gi < groups.length - 1 ? (
-              <CommandSeparator key={`sep-${gi}`} />
-            ) : null
+            gi < groups.length - 1 ? <CommandSeparator key={`sep-${gi}`} /> : null,
           )}
         {loading && (
           <div className="flex items-center justify-center p-2 text-sm text-muted-foreground">

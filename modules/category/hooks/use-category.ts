@@ -1,14 +1,11 @@
-import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
-import { useSearchParams, useToast } from "@/lib/hooks";
-import { CategoryGroupService, CategoryService } from "@/lib/services";
-import {
-  Category,
-  CreateCategoryData,
-  UpdateCategoryData,
-} from "@/modules/category/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
+
+import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { useSearchParams, useToast } from "@/lib/hooks";
+import { CategoryGroupService, CategoryService } from "@/lib/services";
+import { Category, CreateCategoryData, UpdateCategoryData } from "@/modules/category/types";
 
 export function useCategory() {
   const queryClient = useQueryClient();
@@ -23,13 +20,13 @@ export function useCategory() {
     error,
     isLoading,
   } = useQuery({
-    queryKey: [QUERY_KEYS.CATEGORIES, filters],
+    queryKey: [QUERY_KEYS.CATEGORY, filters],
     queryFn: () => CategoryService.getCategories(filters),
   });
 
   const { data: categoryGroupsData } = useQuery({
-    queryKey: [QUERY_KEYS.CATEGORY_GROUPS_ALL],
-    queryFn: () => CategoryGroupService.getCategoryGroups(),
+    queryKey: [QUERY_KEYS.CATEGORY_GROUP_ALL],
+    queryFn: () => CategoryGroupService.getCategoryGroups({ isAll: true }),
   });
 
   if (error) {
@@ -41,11 +38,10 @@ export function useCategory() {
   const pagination = categoriesData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateCategoryData) =>
-      CategoryService.createCategory(data),
+    mutationFn: (data: CreateCategoryData) => CategoryService.createCategory(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       success("Category created successfully!");
     },
     onError: (error) => {
@@ -57,8 +53,9 @@ export function useCategory() {
     mutationFn: ({ id, data }: { id: string; data: UpdateCategoryData }) =>
       CategoryService.updateCategory(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_BY_ID] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       success("Category updated successfully!");
     },
     onError: (error) => {
@@ -69,8 +66,8 @@ export function useCategory() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => CategoryService.deleteCategory(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       success("Category deleted successfully!");
     },
     onError: (error) => {
@@ -81,8 +78,8 @@ export function useCategory() {
   const bulkDeleteMutation = useMutation({
     mutationFn: (ids: string[]) => CategoryService.bulkDeleteCategories(ids),
     onSuccess: (_, ids) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORIES] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUPS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       success(`Successfully deleted ${ids.length} categories!`);
     },
     onError: (error) => {
@@ -93,11 +90,16 @@ export function useCategory() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+
+  const { data: editingCategoryData, isLoading: isLoadingEditData } = useQuery({
+    queryKey: [QUERY_KEYS.CATEGORY_BY_ID, editingCategoryId],
+    queryFn: () => CategoryService.getCategoryById(editingCategoryId!),
+    enabled: !!editingCategoryId,
+    select: (data) => data.data,
+  });
 
   const handleCreateSubmit = async (data: FieldValues) => {
     await createMutation.mutateAsync(data as CreateCategoryData);
@@ -105,18 +107,18 @@ export function useCategory() {
   };
 
   const handleEditSubmit = async (data: FieldValues) => {
-    if (!editingCategory) return;
+    if (!editingCategoryData) return;
 
     await updateMutation.mutateAsync({
-      id: editingCategory.id,
+      id: editingCategoryData.id,
       data: data as UpdateCategoryData,
     });
     setShowEditForm(false);
-    setEditingCategory(null);
+    setEditingCategoryId(null);
   };
 
   const handleEditCategory = (category: Category) => {
-    setEditingCategory(category);
+    setEditingCategoryId(category.id);
     setShowEditForm(true);
   };
 
@@ -157,7 +159,7 @@ export function useCategory() {
         keyword: filters.keyword || "",
       });
     },
-    [setFilter, filters.keyword]
+    [setFilter, filters.keyword],
   );
 
   const handlePageSizeChange = useCallback(
@@ -168,7 +170,7 @@ export function useCategory() {
         keyword: filters.keyword || "",
       });
     },
-    [setFilter, filters.keyword]
+    [setFilter, filters.keyword],
   );
 
   const handleSearchChange = useCallback(
@@ -179,7 +181,7 @@ export function useCategory() {
         limit: PAGINATION_CONSTANTS.LIMIT,
       });
     },
-    [setFilter]
+    [setFilter],
   );
 
   return {
@@ -193,8 +195,10 @@ export function useCategory() {
     setShowEditForm,
     showDeleteForm,
     setShowDeleteForm,
-    editingCategory,
-    setEditingCategory,
+    editingCategory: editingCategoryData || null,
+    editingCategoryId,
+    setEditingCategoryId,
+    isLoadingEditData,
     selectedCategory,
     selectedCategories,
     isSubmitting:

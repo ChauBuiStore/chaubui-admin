@@ -1,7 +1,8 @@
-import { ROUTES } from "@/lib/constants";
-import { isTokenValid } from "@/lib/utils/token.utils";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+
+import { ROUTES } from "@/lib/constants";
+import { isTokenValid } from "@/lib/utils/token.utils";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -18,9 +19,9 @@ export function middleware(request: NextRequest) {
 
   if (pathname.startsWith(ROUTES.DASHBOARD)) {
     if (!isAuthenticated) {
-      const response = NextResponse.redirect(new URL(ROUTES.LOGIN, request.url));
-      response.cookies.delete("auth_token");
-      return response;
+      const redirectResp = NextResponse.redirect(new URL(ROUTES.LOGIN, request.url));
+      redirectResp.cookies.delete("auth_token");
+      return redirectResp;
     }
     return NextResponse.next();
   }
@@ -33,7 +34,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

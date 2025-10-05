@@ -1,16 +1,13 @@
 "use client";
 
-import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
-import { useSearchParams, useToast } from "@/lib/hooks";
-import { ColorService } from "@/lib/services";
-import {
-  Color,
-  CreateColorRequest,
-  UpdateColorRequest,
-} from "@/modules/color/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
+
+import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { useSearchParams, useToast } from "@/lib/hooks";
+import { ColorService } from "@/lib/services";
+import { Color, CreateColorRequest, UpdateColorRequest } from "@/modules/color/types";
 
 export function useColor() {
   const queryClient = useQueryClient();
@@ -39,6 +36,7 @@ export function useColor() {
     mutationFn: (data: CreateColorRequest) => ColorService.createColor(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLOR_BY_ID] });
       success("Color created successfully!");
     },
     onError: (error) => {
@@ -51,6 +49,7 @@ export function useColor() {
       ColorService.updateColor(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLOR_BY_ID] });
       success("Color updated successfully!");
     },
     onError: (error) => {
@@ -62,6 +61,7 @@ export function useColor() {
     mutationFn: (id: string) => ColorService.deleteColor(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLOR_BY_ID] });
       success("Color deleted successfully!");
     },
     onError: (error) => {
@@ -83,11 +83,16 @@ export function useColor() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteForm, setShowDeleteForm] = useState(false);
-  const [editingColor, setEditingColor] = useState<Color | undefined>(
-    undefined
-  );
+  const [editingColorId, setEditingColorId] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<Color | null>(null);
   const [selectedColors, setSelectedColors] = useState<Color[]>([]);
+
+  const { data: editingColorData, isLoading: isLoadingEditData } = useQuery({
+    queryKey: [QUERY_KEYS.COLOR_BY_ID, editingColorId],
+    queryFn: () => ColorService.getColorById(editingColorId!),
+    enabled: !!editingColorId,
+    select: (data) => data.data,
+  });
 
   const handleCreateSubmit = async (data: FieldValues) => {
     await createMutation.mutateAsync(data as CreateColorRequest);
@@ -95,25 +100,18 @@ export function useColor() {
   };
 
   const handleEditSubmit = async (data: FieldValues) => {
-    if (!editingColor) {
-      showError("Color ID is missing. Please try again.");
-      return;
-    }
+    if (!editingColorData) return;
 
-    try {
-      await updateMutation.mutateAsync({
-        id: editingColor.id,
-        data: data as UpdateColorRequest,
-      });
-      setShowEditForm(false);
-      setEditingColor(undefined);
-    } catch (error) {
-      showError((error as Error).message);
-    }
+    await updateMutation.mutateAsync({
+      id: editingColorData.id,
+      data: data as UpdateColorRequest,
+    });
+    setShowEditForm(false);
+    setEditingColorId(null);
   };
 
   const handleEditColor = (color: Color) => {
-    setEditingColor(color);
+    setEditingColorId(color.id);
     setShowEditForm(true);
   };
 
@@ -153,7 +151,7 @@ export function useColor() {
         keyword: filters.keyword || "",
       });
     },
-    [setFilter, filters.keyword]
+    [setFilter, filters.keyword],
   );
 
   const handlePageSizeChange = useCallback(
@@ -164,7 +162,7 @@ export function useColor() {
         keyword: filters.keyword || "",
       });
     },
-    [setFilter, filters.keyword]
+    [setFilter, filters.keyword],
   );
 
   const handleSearchChange = useCallback(
@@ -175,7 +173,7 @@ export function useColor() {
         limit: PAGINATION_CONSTANTS.LIMIT,
       });
     },
-    [setFilter]
+    [setFilter],
   );
 
   return {
@@ -188,8 +186,8 @@ export function useColor() {
     setShowEditForm,
     showDeleteForm,
     setShowDeleteForm,
-    editingColor,
-    setEditingColor,
+    editingColor: editingColorData,
+    isLoadingEditData,
     selectedColor,
     selectedColors,
     isSubmitting:

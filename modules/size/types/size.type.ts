@@ -1,17 +1,23 @@
 export interface Size {
   id: string;
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm?: string;
   description: string;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
 
 export interface CreateSizeData {
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm?: string;
 }
 
 export interface UpdateSizeData {
-  name?: string;
+  nameVi?: string;
+  nameEn?: string;
+  nameKm?: string;
 }
 
 export interface SizeFilters extends Record<string, unknown> {

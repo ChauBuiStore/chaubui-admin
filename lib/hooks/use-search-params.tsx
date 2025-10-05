@@ -1,10 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState, useRef } from "react";
-import {
-  useRouter,
-  useSearchParams as useNextSearchParams,
-} from "next/navigation";
+import { useRouter, useSearchParams as useNextSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface FilterState {
   [key: string]: string | string[] | number | undefined;
@@ -45,9 +42,8 @@ export function useSearchParams(initial: FilterState = {}) {
 
     setFilters((prevFilters) => {
       const hasChanged =
-        Object.keys(initialFilters).some(
-          (key) => prevFilters[key] !== initialFilters[key]
-        ) || Object.keys(prevFilters).some((key) => !(key in initialFilters));
+        Object.keys(initialFilters).some((key) => prevFilters[key] !== initialFilters[key]) ||
+        Object.keys(prevFilters).some((key) => !(key in initialFilters));
 
       setIsHydrated(true);
 
@@ -99,20 +95,22 @@ export function useSearchParams(initial: FilterState = {}) {
             }
           });
 
-          const newURL = params.toString()
-            ? `?${params.toString()}`
-            : window.location.pathname;
-          router.replace(newURL, { scroll: false });
+          const newURL = params.toString() ? `?${params.toString()}` : window.location.pathname;
+
+          // Chỉ update URL nếu thực sự khác với URL hiện tại
+          if (newURL !== window.location.pathname + window.location.search) {
+            router.replace(newURL, { scroll: false });
+          }
 
           setTimeout(() => {
             isUpdatingFromUser.current = false;
           }, 50);
-        }, 100);
+        }, 150); // Tăng timeout để batch nhiều updates hơn
 
         return newFilters;
       });
     },
-    [router]
+    [router],
   );
 
   const clearFilters = useCallback(() => {

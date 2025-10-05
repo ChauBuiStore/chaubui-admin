@@ -1,8 +1,10 @@
 "use client";
 
-import { XButton } from "@/components/common";
 import { PaletteIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
+
+import { XButton } from "@/components/common";
+
 import { ColorsList } from "./components/list";
 import { useColor } from "./hooks";
 import { CreateColor, DeleteColor, EditColor } from "./modals";
@@ -19,6 +21,7 @@ export function ColorsPage() {
     showDeleteForm,
     setShowDeleteForm,
     editingColor,
+    isLoadingEditData,
     selectedColor,
     selectedColors,
     isSubmitting,
@@ -78,6 +81,7 @@ export function ColorsPage() {
         onOpenChange={setShowEditForm}
         onSubmit={handleEditSubmit}
         loading={isSubmitting}
+        isLoadingData={isLoadingEditData}
         color={editingColor}
       />
 

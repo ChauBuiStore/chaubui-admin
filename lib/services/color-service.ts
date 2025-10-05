@@ -1,31 +1,17 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
 import { ApiResponse } from "@/lib/types";
-import {
-  Color,
-  ColorFilters,
-  CreateColorRequest,
-  UpdateColorRequest,
-} from "@/modules/color/types";
+import { Color, ColorFilters, CreateColorRequest, UpdateColorRequest } from "@/modules/color/types";
 
 class ColorService {
-  static async getColors(
-    filters?: ColorFilters
-  ): Promise<ApiResponse<Color[]>>
-  {
-    const response = await httpClient.get<Color[]>(
-      ENDPOINTS.COLOR.GET_ALL,
-      {
-        params: filters,
-      }
-    );
+  static async getColors(filters?: ColorFilters): Promise<ApiResponse<Color[]>> {
+    const response = await httpClient.get<Color[]>(ENDPOINTS.COLOR.GET_ALL, {
+      params: filters,
+    });
     return response;
   }
 
-
   static async getColorById(id: string): Promise<ApiResponse<Color>> {
-    const response = await httpClient.get<Color>(
-      ENDPOINTS.COLOR.GET_BY_ID.replace(":id", id)
-    );
+    const response = await httpClient.get<Color>(ENDPOINTS.COLOR.GET_BY_ID.replace(":id", id));
     return response;
   }
 
@@ -34,14 +20,8 @@ class ColorService {
     return response;
   }
 
-  static async updateColor(
-    id: string,
-    data: UpdateColorRequest
-  ): Promise<ApiResponse<Color>> {
-    const response = await httpClient.put<Color>(
-      ENDPOINTS.COLOR.UPDATE.replace(":id", id),
-      data
-    );
+  static async updateColor(id: string, data: UpdateColorRequest): Promise<ApiResponse<Color>> {
+    const response = await httpClient.put<Color>(ENDPOINTS.COLOR.UPDATE.replace(":id", id), data);
     return response;
   }
 

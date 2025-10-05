@@ -1,5 +1,5 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
-import { AuthResponse, LoginCredentials, ApiResponse } from "@/lib/types";
+import { ApiResponse, AuthResponse, LoginCredentials } from "@/lib/types";
 
 class AuthService {
   static async login(credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> {

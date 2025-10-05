@@ -1,15 +1,16 @@
 "use client";
 
-import { XButton, XLabel } from "@/components/common";
-import { useToast } from "@/lib/hooks";
-import { UploadService } from "@/lib/services";
-import { FileUpload } from "@/lib/types";
-import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { UploadIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
+
+import { XButton, XLabel } from "@/components/common";
+import { useToast } from "@/lib/hooks";
+import { UploadService } from "@/lib/services";
+import { FileUpload } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 interface XDropzoneProps {
   onUploadSuccess?: (responses: FileUpload[]) => void;
@@ -21,6 +22,7 @@ interface XDropzoneProps {
   disabled?: boolean;
   multiple?: boolean;
   initialFiles?: FileUpload[];
+  title?: string;
 }
 
 export function XDropzone({
@@ -35,16 +37,13 @@ export function XDropzone({
   disabled = false,
   multiple = true,
   initialFiles = [],
+  title = "Files Upload",
 }: XDropzoneProps) {
-  const [uploadedFiles, setUploadedFiles] =
-    useState<FileUpload[]>(initialFiles);
+  const [uploadedFiles, setUploadedFiles] = useState<FileUpload[]>(initialFiles);
   const prevInitialFilesRef = useRef<FileUpload[]>(initialFiles);
 
   useEffect(() => {
-    if (
-      JSON.stringify(prevInitialFilesRef.current) !==
-      JSON.stringify(initialFiles)
-    ) {
+    if (JSON.stringify(prevInitialFilesRef.current) !== JSON.stringify(initialFiles)) {
       setUploadedFiles(initialFiles);
       prevInitialFilesRef.current = initialFiles;
     }
@@ -73,8 +72,7 @@ export function XDropzone({
 
       onUploadSuccess?.(responseArray as FileUpload[]);
       success(
-        `Successfully uploaded ${responseArray.length} file${responseArray.length > 1 ? "s" : ""
-        }`
+        `Successfully uploaded ${responseArray.length} file${responseArray.length > 1 ? "s" : ""}`,
       );
     },
     onError: (error) => {
@@ -87,7 +85,7 @@ export function XDropzone({
       if (files.length === 0) return;
       await uploadMutation.mutateAsync(files);
     },
-    [uploadMutation]
+    [uploadMutation],
   );
 
   const onDrop = useCallback(
@@ -97,15 +95,16 @@ export function XDropzone({
       const totalFiles = uploadedFiles.length + acceptedFiles.length;
       if (totalFiles > maxFiles) {
         showError(
-          `Maximum ${maxFiles} files allowed. You have ${uploadedFiles.length
-          } files, can only add ${maxFiles - uploadedFiles.length} more.`
+          `Maximum ${maxFiles} files allowed. You have ${
+            uploadedFiles.length
+          } files, can only add ${maxFiles - uploadedFiles.length} more.`,
         );
         return;
       }
 
       await handleUpload(acceptedFiles);
     },
-    [handleUpload, uploadedFiles.length, maxFiles, showError]
+    [handleUpload, uploadedFiles.length, maxFiles, showError],
   );
 
   const deleteMutation = useMutation({
@@ -131,7 +130,8 @@ export function XDropzone({
     onDrop,
     accept,
     maxSize: maxSize * 1024 * 1024,
-    maxFiles: maxFiles,
+    maxFiles: multiple ? maxFiles : 1,
+    multiple: multiple,
     disabled: disabled || uploadMutation.isPending || deleteMutation.isPending,
   });
 
@@ -159,9 +159,7 @@ export function XDropzone({
             e.stopPropagation();
             removeFile(0);
           }}
-          disabled={
-            disabled || uploadMutation.isPending || deleteMutation.isPending
-          }
+          disabled={disabled || uploadMutation.isPending || deleteMutation.isPending}
         >
           <XIcon className="h-3 w-3" />
         </XButton>
@@ -176,8 +174,7 @@ export function XDropzone({
       <div className="space-y-3">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>
-            {uploadedFiles.length} file{uploadedFiles.length > 1 ? "s" : ""}{" "}
-            uploaded
+            {uploadedFiles.length} file{uploadedFiles.length > 1 ? "s" : ""} uploaded
           </span>
           <span>Max {maxFiles} files allowed</span>
         </div>
@@ -188,10 +185,7 @@ export function XDropzone({
               if (!file.url || typeof file.url !== "string") return null;
 
               return (
-                <div
-                  key={file.id || `file-${index}`}
-                  className="relative group"
-                >
+                <div key={file.id || `file-${index}`} className="relative group">
                   <div className="aspect-square">
                     <Image
                       src={file.url || ""}
@@ -203,9 +197,7 @@ export function XDropzone({
                   </div>
 
                   <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-primary-foreground text-xs p-1 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="truncate">
-                      {file.fileName || "Uploaded file"}
-                    </p>
+                    <p className="truncate">{file.fileName || "Uploaded file"}</p>
                   </div>
 
                   <XButton
@@ -217,11 +209,7 @@ export function XDropzone({
                       e.stopPropagation();
                       removeFile(index);
                     }}
-                    disabled={
-                      disabled ||
-                      uploadMutation.isPending ||
-                      deleteMutation.isPending
-                    }
+                    disabled={disabled || uploadMutation.isPending || deleteMutation.isPending}
                   >
                     <XIcon className="h-3 w-3" />
                   </XButton>
@@ -240,7 +228,7 @@ export function XDropzone({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <XLabel className="mb-2">Files Upload</XLabel>
+      <XLabel className="mb-2">{title}</XLabel>
 
       <div
         {...getRootProps()}
@@ -249,10 +237,8 @@ export function XDropzone({
           isDragActive && "border-primary bg-primary/10",
           disabled && "opacity-50 cursor-not-allowed",
           (uploadMutation.isPending || deleteMutation.isPending) &&
-          "border-primary bg-primary/10 cursor-not-allowed",
-          !(uploadMutation.isPending || deleteMutation.isPending) &&
-          !disabled &&
-          "hover:border"
+            "border-primary bg-primary/10 cursor-not-allowed",
+          !(uploadMutation.isPending || deleteMutation.isPending) && !disabled && "hover:border",
         )}
       >
         <input {...getInputProps()} className="hidden" />
@@ -265,9 +251,7 @@ export function XDropzone({
               <div className="flex flex-col items-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
                 <p className="text-sm text-primary mb-2 font-medium">
-                  {uploadMutation.isPending
-                    ? `Uploading files...`
-                    : "Deleting file..."}
+                  {uploadMutation.isPending ? `Uploading files...` : "Deleting file..."}
                 </p>
                 {uploadMutation.isPending && (
                   <p className="text-xs text-muted-foreground">Please wait a moment</p>
@@ -276,17 +260,13 @@ export function XDropzone({
             ) : (
               <>
                 <UploadIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-sm text-muted-foreground mb-2">
+                <p className="text-xs text-muted-foreground mb-2">
                   {isDragActive
-                    ? "Drop files here to upload..."
-                    : "Drag and drop files here or click to select"}
-                </p>
-                <p className="text-xs text-muted-foreground mb-1">
-                  PNG, JPG, JPEG, GIF, WEBP up to {maxSize}MB each
+                    ? "Drop files here"
+                    : `Click or drag to upload allowed PNG, JPG, JPEG, GIF, WEBP up to ${maxSize}MB each`}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Maximum {maxFiles} files • {uploadedFiles.length}/{maxFiles}{" "}
-                  uploaded
+                  Up to {maxSize}MB • {uploadedFiles.length}/{maxFiles} files
                 </p>
               </>
             )}

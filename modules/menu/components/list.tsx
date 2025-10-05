@@ -1,9 +1,12 @@
 "use client";
 
-import { ActionsConfig, XTable } from "@/components/common";
-import { PaginationMeta } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
+
+import { ActionsConfig, XTable } from "@/components/common";
+import { PaginationMeta } from "@/lib/types";
+import { formatDate } from "@/lib/utils/date.ultis";
+
 import { Menu } from "../types";
 
 interface MenusListProps {
@@ -38,19 +41,27 @@ export function MenusList({
   const columns: ColumnDef<Menu>[] = useMemo(
     () => [
       {
-        accessorKey: "name",
-        header: "Name",
+        accessorKey: "nameVi",
+        header: "NameVi",
         cell: ({ row }) => {
           const menu = row.original;
-          return <span className="font-medium">{menu.name}</span>;
+          return <span className="font-medium">{menu.nameVi}</span>;
         },
       },
       {
-        accessorKey: "slug",
-        header: "Slug",
+        accessorKey: "nameEn",
+        header: "NameEn",
         cell: ({ row }) => {
           const menu = row.original;
-          return <span className="font-medium">{menu.slug}</span>;
+          return <span className="font-medium">{menu.nameEn}</span>;
+        },
+      },
+      {
+        accessorKey: "nameKm",
+        header: "NameKm",
+        cell: ({ row }) => {
+          const menu = row.original;
+          return <span className="font-medium">{menu.nameKm}</span>;
         },
       },
       {
@@ -58,11 +69,11 @@ export function MenusList({
         header: "Created Date",
         cell: ({ row }) => {
           const menu = row.original;
-          return new Date(menu.createdAt).toLocaleDateString("en-US");
+          return formatDate(menu.createdAt);
         },
       },
     ],
-    []
+    [],
   );
 
   const actionsConfig: ActionsConfig<Menu> = useMemo(
@@ -70,7 +81,7 @@ export function MenusList({
       onEdit: (menu) => onEditMenu(menu),
       onDelete: (menu) => onDeleteMenu(menu),
     }),
-    [onEditMenu, onDeleteMenu]
+    [onEditMenu, onDeleteMenu],
   );
 
   return (
@@ -90,7 +101,7 @@ export function MenusList({
       searchConfig={{
         enabled: true,
         columnKey: "search",
-        placeholder: "Search menu...",
+        placeholder: "Search menu by name...",
       }}
       filterConfig={{
         enabled: false,

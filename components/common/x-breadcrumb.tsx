@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import React from "react";
+
 import { XButton, XDropdownMenu } from "@/components/common";
 import {
   Breadcrumb,
@@ -11,8 +14,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui";
 import { useBreadcrumb } from "@/lib/hooks";
-import Link from "next/link";
-import React from "react";
 
 export function XBreadcrumb() {
   const breadcrumbs = useBreadcrumb();
@@ -31,11 +32,7 @@ export function XBreadcrumb() {
             );
           }
 
-          if (
-            breadcrumbs.length > 4 &&
-            index > 0 &&
-            index < breadcrumbs.length - 2
-          ) {
+          if (breadcrumbs.length > 4 && index > 0 && index < breadcrumbs.length - 2) {
             if (index === 1) {
               return (
                 <React.Fragment key="ellipsis-group">
@@ -73,9 +70,7 @@ export function XBreadcrumb() {
           }
 
           return (
-            <React.Fragment
-              key={`${breadcrumb.href || breadcrumb.label}-group`}
-            >
+            <React.Fragment key={`${breadcrumb.href || breadcrumb.label}-group`}>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
                   <Link href={breadcrumb.href!}>{breadcrumb.label}</Link>

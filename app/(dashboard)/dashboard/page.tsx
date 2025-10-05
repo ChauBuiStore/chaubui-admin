@@ -1,7 +1,5 @@
 "use client";
 
-import { XBadge, XCard } from "@/components/common";
-import { ROUTES } from "@/lib/constants";
 import {
   ActivityIcon,
   DollarSignIcon,
@@ -13,6 +11,9 @@ import {
   UsersIcon,
 } from "lucide-react";
 import Link from "next/link";
+
+import { XBadge, XCard } from "@/components/common";
+import { ROUTES } from "@/lib/constants";
 
 export default function DashboardPageRoot() {
   const stats = {
@@ -85,9 +86,7 @@ export default function DashboardPageRoot() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            Dashboard Management
-          </h1>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard Management</h1>
           <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Product management system overview
           </p>
@@ -101,9 +100,7 @@ export default function DashboardPageRoot() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <XCard
           title="Total Products"
-          action={
-            <PackageIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          }
+          action={<PackageIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />}
           headerClassName="flex flex-row items-center justify-between space-y-0 pb-2"
           titleClassName="text-xs sm:text-sm font-medium"
           wrapperClassName="h-full"
@@ -113,48 +110,37 @@ export default function DashboardPageRoot() {
             {stats.totalProducts.toLocaleString()}
           </div>
           <p className="text-xs text-muted-foreground">
-            <span className="text-primary">+{stats.growthRate}%</span> from last
-            month
+            <span className="text-primary">+{stats.growthRate}%</span> from last month
           </p>
         </XCard>
 
         <XCard
           title="Categories"
-          action={
-            <FolderIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          }
+          action={<FolderIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />}
           headerClassName="flex flex-row items-center justify-between space-y-0 pb-2"
           titleClassName="text-xs sm:text-sm font-medium"
           wrapperClassName="h-full"
           className="h-full"
         >
-          <div className="text-xl sm:text-2xl font-bold">
-            {stats.totalCategories}
-          </div>
+          <div className="text-xl sm:text-2xl font-bold">{stats.totalCategories}</div>
           <p className="text-xs text-muted-foreground">Active categories</p>
         </XCard>
 
         <XCard
           title="Colors"
-          action={
-            <PaletteIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          }
+          action={<PaletteIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />}
           headerClassName="flex flex-row items-center justify-between space-y-0 pb-2"
           titleClassName="text-xs sm:text-sm font-medium"
           wrapperClassName="h-full"
           className="h-full"
         >
-          <div className="text-xl sm:text-2xl font-bold">
-            {stats.totalColors}
-          </div>
+          <div className="text-xl sm:text-2xl font-bold">{stats.totalColors}</div>
           <p className="text-xs text-muted-foreground">Available colors</p>
         </XCard>
 
         <XCard
           title="Revenue"
-          action={
-            <DollarSignIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-          }
+          action={<DollarSignIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />}
           headerClassName="flex flex-row items-center justify-between space-y-0 pb-2"
           titleClassName="text-xs sm:text-sm font-medium"
           wrapperClassName="h-full"
@@ -183,9 +169,7 @@ export default function DashboardPageRoot() {
                   contentClassName="pb-3 p-4 sm:p-6"
                 >
                   <div className="flex items-center space-x-3">
-                    <div
-                      className={`p-2 sm:p-3 rounded-lg ${action.color} flex-shrink-0`}
-                    >
+                    <div className={`p-2 sm:p-3 rounded-lg ${action.color} flex-shrink-0`}>
                       <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -227,17 +211,15 @@ export default function DashboardPageRoot() {
                     activity.status === "success"
                       ? "bg-primary"
                       : activity.status === "warning"
-                      ? "bg-primary/60"
-                      : "bg-primary"
+                        ? "bg-primary/60"
+                        : "bg-primary"
                   }`}
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs sm:text-sm text-foreground line-clamp-2">
                     {activity.message}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {activity.time}
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
                 </div>
               </div>
             ))}
@@ -263,13 +245,9 @@ export default function DashboardPageRoot() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2 min-w-0">
                 <UsersIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
-                <span className="text-xs sm:text-sm text-foreground truncate">
-                  Active Users
-                </span>
+                <span className="text-xs sm:text-sm text-foreground truncate">Active Users</span>
               </div>
-              <span className="text-xs sm:text-sm font-medium">
-                {stats.activeUsers}
-              </span>
+              <span className="text-xs sm:text-sm font-medium">{stats.activeUsers}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2 min-w-0">
@@ -278,25 +256,19 @@ export default function DashboardPageRoot() {
                   Today&apos;s Orders
                 </span>
               </div>
-              <span className="text-xs sm:text-sm font-medium">
-                {stats.totalOrders}
-              </span>
+              <span className="text-xs sm:text-sm font-medium">{stats.totalOrders}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2 min-w-0">
                 <PackageIcon className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
-                <span className="text-xs sm:text-sm text-foreground truncate">
-                  New Products
-                </span>
+                <span className="text-xs sm:text-sm text-foreground truncate">New Products</span>
               </div>
               <span className="text-xs sm:text-sm font-medium">+12</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2 min-w-0">
                 <TrendingUpIcon className="h-3 w-3 sm:h-4 sm:w-4 text-gray-500 flex-shrink-0" />
-                <span className="text-xs sm:text-sm text-gray-700 truncate">
-                  Growth
-                </span>
+                <span className="text-xs sm:text-sm text-gray-700 truncate">Growth</span>
               </div>
               <span className="text-xs sm:text-sm font-medium text-primary">
                 +{stats.growthRate}%

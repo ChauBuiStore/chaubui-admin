@@ -1,8 +1,9 @@
 "use client";
 
+import React from "react";
+
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import React from "react";
 
 export interface XPopoverProps {
   trigger: React.ReactNode;
@@ -47,9 +48,7 @@ export function XPopover({
       <PopoverContent
         className={cn("p-4", sizeClass, contentClassName)}
         align={align}
-        onInteractOutside={
-          closeOnClickOutside ? undefined : (e) => e.preventDefault()
-        }
+        onInteractOutside={closeOnClickOutside ? undefined : (e) => e.preventDefault()}
       >
         {children}
       </PopoverContent>

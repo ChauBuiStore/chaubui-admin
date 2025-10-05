@@ -1,9 +1,11 @@
 "use client";
 
-import { XDialog, XForm, XFormField } from "@/components/common";
-import { FORM_TYPES } from "@/lib/constants";
 import { useRef } from "react";
 import { FieldValues } from "react-hook-form";
+
+import { XDialog, XForm, XFormField } from "@/components/common";
+import { FORM_TYPES } from "@/lib/constants";
+
 import { updateSizeSchema } from "../schemas";
 import { Size } from "../types";
 
@@ -12,6 +14,7 @@ interface EditSizeProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: FieldValues) => Promise<void>;
   loading: boolean;
+  isLoadingData?: boolean;
   size?: Size | null;
 }
 
@@ -20,6 +23,7 @@ export function EditSize({
   onOpenChange,
   onSubmit,
   loading,
+  isLoadingData,
   size,
 }: EditSizeProps) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -28,17 +32,33 @@ export function EditSize({
     try {
       await onSubmit(data);
       onOpenChange(false);
-    } catch { }
+    } catch {}
   };
 
   const fields: XFormField[] = [
     {
-      name: "name",
+      name: "nameVi",
       type: FORM_TYPES.INPUT,
       subType: FORM_TYPES.TEXT,
-      label: "Size Name",
-      placeholder: "Enter size name",
+      label: "NameVi",
+      placeholder: "Enter nameVi",
       required: true,
+    },
+    {
+      name: "nameEn",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.TEXT,
+      label: "NameEn",
+      placeholder: "Enter nameEn",
+      required: true,
+    },
+    {
+      name: "nameKm",
+      type: FORM_TYPES.INPUT,
+      subType: FORM_TYPES.TEXT,
+      label: "NameKm",
+      placeholder: "Enter nameKm",
+      required: false,
     },
   ];
 
@@ -59,11 +79,13 @@ export function EditSize({
         schema={updateSizeSchema}
         fields={fields}
         onSubmit={handleSubmit}
-        loading={loading}
+        loading={loading || isLoadingData}
         onSuccess={() => onOpenChange(false)}
         onFormReady={(form) => {
           form.reset({
-            name: size?.name || "",
+            nameVi: size?.nameVi || "",
+            nameEn: size?.nameEn || "",
+            nameKm: size?.nameKm || "",
           });
         }}
       />

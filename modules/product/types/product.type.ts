@@ -1,38 +1,65 @@
 import { Category } from "@/modules/category/types";
 import { Color } from "@/modules/color/types";
+import { Size } from "@/modules/size/types";
+
 import { ProductImage } from "./product-image.type";
 import { ProductVariant, ProductVariantData, VariantType } from "./product-variant.type";
-
 
 export interface Product {
   id: string;
   name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm?: string;
+  slug: string;
   description: string;
-  price: number;
+  originalPrice: number;
+  salePrice: number;
+  stock: number;
+  discountPercent: number;
   category: Category;
   colors: Color[];
+  sizes: Size[];
+  variantType: VariantType;
   variants: ProductVariant[];
   images: ProductImage[];
+  thumbnail?: ProductImage[];
+  thumbnailId?: string;
+  thumbnailUrl?: string;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
 
 export interface CreateProductData {
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm?: string;
   description: string;
-  price: number;
+  originalPrice?: number;
+  salePrice?: number;
+  discountPercent?: number;
+  stock?: number;
   categoryId: string;
   variantType: VariantType;
+  thumbnailUrl?: string;
+  thumbnailId?: string;
   images?: ProductImage[];
   variants?: ProductVariantData[];
 }
 
 export interface UpdateProductData {
-  name: string;
+  nameVi: string;
+  nameEn: string;
+  nameKm?: string;
   description: string;
-  price: number;
+  originalPrice?: number;
+  salePrice?: number;
+  discountPercent?: number;
+  stock?: number;
   categoryId: string;
   variantType: VariantType;
+  thumbnailUrl?: string;
+  thumbnailId?: string;
   images?: ProductImage[];
   variants?: ProductVariantData[];
 }

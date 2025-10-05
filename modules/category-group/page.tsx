@@ -1,14 +1,12 @@
 "use client";
 
-import { XButton } from "@/components/common";
 import { FolderIcon, PlusIcon } from "lucide-react";
+
+import { XButton } from "@/components/common";
+
 import { CategoriesGroupList } from "./components/list";
 import { useCategoryGroup } from "./hooks";
-import {
-  CreateCategoryGroup,
-  DeleteCategoryGroup,
-  EditCategoryGroup,
-} from "./modals";
+import { CreateCategoryGroup, DeleteCategoryGroup, EditCategoryGroup } from "./modals";
 
 export function CategoriesGroupPage() {
   const {
@@ -22,7 +20,7 @@ export function CategoriesGroupPage() {
     showDeleteForm,
     setShowDeleteForm,
     editingCategoryGroup,
-    setEditingCategoryGroup,
+    isLoadingEditData,
     selectedCategoryGroup,
     selectedCategoryGroups,
     isSubmitting,
@@ -35,6 +33,7 @@ export function CategoriesGroupPage() {
     handlePageChange,
     handlePageSizeChange,
     handleSearchChange,
+    setEditingCategoryGroupId,
   } = useCategoryGroup();
 
   return (
@@ -75,15 +74,12 @@ export function CategoriesGroupPage() {
 
       <EditCategoryGroup
         open={showEditForm}
-        onOpenChange={(open) => {
-          setShowEditForm(open);
-          if (!open) {
-            setEditingCategoryGroup(null);
-          }
-        }}
+        onOpenChange={setShowEditForm}
         onSubmit={handleEditSubmit}
         loading={isSubmitting}
         categoryGroup={editingCategoryGroup}
+        isLoadingData={isLoadingEditData}
+        onClose={() => setEditingCategoryGroupId(null)}
       />
 
       <DeleteCategoryGroup

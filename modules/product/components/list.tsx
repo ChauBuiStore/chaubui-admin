@@ -1,15 +1,19 @@
 "use client";
 
-import { ActionsConfig, XTable } from "@/components/common/x-table";
-import { PaginationMeta } from "@/lib/types";
-import { formatPrice } from "@/lib/utils/currency.utils";
-import { Product } from "@/modules/product/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
+
+import { ActionsConfig, XTable } from "@/components/common/x-table";
+import { PaginationMeta } from "@/lib/types";
+import { formatDate } from "@/lib/utils/date.ultis";
+import { Product } from "@/modules/product/types";
+
 import { Color } from "./color";
 import { Images } from "./images";
+import { Price } from "./price";
 import { Size } from "./size";
 import { Stock } from "./stock";
+import { StockStatus } from "./stock-status";
 
 interface ProductsListProps {
   products: Product[];
@@ -51,11 +55,11 @@ export function ProductsList({
         },
       },
       {
-        accessorKey: "name",
+        accessorKey: "nameEn",
         header: "Product Name",
         cell: ({ row }) => {
           const product = row.original;
-          return <span className="font-medium">{product.name}</span>;
+          return <span className="font-medium">{product.nameEn}</span>;
         },
       },
       {
@@ -69,39 +73,27 @@ export function ProductsList({
           }
 
           return (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 min-w-[180px]">
               {product.category.group ? (
                 <>
                   <span className="px-2 py-1 bg-muted text-foreground/80 text-xs rounded-full border border-muted/20 font-medium">
-                    {product.category.group.name}
+                    {product.category.group.nameEn}
                   </span>
-                  {product.category.name && (
+                  {product.category.nameEn && (
                     <>
                       <span className="text-muted-foreground">›</span>
                       <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium border border-primary/20">
-                        {product.category.name}
+                        {product.category.nameEn}
                       </span>
                     </>
                   )}
                 </>
               ) : (
                 <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium border border-primary/20">
-                  {product.category.name}
+                  {product.category.nameEn}
                 </span>
               )}
             </div>
-          );
-        },
-      },
-      {
-        accessorKey: "price",
-        header: "Base Price",
-        cell: ({ row }) => {
-          const product = row.original;
-          return (
-            <span className="font-medium">
-              {formatPrice(product.price)}
-            </span>
           );
         },
       },
@@ -122,23 +114,39 @@ export function ProductsList({
         },
       },
       {
+        accessorKey: "price",
+        header: "Price",
+        cell: ({ row }) => {
+          const product = row.original;
+          return <Price product={product} />;
+        },
+      },
+      {
         accessorKey: "totalStock",
-        header: () => <div className="text-right">Total Stock</div>,
+        header: () => <div className="text-right">Stock</div>,
         cell: ({ row }) => {
           const product = row.original;
           return <Stock product={product} />;
         },
       },
       {
-        accessorKey: "createdAt",
-        header: "Created Date",
+        accessorKey: "stockStatus",
+        header: () => <div className="text-center">Status</div>,
         cell: ({ row }) => {
           const product = row.original;
-          return new Date(product.createdAt).toLocaleDateString("en-US");
+          return <StockStatus product={product} />;
+        },
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Created",
+        cell: ({ row }) => {
+          const product = row.original;
+          return <span className="text-sm">{formatDate(product.createdAt)}</span>;
         },
       },
     ],
-    []
+    [],
   );
 
   const actionsConfig: ActionsConfig<Product> = useMemo(
@@ -146,7 +154,7 @@ export function ProductsList({
       onEdit: (product) => onEditProduct(product),
       onDelete: (product) => onDeleteProduct(product),
     }),
-    [onEditProduct, onDeleteProduct]
+    [onEditProduct, onDeleteProduct],
   );
 
   return (
@@ -167,7 +175,7 @@ export function ProductsList({
         searchConfig={{
           enabled: true,
           columnKey: "search",
-          placeholder: "Search Products...",
+          placeholder: "Search product by name...",
         }}
         filterConfig={{
           enabled: false,

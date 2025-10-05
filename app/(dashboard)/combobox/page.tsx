@@ -1,11 +1,12 @@
 "use client";
 
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useCallback, useMemo, useState } from "react";
+
 import { ComboboxOption, XCombobox, XLabel } from "@/components/common";
 import { useToast } from "@/lib/hooks";
 import ColorService from "@/lib/services/color-service";
 import { Color } from "@/modules/color/types";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
 
 export default function DemoComboboxPage() {
   const [selectedColor, setSelectedColor] = useState<string>("");
@@ -41,11 +42,9 @@ export default function DemoComboboxPage() {
     getNextPageParam: (lastPage) => {
       const { meta } = lastPage;
       if (!meta) return undefined;
-      
+
       const currentPage =
-        typeof meta.currentPage === "string"
-          ? parseInt(meta.currentPage)
-          : meta.currentPage;
+        typeof meta.currentPage === "string" ? parseInt(meta.currentPage) : meta.currentPage;
       return currentPage < meta.totalPages ? currentPage + 1 : undefined;
     },
     initialPageParam: 1,
@@ -57,8 +56,8 @@ export default function DemoComboboxPage() {
     return data.pages.flatMap((page: { items: Color[] }) =>
       page.items.map((color: Color) => ({
         value: color.id,
-        label: `${color.name} (${color.code})`,
-      }))
+        label: `${color.nameEn} (${color.code})`,
+      })),
     );
   }, [data]);
 
@@ -76,26 +75,18 @@ export default function DemoComboboxPage() {
     console.error("Error loading colors:", error);
   }
 
-  const selectedColorInfo = options.find(
-    (option) => option.value === selectedColor
-  );
+  const selectedColorInfo = options.find((option) => option.value === selectedColor);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold">
-          Demo XCombobox với Search Phân Trang
-        </h1>
-        <p className="text-gray-600">
-          Test tính năng search và infinite scroll với API Colors
-        </p>
+        <h1 className="text-2xl font-bold">Demo XCombobox với Search Phân Trang</h1>
+        <p className="text-gray-600">Test tính năng search và infinite scroll với API Colors</p>
       </div>
 
       <div className="max-w-md space-y-4">
         <div>
-          <XLabel className="block text-sm font-medium mb-2">
-            Chọn màu sắc:
-          </XLabel>
+          <XLabel className="block text-sm font-medium mb-2">Chọn màu sắc:</XLabel>
           <XCombobox
             options={options}
             value={selectedColor}
@@ -117,15 +108,14 @@ export default function DemoComboboxPage() {
           <h3 className="font-medium">Thông tin:</h3>
           <div className="text-sm space-y-1">
             <p>
-              <strong>Màu đã chọn:</strong>{" "}
-              {selectedColorInfo?.label || "Chưa chọn"}
+              <strong>Màu đã chọn:</strong> {selectedColorInfo?.label || "Chưa chọn"}
             </p>
             <p>
               <strong>ID:</strong> {selectedColor || "N/A"}
             </p>
             <p>
-              <strong>Từ khóa tìm kiếm:</strong> &quot;{searchValue}&quot; (
-              {searchValue.length} ký tự)
+              <strong>Từ khóa tìm kiếm:</strong> &quot;{searchValue}&quot; ({searchValue.length} ký
+              tự)
             </p>
             <p>
               <strong>Số options:</strong> {options.length}
@@ -137,8 +127,7 @@ export default function DemoComboboxPage() {
               <strong>Đang loading:</strong> {isLoading ? "Có" : "Không"}
             </p>
             <p>
-              <strong>Đang load more:</strong>{" "}
-              {isFetchingNextPage ? "Có" : "Không"}
+              <strong>Đang load more:</strong> {isFetchingNextPage ? "Có" : "Không"}
             </p>
             <p>
               <strong>Còn data:</strong> {hasNextPage ? "Có" : "Không"}
@@ -185,13 +174,11 @@ export default function DemoComboboxPage() {
           <button
             onClick={async () => {
               try {
-                console.log("Testing API directly...");
                 const response = await ColorService.getColors({
                   page: 1,
                   limit: 5,
                 });
                 console.log("Direct API test response:", response);
-                showSuccess("API test completed - check console");
               } catch (error) {
                 console.error("Direct API test error:", error);
                 showError("API test failed - check console");

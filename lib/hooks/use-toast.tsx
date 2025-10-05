@@ -5,7 +5,7 @@ import { toast as sonnerToast } from "sonner";
 export const useToast = () => {
   const toast = (
     message: string,
-    options?: { type?: "success" | "error" | "warning" | "info" }
+    options?: { type?: "success" | "error" | "warning" | "info" },
   ) => {
     const { type = "info" } = options || {};
 
@@ -36,7 +36,7 @@ export const useToast = () => {
         loading: string;
         success: string | ((data: T) => string);
         error: string | ((error: unknown) => string);
-      }
+      },
     ) => sonnerToast.promise(promise, messages),
   };
 };

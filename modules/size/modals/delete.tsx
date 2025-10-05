@@ -1,6 +1,7 @@
 "use client";
 
 import { XConfirmDialog } from "@/components/common";
+
 import { Size } from "../types";
 
 interface DeleteSizeModalProps {
@@ -32,14 +33,12 @@ export function DeleteSize({
 
   const getDescription = () => {
     if (isBulkDelete) {
-      const sizeNames = selectedSizes
-        .map((size) => size.name)
-        .join(", ");
+      const sizeNames = selectedSizes.map((size) => size.nameEn).join(", ");
       return `Are you sure you want to delete ${selectedSizes.length} sizes?\n\nSizes: ${sizeNames}\n\nThis action cannot be undone.`;
     }
 
     if (isSingleDelete) {
-      return `Are you sure you want to delete size "${size?.name}"?\n\nThis action cannot be undone.`;
+      return `Are you sure you want to delete size "${size?.nameEn}"?\n\nThis action cannot be undone.`;
     }
 
     return "Are you sure you want to delete the selected items?";

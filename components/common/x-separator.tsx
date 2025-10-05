@@ -1,8 +1,9 @@
 "use client";
 
+import React from "react";
+
 import { Separator } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import React from "react";
 
 export type XSeparatorProps = React.ComponentProps<typeof Separator>;
 
@@ -11,5 +12,3 @@ export function XSeparator({ className, ...props }: XSeparatorProps) {
 }
 
 export default XSeparator;
-
-

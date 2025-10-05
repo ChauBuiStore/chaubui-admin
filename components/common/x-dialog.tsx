@@ -1,5 +1,11 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertTriangleIcon, CheckCircleIcon, InfoIcon, XCircleIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { DefaultValues, FieldValues, FormProvider, useForm, UseFormReturn } from "react-hook-form";
+import { z } from "zod";
+
 import { XButton, XScrollArea } from "@/components/common";
 import {
   Dialog,
@@ -11,49 +17,14 @@ import {
   DialogTrigger,
 } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  AlertTriangleIcon,
-  CheckCircleIcon,
-  InfoIcon,
-  XCircleIcon,
-} from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  DefaultValues,
-  FieldValues,
-  FormProvider,
-  useForm,
-  UseFormReturn,
-} from "react-hook-form";
-import { z } from "zod";
 
-export type DialogVariant =
-  | "default"
-  | "success"
-  | "warning"
-  | "error"
-  | "info";
-export type DialogSize =
-  | "sm"
-  | "md"
-  | "lg"
-  | "xl"
-  | "2xl"
-  | "3xl"
-  | "4xl"
-  | "full";
+export type DialogVariant = "default" | "success" | "warning" | "error" | "info";
+export type DialogSize = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
 
 interface XDialogAction {
   label: string;
   onClick: () => void;
-  variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
   disabled?: boolean;
   loading?: boolean;
 }
@@ -113,7 +84,7 @@ export function XDialog({
   children,
   trigger,
   title,
-  description,
+  description = "",
   variant = "default",
   size = "md",
   showCloseButton = true,
@@ -147,7 +118,7 @@ export function XDialog({
         setIsOpen(newOpen);
       }
     },
-    [onOpenChange]
+    [onOpenChange],
   );
 
   const handleConfirm = useCallback(() => {
@@ -199,7 +170,6 @@ export function XDialog({
 
   const variantIcon = variantIcons[variant];
   const shouldShowIcon = showIcon && (icon || variantIcon);
-  const hasHeader = title || description || shouldShowIcon;
   const hasFooter = showFooter && (defaultActions.length > 0 || customFooter);
 
   return (
@@ -209,33 +179,24 @@ export function XDialog({
       <DialogContent
         className={cn(sizeStyles[size], contentClassName)}
         showCloseButton={showCloseButton}
-        onPointerDownOutside={
-          closeOnOverlayClick ? undefined : (e) => e.preventDefault()
-        }
+        onPointerDownOutside={closeOnOverlayClick ? undefined : (e) => e.preventDefault()}
         onEscapeKeyDown={closeOnEscape ? undefined : (e) => e.preventDefault()}
+        aria-describedby={undefined}
       >
         <div className={cn("space-y-4", className)}>
-          {hasHeader && (
-            <DialogHeader className={cn("space-y-3", headerClassName)}>
-              <div className="flex items-start gap-3">
-                {shouldShowIcon && (
-                  <div className="flex-shrink-0">{icon || variantIcon}</div>
+          <DialogHeader className={cn("space-y-3", headerClassName)}>
+            <div className="flex items-start gap-3">
+              {shouldShowIcon && <div className="flex-shrink-0">{icon || variantIcon}</div>}
+              <div className="flex-1 space-y-2">
+                {title && <DialogTitle className="text-left">{title}</DialogTitle>}
+                {description && (
+                  <DialogDescription className="text-left">
+                    {typeof description === "string" ? description : description}
+                  </DialogDescription>
                 )}
-                <div className="flex-1 space-y-2">
-                  {title && (
-                    <DialogTitle className="text-left">{title}</DialogTitle>
-                  )}
-                  {description && (
-                    <DialogDescription className="text-left">
-                      {typeof description === "string"
-                        ? description
-                        : description}
-                    </DialogDescription>
-                  )}
-                </div>
               </div>
-            </DialogHeader>
-          )}
+            </div>
+          </DialogHeader>
 
           {children && <div className="space-y-4">{children}</div>}
 
@@ -290,12 +251,7 @@ export const XConfirmDialog = ({
 interface XFormDialogProps<T extends FieldValues = FieldValues>
   extends Omit<
     XDialogProps,
-    | "actions"
-    | "onConfirm"
-    | "onCancel"
-    | "confirmText"
-    | "cancelText"
-    | "children"
+    "actions" | "onConfirm" | "onCancel" | "confirmText" | "cancelText" | "children"
   > {
   schema?: z.ZodType<T>;
   defaultValues?: Partial<T>;

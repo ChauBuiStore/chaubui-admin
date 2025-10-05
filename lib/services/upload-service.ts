@@ -14,10 +14,7 @@ class UploadService {
       formData.append(`files`, file);
     });
 
-    const response = await httpClient.postFormData<FileUpload[]>(
-      ENDPOINTS.UPLOAD.UPLOAD,
-      formData
-    );
+    const response = await httpClient.postFormData<FileUpload[]>(ENDPOINTS.UPLOAD.UPLOAD, formData);
 
     return response;
   }

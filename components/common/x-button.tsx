@@ -1,20 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui";
-import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import React, { forwardRef, useEffect, useRef } from "react";
 
-export interface XButtonProps
-  extends Omit<React.ComponentProps<typeof Button>, "size"> {
+import { Button } from "@/components/ui";
+import { cn } from "@/lib/utils";
+
+export interface XButtonProps extends Omit<React.ComponentProps<typeof Button>, "size"> {
   size?: "sm" | "md" | "lg";
-  variant?:
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
   loading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -40,7 +34,7 @@ export const XButton = forwardRef<HTMLButtonElement, XButtonProps>(
       onClick,
       ...props
     },
-    ref
+    ref,
   ) => {
     const buttonRef = useRef<HTMLButtonElement>(null);
     const combinedRef = ref || buttonRef;
@@ -58,7 +52,7 @@ export const XButton = forwardRef<HTMLButtonElement, XButtonProps>(
         if (event.key === "Enter" && !disabled && !loading && onClick) {
           event.preventDefault();
           const syntheticEvent = {
-            type: 'click',
+            type: "click",
             currentTarget: event.target as HTMLButtonElement,
             target: event.target as HTMLButtonElement,
             preventDefault: () => {},
@@ -82,7 +76,7 @@ export const XButton = forwardRef<HTMLButtonElement, XButtonProps>(
             sizeClasses[size],
             fullWidth && "w-full",
             loading && "cursor-not-allowed",
-            className
+            className,
           )}
           onClick={onClick}
           {...props}
@@ -94,7 +88,7 @@ export const XButton = forwardRef<HTMLButtonElement, XButtonProps>(
         </Button>
       </div>
     );
-  }
+  },
 );
 
 XButton.displayName = "XButton";

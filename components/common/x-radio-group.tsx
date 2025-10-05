@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  FormControl,
-  FormItem,
-  FormMessage,
-  RadioGroup,
-  RadioGroupItem,
-} from "@/components/ui";
 import { XLabel } from "@/components/common";
+import { FormControl, FormItem, FormMessage, RadioGroup, RadioGroupItem } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 type Orientation = "horizontal" | "vertical";
@@ -73,16 +67,10 @@ export function XRadioGroup({
         </XLabel>
       )}
 
-      {description && (
-        <p className="text-sm text-muted-foreground mb-3">{description}</p>
-      )}
+      {description && <p className="text-sm text-muted-foreground mb-3">{description}</p>}
 
       <FormControl>
-        <div className={cn(
-          orientationClasses[orientation],
-          sizeClasses[size],
-          className
-        )}>
+        <div className={cn(orientationClasses[orientation], sizeClasses[size], className)}>
           <RadioGroup
             value={value}
             onValueChange={onValueChange}
@@ -99,7 +87,7 @@ export function XRadioGroup({
                   className={cn(
                     size === "sm" && "size-3",
                     size === "md" && "size-4",
-                    size === "lg" && "size-5"
+                    size === "lg" && "size-5",
                   )}
                 />
                 <div className="flex flex-col">
@@ -108,20 +96,21 @@ export function XRadioGroup({
                     className={cn(
                       "font-medium cursor-pointer",
                       itemSizeClasses[size],
-                      (disabled || option.disabled) &&
-                        "opacity-50 cursor-not-allowed",
+                      (disabled || option.disabled) && "opacity-50 cursor-not-allowed",
                     )}
                   >
                     {option.label}
                   </XLabel>
                   {option.description && (
-                    <p className={cn(
-                      "text-muted-foreground mt-1",
-                      size === "sm" && "text-xs",
-                      size === "md" && "text-sm",
-                      size === "lg" && "text-base",
-                      (disabled || option.disabled) && "opacity-50",
-                    )}>
+                    <p
+                      className={cn(
+                        "text-muted-foreground mt-1",
+                        size === "sm" && "text-xs",
+                        size === "md" && "text-sm",
+                        size === "lg" && "text-base",
+                        (disabled || option.disabled) && "opacity-50",
+                      )}
+                    >
                       {option.description}
                     </p>
                   )}

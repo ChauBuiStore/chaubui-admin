@@ -1,8 +1,10 @@
 "use client";
 
-import { XButton } from "@/components/common";
 import { MenuIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
+
+import { XButton } from "@/components/common";
+
 import { MenusList } from "./components";
 import { useMenu } from "./hooks";
 import { CreateMenu, DeleteMenu, EditMenu } from "./modals";
@@ -19,6 +21,7 @@ export function MenusPage() {
     showDeleteForm,
     setShowDeleteForm,
     editingMenu,
+    isLoadingEditData,
     selectedMenu,
     selectedMenus,
     isSubmitting,
@@ -78,6 +81,7 @@ export function MenusPage() {
         onOpenChange={setShowEditForm}
         onSubmit={handleEditSubmit}
         loading={isSubmitting}
+        isLoadingData={isLoadingEditData}
         menu={editingMenu}
       />
 

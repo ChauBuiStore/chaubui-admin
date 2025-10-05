@@ -7,12 +7,10 @@ interface SizeProps {
 }
 
 export function Size({ product }: SizeProps) {
-  const variantSizes =
-    product.variants?.map((variant) => variant.size).filter(Boolean) || [];
+  const variantSizes = product.variants?.map((variant) => variant.size).filter(Boolean) || [];
 
   const uniqueSizes = variantSizes.filter(
-    (size, index, self) =>
-      index === self.findIndex((s) => s?.id === size?.id)
+    (size, index, self) => index === self.findIndex((s) => s?.id === size?.id),
   );
 
   if (uniqueSizes.length === 0) {
@@ -20,23 +18,31 @@ export function Size({ product }: SizeProps) {
   }
 
   return (
-    <div className="flex items-center gap-1 flex-wrap">
-      {uniqueSizes.slice(0, 4).map((size, index) => 
-        size ? (
+    <div className="flex items-center">
+      <div className="flex items-center">
+        {uniqueSizes.slice(0, 2).map((size, index) =>
+          size ? (
+            <span
+              key={size.id || index}
+              className="px-1.5 py-0.5 bg-muted text-foreground/80 text-xs rounded-full border relative z-10 whitespace-nowrap"
+              style={{
+                marginLeft: index > 0 ? "-6px" : "0",
+                zIndex: 10 - index,
+              }}
+            >
+              {size.nameVi || size.nameEn || size.nameKm}
+            </span>
+          ) : null,
+        )}
+        {uniqueSizes.length > 2 && (
           <span
-            key={size.id || index}
-            className="px-2 py-1 bg-muted text-foreground/80 text-xs rounded-full border"
-            title={size.description || size.name}
+            className="px-1.5 py-0.5 bg-muted text-muted-foreground text-xs rounded-full border relative z-0"
+            style={{ marginLeft: "-6px" }}
           >
-            {size.name}
+            +{uniqueSizes.length - 2}
           </span>
-        ) : null
-      )}
-      {uniqueSizes.length > 4 && (
-        <span className="px-2 py-1 bg-muted text-muted-foreground text-xs rounded-full border">
-          +{uniqueSizes.length - 4}
-        </span>
-      )}
+        )}
+      </div>
     </div>
   );
 }

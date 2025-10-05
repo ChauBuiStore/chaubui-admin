@@ -1,16 +1,11 @@
 "use client";
 
-import {
-  XButton,
-  XInput,
-  XLabel,
-  XPopover,
-  XSeparator,
-} from "@/components/common";
-import { hexToHsl, hslToHex } from "@/lib/helpers";
-import { cn } from "@/lib/utils";
 import { PaletteIcon } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+
+import { XButton, XInput, XLabel, XPopover, XSeparator } from "@/components/common";
+import { hexToHsl, hslToHex } from "@/lib/helpers";
+import { cn } from "@/lib/utils";
 
 interface XColorPickerProps {
   value?: string;
@@ -68,7 +63,7 @@ export function XColorPicker({
       setInputValue(hex);
       onChange?.(hex);
     },
-    [onChange]
+    [onChange],
   );
 
   const handleColorPickerMouseDown = useCallback(
@@ -81,15 +76,12 @@ export function XColorPicker({
       const y = e.clientY - rect.top;
 
       const saturation = Math.max(0, Math.min(100, (x / rect.width) * 100));
-      const lightness = Math.max(
-        0,
-        Math.min(100, 100 - (y / rect.height) * 100)
-      );
+      const lightness = Math.max(0, Math.min(100, 100 - (y / rect.height) * 100));
 
       setHsl((prev) => ({ ...prev, s: saturation, l: lightness }));
       updateColorFromHsl(hsl.h, saturation, lightness);
     },
-    [hsl.h, updateColorFromHsl]
+    [hsl.h, updateColorFromHsl],
   );
 
   const handleHueSliderMouseDown = useCallback(
@@ -104,7 +96,7 @@ export function XColorPicker({
       setHsl((prev) => ({ ...prev, h: hue }));
       updateColorFromHsl(hue, hsl.s, hsl.l);
     },
-    [hsl.s, hsl.l, updateColorFromHsl]
+    [hsl.s, hsl.l, updateColorFromHsl],
   );
 
   const handleMouseMove = useCallback(
@@ -117,10 +109,7 @@ export function XColorPicker({
         const y = e.clientY - rect.top;
 
         const saturation = Math.max(0, Math.min(100, (x / rect.width) * 100));
-        const lightness = Math.max(
-          0,
-          Math.min(100, 100 - (y / rect.height) * 100)
-        );
+        const lightness = Math.max(0, Math.min(100, 100 - (y / rect.height) * 100));
 
         setHsl((prev) => ({ ...prev, s: saturation, l: lightness }));
         updateColorFromHsl(hsl.h, saturation, lightness);
@@ -135,7 +124,7 @@ export function XColorPicker({
         updateColorFromHsl(hue, hsl.s, hsl.l);
       }
     },
-    [hsl.h, hsl.s, hsl.l, updateColorFromHsl]
+    [hsl.h, hsl.s, hsl.l, updateColorFromHsl],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -165,16 +154,10 @@ export function XColorPicker({
               type="button"
               variant="outline"
               disabled={disabled}
-              className={cn(
-                "w-auto h-9 px-3",
-                hasError && "border-destructive"
-              )}
+              className={cn("w-auto h-9 px-3", hasError && "border-destructive")}
             >
               <div
-                className={cn(
-                  "w-4 h-4 rounded border mr-2",
-                  hasError && "border-destructive"
-                )}
+                className={cn("w-4 h-4 rounded border mr-2", hasError && "border-destructive")}
                 style={{ backgroundColor: value }}
               />
               <PaletteIcon className="w-4 h-4" />
@@ -244,23 +227,17 @@ export function XColorPicker({
                   value={inputValue}
                   onChange={handleInputChange}
                   onBlur={handleInputBlur}
-                  aria-invalid={
-                    hasError ||
-                    !!(inputValue && !/^#[0-9A-Fa-f]{6}$/.test(inputValue))
-                  }
+                  aria-invalid={hasError || !!(inputValue && !/^#[0-9A-Fa-f]{6}$/.test(inputValue))}
                   className="flex-1 text-xs"
                 />
                 <div
                   className={cn(
                     "w-9 h-9 rounded border flex-shrink-0",
-                    (hasError ||
-                      (inputValue && !/^#[0-9A-Fa-f]{6}$/.test(inputValue))) &&
-                      "border-destructive"
+                    (hasError || (inputValue && !/^#[0-9A-Fa-f]{6}$/.test(inputValue))) &&
+                      "border-destructive",
                   )}
                   style={{
-                    backgroundColor: /^#[0-9A-Fa-f]{6}$/.test(inputValue)
-                      ? inputValue
-                      : "#f3f4f6",
+                    backgroundColor: /^#[0-9A-Fa-f]{6}$/.test(inputValue) ? inputValue : "#f3f4f6",
                   }}
                 />
               </div>
@@ -272,9 +249,7 @@ export function XColorPicker({
           {inputValue?.toUpperCase()}
         </span>
       </div>
-      {errorMessage && (
-        <p className="text-xs text-destructive mt-1">{errorMessage}</p>
-      )}
+      {errorMessage && <p className="text-xs text-destructive mt-1">{errorMessage}</p>}
     </div>
   );
 }

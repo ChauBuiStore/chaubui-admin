@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export function useDebounce<T>(
-  value: T,
-  delay: number = 300,
-  callback?: (value: T) => void
-) {
+export function useDebounce<T>(value: T, delay: number = 300, callback?: (value: T) => void) {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
   const [isLoading, setIsLoading] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);

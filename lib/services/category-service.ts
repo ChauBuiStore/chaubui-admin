@@ -8,42 +8,32 @@ import {
 } from "@/modules/category/types";
 
 class CategoryService {
-  static async getCategories(
-    filters?: CategoryFilters
-  ): Promise<ApiResponse<Category[]>>
-  {
-    const response = await httpClient.get<Category[]>(
-      ENDPOINTS.CATEGORY.GET_ALL,
-      {
-        params: filters,
-      }
-    );
+  static async getCategories(filters?: CategoryFilters): Promise<ApiResponse<Category[]>> {
+    const response = await httpClient.get<Category[]>(ENDPOINTS.CATEGORY.GET_ALL, {
+      params: filters,
+    });
     return response;
   }
 
-
   static async getCategoryById(id: string): Promise<ApiResponse<Category>> {
     const response = await httpClient.get<Category>(
-      ENDPOINTS.CATEGORY.GET_BY_ID.replace(":id", id)
+      ENDPOINTS.CATEGORY.GET_BY_ID.replace(":id", id),
     );
     return response;
   }
 
   static async createCategory(data: CreateCategoryData): Promise<ApiResponse<Category>> {
-    const response = await httpClient.post<Category>(
-      ENDPOINTS.CATEGORY.CREATE,
-      data
-    );
+    const response = await httpClient.post<Category>(ENDPOINTS.CATEGORY.CREATE, data);
     return response;
   }
 
   static async updateCategory(
     id: string,
-    data: UpdateCategoryData
+    data: UpdateCategoryData,
   ): Promise<ApiResponse<Category>> {
     const response = await httpClient.put<Category>(
       ENDPOINTS.CATEGORY.UPDATE.replace(":id", id),
-      data
+      data,
     );
     return response;
   }

@@ -1,30 +1,17 @@
 import { ENDPOINTS, httpClient } from "@/lib/configs";
 import { ApiResponse } from "@/lib/types";
-import {
-  CreateMenuData,
-  Menu,
-  MenuFilters,
-  UpdateMenuData,
-} from "@/modules/menu/types";
+import { CreateMenuData, Menu, MenuFilters, UpdateMenuData } from "@/modules/menu/types";
 
 class MenuService {
-  static async getMenus(
-    filters?: MenuFilters
-  ): Promise<ApiResponse<Menu[]>>
-  {
-    const response = await httpClient.get<Menu[]>(
-      ENDPOINTS.MENU.GET_ALL,
-      {
-        params: filters,
-      }
-    );
+  static async getMenus(filters?: MenuFilters): Promise<ApiResponse<Menu[]>> {
+    const response = await httpClient.get<Menu[]>(ENDPOINTS.MENU.GET_ALL, {
+      params: filters,
+    });
     return response;
   }
 
   static async getMenuById(id: string): Promise<ApiResponse<Menu>> {
-    const response = await httpClient.get<Menu>(
-      ENDPOINTS.MENU.GET_BY_ID.replace(":id", id)
-    );
+    const response = await httpClient.get<Menu>(ENDPOINTS.MENU.GET_BY_ID.replace(":id", id));
     return response;
   }
 
@@ -34,10 +21,7 @@ class MenuService {
   }
 
   static async updateMenu(id: string, data: UpdateMenuData): Promise<ApiResponse<Menu>> {
-    const response = await httpClient.put<Menu>(
-      ENDPOINTS.MENU.UPDATE.replace(":id", id),
-      data
-    );
+    const response = await httpClient.put<Menu>(ENDPOINTS.MENU.UPDATE.replace(":id", id), data);
     return response;
   }
 

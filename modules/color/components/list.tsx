@@ -1,9 +1,12 @@
 "use client";
 
-import { ActionsConfig, XTable } from "@/components/common/x-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
+
+import { ActionsConfig, XTable } from "@/components/common/x-table";
 import { PaginationMeta } from "@/lib/types";
+import { formatDate } from "@/lib/utils/date.ultis";
+
 import { Color } from "../types/color.type";
 
 interface ColorsListProps {
@@ -38,11 +41,27 @@ export function ColorsList({
   const columns: ColumnDef<Color>[] = useMemo(
     () => [
       {
-        accessorKey: "name",
-        header: "Color Name",
+        accessorKey: "nameVi",
+        header: "NameVi",
         cell: ({ row }) => {
           const color = row.original;
-          return <span className="font-medium">{color.name}</span>;
+          return <span className="font-medium">{color.nameVi}</span>;
+        },
+      },
+      {
+        accessorKey: "nameEn",
+        header: "NameEn",
+        cell: ({ row }) => {
+          const color = row.original;
+          return <span className="font-medium">{color.nameEn}</span>;
+        },
+      },
+      {
+        accessorKey: "nameKm",
+        header: "NameKm",
+        cell: ({ row }) => {
+          const color = row.original;
+          return <span className="font-medium">{color.nameKm}</span>;
         },
       },
       {
@@ -51,13 +70,10 @@ export function ColorsList({
         cell: ({ row }) => {
           const color = row.original;
           return (
-            <div className="flex items-center gap-3">
-              <div
-                className="w-6 h-6 rounded-full shadow-md border"
-                style={{ backgroundColor: color.code }}
-              />
-              <span className="font-medium">{color.code}</span>
-            </div>
+            <div
+              className="w-6 h-6 rounded-full shadow-md border"
+              style={{ backgroundColor: color.code }}
+            />
           );
         },
       },
@@ -66,11 +82,11 @@ export function ColorsList({
         header: "Created Date",
         cell: ({ row }) => {
           const color = row.original;
-          return new Date(color.createdAt).toLocaleDateString("en-US");
+          return formatDate(color.createdAt);
         },
       },
     ],
-    []
+    [],
   );
 
   const actionsConfig: ActionsConfig<Color> = useMemo(
@@ -78,7 +94,7 @@ export function ColorsList({
       onEdit: (color) => onEditColor(color),
       onDelete: (color) => onDeleteColor(color),
     }),
-    [onEditColor, onDeleteColor]
+    [onEditColor, onDeleteColor],
   );
 
   return (
@@ -98,7 +114,7 @@ export function ColorsList({
       searchConfig={{
         enabled: true,
         columnKey: "search",
-        placeholder: "Search Colors...",
+        placeholder: "Search color by name...",
       }}
       filterConfig={{
         enabled: false,

@@ -1,6 +1,7 @@
 "use client";
 
 import { XConfirmDialog } from "@/components/common";
+
 import { Menu } from "../types";
 
 interface DeleteMenuModalProps {
@@ -32,14 +33,12 @@ export function DeleteMenu({
 
   const getDescription = () => {
     if (isBulkDelete) {
-      const menuNames = selectedMenus
-        .map((menu) => menu.name)
-        .join(", ");
+      const menuNames = selectedMenus.map((menu) => menu.nameEn).join(", ");
       return `Are you sure you want to delete ${selectedMenus.length} menus?\n\nMenus: ${menuNames}\n\nThis action cannot be undone.`;
     }
 
     if (isSingleDelete) {
-      return `Are you sure you want to delete menu "${menu?.name}"?\n\nThis action cannot be undone.`;
+      return `Are you sure you want to delete menu "${menu?.nameEn}"?\n\nThis action cannot be undone.`;
     }
 
     return "Are you sure you want to delete the selected items?";

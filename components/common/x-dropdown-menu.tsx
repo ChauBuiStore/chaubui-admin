@@ -1,5 +1,8 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
+import { forwardRef, ReactNode } from "react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
-import { forwardRef, ReactNode } from "react";
 
 export interface XDropdownMenuItem {
   id: string;
@@ -55,7 +56,7 @@ export const XDropdownMenu = forwardRef<HTMLDivElement, XDropdownMenuProps>(
       open,
       onOpenChange,
     },
-    ref
+    ref,
   ) => {
     const handleItemClick = (item: XDropdownMenuItem) => {
       if (item.disabled) return;
@@ -79,7 +80,7 @@ export const XDropdownMenu = forwardRef<HTMLDivElement, XDropdownMenuProps>(
             align={align}
             side={side}
             sideOffset={sideOffset}
-            className={cn("w-56", contentClassName)}
+            className={contentClassName}
           >
             {label && (
               <>
@@ -94,14 +95,9 @@ export const XDropdownMenu = forwardRef<HTMLDivElement, XDropdownMenuProps>(
                     key={item.id}
                     onClick={() => handleItemClick(item)}
                     disabled={item.disabled}
-                    className={cn(
-                      "flex items-center gap-2 cursor-pointer",
-                      item.className
-                    )}
+                    className={cn("flex items-center gap-2 cursor-pointer", item.className)}
                   >
-                    {item.icon && (
-                      <span className="flex-shrink-0">{item.icon}</span>
-                    )}
+                    {item.icon && <span className="flex-shrink-0">{item.icon}</span>}
                     <span className="flex-1">{item.label}</span>
                   </DropdownMenuItem>
                 ))}
@@ -109,7 +105,7 @@ export const XDropdownMenu = forwardRef<HTMLDivElement, XDropdownMenuProps>(
         </DropdownMenu>
       </div>
     );
-  }
+  },
 );
 
 XDropdownMenu.displayName = "XDropdownMenu";

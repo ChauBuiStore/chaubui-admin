@@ -1,20 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
+
 import { httpClient } from "@/lib/configs";
 import { ROUTES } from "@/lib/constants";
 import { AuthService } from "@/lib/services";
 import { ApiResponse, AuthResponse, LoginCredentials } from "@/lib/types";
 import { authCookies } from "@/lib/utils/cookies.utils";
 import { isTokenValid } from "@/lib/utils/token.utils";
-import { useRouter } from "next/navigation";
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
 
 interface AuthContextType {
   token: string | null;
@@ -66,28 +60,18 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
   }, [router]);
 
   useEffect(() => {
-    if (
-      httpClient &&
-      typeof httpClient === "object" &&
-      "setOnTokenExpired" in httpClient
-    ) {
+    if (httpClient && typeof httpClient === "object" && "setOnTokenExpired" in httpClient) {
       httpClient.setOnTokenExpired(logoutSilently);
     }
 
     return () => {
-      if (
-        httpClient &&
-        typeof httpClient === "object" &&
-        "clearOnTokenExpired" in httpClient
-      ) {
+      if (httpClient && typeof httpClient === "object" && "clearOnTokenExpired" in httpClient) {
         httpClient.clearOnTokenExpired();
       }
     };
   }, [logoutSilently]);
 
-  const login = async (
-    credentials: LoginCredentials
-  ): Promise<ApiResponse<AuthResponse>> => {
+  const login = async (credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> => {
     setIsLoading(true);
     try {
       const result = await AuthService.login(credentials);

@@ -10,12 +10,16 @@ export const COOKIE_CONFIG = {
 export function getCookie(name: string): string | null {
   if (typeof document === "undefined") return null;
 
-  const value = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith(`${name}=`))
-    ?.split("=")[1];
+  const raw = document.cookie.split("; ").find((row) => row.startsWith(`${name}=`));
 
-  return value || null;
+  if (!raw) return null;
+
+  const valuePart = raw.substring(name.length + 1);
+  try {
+    return decodeURIComponent(valuePart);
+  } catch {
+    return valuePart || null;
+  }
 }
 
 export function setCookie(
@@ -25,9 +29,9 @@ export function setCookie(
     maxAge?: number;
     path?: string;
     secure?: boolean;
-    httpOnly?: boolean;
+    domain?: string;
     sameSite?: "strict" | "lax" | "none";
-  } = {}
+  } = {},
 ): void {
   if (typeof document === "undefined") return;
 
@@ -35,30 +39,40 @@ export function setCookie(
     maxAge = COOKIE_CONFIG.maxAge,
     path = COOKIE_CONFIG.path,
     secure = process.env.NODE_ENV === "production",
-    httpOnly = false,
+    domain,
     sameSite = "lax",
   } = options;
 
-  let cookieString = `${name}=${value}; path=${path}; max-age=${maxAge}`;
+  const encodedValue = encodeURIComponent(value);
 
-  if (secure) cookieString += "; secure";
-  if (httpOnly) cookieString += "; httpOnly";
-  if (sameSite) cookieString += `; sameSite=${sameSite}`;
+  const isSecure = sameSite === "none" ? true : secure;
 
+  let cookieString = `${name}=${encodedValue}; Path=${path}; Max-Age=${maxAge}`;
+
+  if (domain) cookieString += `; Domain=${domain}`;
+  if (isSecure) cookieString += "; Secure";
+  if (sameSite)
+    cookieString += `; SameSite=${sameSite.charAt(0).toUpperCase()}${sameSite.slice(1)}`;
   document.cookie = cookieString;
 }
 
-export function removeCookie(
-  name: string,
-  path: string = COOKIE_CONFIG.path
-): void {
+export function removeCookie(name: string, options: { path?: string; domain?: string } = {}): void {
   if (typeof document === "undefined") return;
 
-  // Xóa cookie với nhiều cách để đảm bảo nó được xóa hoàn toàn
-  document.cookie = `${name}=; path=${path}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-  document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-  document.cookie = `${name}=; path=/; domain=${window.location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-  document.cookie = `${name}=; path=/; domain=.${window.location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  const path = options.path ?? COOKIE_CONFIG.path;
+  const domain = options.domain;
+  const expire = "expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
+  let base = `${name}=; Path=${path}; ${expire}`;
+  if (domain) base += `; Domain=${domain}`;
+  document.cookie = base;
+
+  document.cookie = `${name}=; Path=/; ${expire}`;
+  if (!domain && typeof window !== "undefined") {
+    const host = window.location.hostname;
+    document.cookie = `${name}=; Path=/; Domain=${host}; ${expire}`;
+    document.cookie = `${name}=; Path=/; Domain=.${host}; ${expire}`;
+  }
 }
 
 export const authCookies = {

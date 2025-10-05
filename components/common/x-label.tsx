@@ -1,8 +1,9 @@
 "use client";
 
+import React, { forwardRef } from "react";
+
 import { Label } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import React, { forwardRef } from "react";
 
 export interface XLabelProps extends React.ComponentProps<typeof Label> {
   required?: boolean;
@@ -12,17 +13,7 @@ export interface XLabelProps extends React.ComponentProps<typeof Label> {
 }
 
 export const XLabel = forwardRef<HTMLLabelElement, XLabelProps>(
-  (
-    {
-      required = false,
-      error = false,
-      helperText,
-      className,
-      children,
-      ...props
-    },
-    ref
-  ) => {
+  ({ required = false, error = false, helperText, className, children, ...props }, ref) => {
     return (
       <div className="space-y-1">
         <Label
@@ -30,26 +21,21 @@ export const XLabel = forwardRef<HTMLLabelElement, XLabelProps>(
           className={cn(
             "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
             error && "text-destructive",
-            className
+            className,
           )}
           {...props}
         >
           {children}
-          {required && <span className="text-destructive ml-1">*</span>}
+          {required && <span className="text-destructive">*</span>}
         </Label>
         {helperText && (
-          <p
-            className={cn(
-              "text-xs text-muted-foreground",
-              error && "text-destructive"
-            )}
-          >
+          <p className={cn("text-xs text-muted-foreground", error && "text-destructive")}>
             {helperText}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 XLabel.displayName = "XLabel";

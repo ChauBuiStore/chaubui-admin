@@ -2,7 +2,7 @@
 
 import { UseFormReturn } from "react-hook-form";
 
-import { XInput, XSelect } from "@/components/common";
+import { XInputNumber, XSelect } from "@/components/common";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui";
 import { Color } from "@/modules/color/types";
 import { Size } from "@/modules/size/types";
@@ -42,13 +42,11 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
         })
         .filter(Boolean) || [];
 
-    // Include the currently selected color for this variant
     const currentColorId = watchedVariants?.[currentIndex]?.colorId;
     const availableColors = colors.filter(
       (color) => !selectedColorIdsWithCurrentSize.includes(color.id),
     );
 
-    // If there's a currently selected color, make sure it's included in the options
     if (currentColorId && !availableColors.find((color) => color.id === currentColorId)) {
       const currentColor = colors.find((color) => color.id === currentColorId);
       if (currentColor) {
@@ -80,13 +78,11 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
         })
         .filter(Boolean) || [];
 
-    // Include the currently selected size for this variant
     const currentSizeId = watchedVariants?.[currentIndex]?.sizeId;
     const availableSizes = sizes.filter(
       (size) => !selectedSizeIdsWithCurrentColor.includes(size.id),
     );
 
-    // If there's a currently selected size, make sure it's included in the options
     if (currentSizeId && !availableSizes.find((size) => size.id === currentSizeId)) {
       const currentSize = sizes.find((size) => size.id === currentSizeId);
       if (currentSize) {
@@ -126,20 +122,19 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
         <FormField
           control={form.control}
           name={`variants.${index}.originalPrice`}
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormControl>
-                <XInput
+                <XInputNumber
                   label="Original Price"
-                  type="number"
-                  hideSpinner
-                  name={field.name}
+                  placeholder="Enter original price"
                   value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
-                  }
+                  onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
+                  size="sm"
+                  min={0}
+                  hasError={!!fieldState.error}
                 />
               </FormControl>
               <FormMessage />
@@ -150,20 +145,19 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
         <FormField
           control={form.control}
           name={`variants.${index}.stock`}
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormControl>
-                <XInput
+                <XInputNumber
                   label="Stock"
-                  type="number"
-                  hideSpinner
-                  name={field.name}
+                  placeholder="Enter stock"
                   value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
-                  }
+                  onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
+                  size="sm"
+                  min={0}
+                  hasError={!!fieldState.error}
                 />
               </FormControl>
               <FormMessage />
@@ -199,20 +193,19 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
         <FormField
           control={form.control}
           name={`variants.${index}.salePrice`}
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormControl>
-                <XInput
+                <XInputNumber
                   label="Sale Price"
-                  type="number"
-                  hideSpinner
-                  name={field.name}
+                  placeholder="Enter sale price"
                   value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
-                  }
+                  onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
+                  size="sm"
+                  min={0}
+                  hasError={!!fieldState.error}
                 />
               </FormControl>
               <FormMessage />
@@ -223,20 +216,19 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
         <FormField
           control={form.control}
           name={`variants.${index}.discountPercent`}
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormControl>
-                <XInput
+                <XInputNumber
                   label="Discount (%)"
-                  type="number"
-                  hideSpinner
-                  name={field.name}
+                  placeholder="Enter discount"
                   value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
-                  }
+                  onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
+                  size="sm"
+                  min={0}
+                  hasError={!!fieldState.error}
                 />
               </FormControl>
               <FormMessage />

@@ -18,10 +18,8 @@ interface CreateMenuProps {
 export function CreateMenu({ open, onOpenChange, onSubmit, loading }: CreateMenuProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
-    try {
-      await onSubmit(data);
-      onOpenChange(false);
-    } catch {}
+    await onSubmit(data);
+    onOpenChange(false);
   };
 
   const fields: XFormField[] = [
@@ -70,7 +68,6 @@ export function CreateMenu({ open, onOpenChange, onSubmit, loading }: CreateMenu
         loading={loading}
         onSubmit={handleSubmit}
         spacing="md"
-        onSuccess={() => onOpenChange(false)}
       />
     </XDialog>
   );

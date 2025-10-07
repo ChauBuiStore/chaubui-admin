@@ -14,6 +14,7 @@ export * from "./x-dropzone-thumbnail";
 export * from "./x-filter";
 export * from "./x-form";
 export * from "./x-input";
+export * from "./x-input-number";
 export * from "./x-label";
 export * from "./x-popover";
 export * from "./x-radio-group";

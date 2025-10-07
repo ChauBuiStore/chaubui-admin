@@ -28,10 +28,8 @@ export function EditMenu({
 }: EditMenuProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
-    try {
-      await onSubmit(data);
-      onOpenChange(false);
-    } catch {}
+    await onSubmit(data);
+    onOpenChange(false);
   };
 
   const fields: XFormField[] = [
@@ -80,7 +78,6 @@ export function EditMenu({
         onSubmit={handleSubmit}
         loading={loading || isLoadingData}
         spacing="md"
-        onSuccess={() => onOpenChange(false)}
         onFormReady={(form) => {
           form.reset({
             nameVi: menu?.nameVi || "",

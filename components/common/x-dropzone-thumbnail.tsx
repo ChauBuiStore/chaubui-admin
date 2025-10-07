@@ -43,7 +43,6 @@ export function XDropzoneThumbnail({
 
   useEffect(() => {
     if (initialThumbnail) {
-      // Extract filename from URL
       const getFileNameFromUrl = (url: string) => {
         try {
           const urlObj = new URL(url);

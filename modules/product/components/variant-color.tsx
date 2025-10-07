@@ -2,7 +2,7 @@
 
 import { UseFormReturn } from "react-hook-form";
 
-import { XInput, XSelect } from "@/components/common";
+import { XInputNumber, XSelect } from "@/components/common";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui";
 import { Color } from "@/modules/color/types";
 
@@ -75,21 +75,19 @@ export function VariantColor({ form, colors, index, variantType }: VariantColorP
           <FormField
             control={form.control}
             name={`variants.${index}.stock`}
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormControl>
-                  <XInput
+                  <XInputNumber
                     label="Stock"
-                    type="number"
                     placeholder="Enter stock"
-                    hideSpinner
-                    name={field.name}
                     value={field.value ?? ""}
-                    onChange={(e) =>
-                      field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
-                    }
+                    onChange={(value) => field.onChange(value ?? undefined)}
                     onBlur={field.onBlur}
                     ref={field.ref}
+                    size="sm"
+                    min={0}
+                    hasError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormMessage />
@@ -100,21 +98,19 @@ export function VariantColor({ form, colors, index, variantType }: VariantColorP
           <FormField
             control={form.control}
             name={`variants.${index}.discountPercent`}
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormControl>
-                  <XInput
+                  <XInputNumber
                     label="Discount (%)"
-                    type="number"
                     placeholder="Enter discount"
-                    hideSpinner
-                    name={field.name}
                     value={field.value ?? ""}
-                    onChange={(e) =>
-                      field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
-                    }
+                    onChange={(value) => field.onChange(value ?? undefined)}
                     onBlur={field.onBlur}
                     ref={field.ref}
+                    size="sm"
+                    min={0}
+                    hasError={!!fieldState.error}
                   />
                 </FormControl>
                 <FormMessage />
@@ -128,21 +124,19 @@ export function VariantColor({ form, colors, index, variantType }: VariantColorP
         <FormField
           control={form.control}
           name={`variants.${index}.originalPrice`}
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormControl>
-                <XInput
+                <XInputNumber
                   label="Original Price"
-                  type="number"
                   placeholder="Enter original price"
-                  hideSpinner
-                  name={field.name}
                   value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
-                  }
+                  onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
+                  size="sm"
+                  min={0}
+                  hasError={!!fieldState.error}
                 />
               </FormControl>
               <FormMessage />
@@ -153,21 +147,19 @@ export function VariantColor({ form, colors, index, variantType }: VariantColorP
         <FormField
           control={form.control}
           name={`variants.${index}.salePrice`}
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormControl>
-                <XInput
+                <XInputNumber
                   label="Sale Price"
-                  type="number"
                   placeholder="Enter sale price"
-                  hideSpinner
-                  name={field.name}
                   value={field.value ?? ""}
-                  onChange={(e) =>
-                    field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
-                  }
+                  onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
+                  size="sm"
+                  min={0}
+                  hasError={!!fieldState.error}
                 />
               </FormControl>
               <FormMessage />

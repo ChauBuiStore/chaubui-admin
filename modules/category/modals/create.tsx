@@ -26,10 +26,8 @@ export function CreateCategory({
 }: CreateCategoryProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
-    try {
-      await onSubmit(data);
-      onOpenChange(false);
-    } catch {}
+    await onSubmit(data);
+    onOpenChange(false);
   };
 
   const formFields: XFormField[] = [
@@ -82,7 +80,6 @@ export function CreateCategory({
         fields={formFields}
         onSubmit={handleSubmit}
         loading={loading}
-        onSuccess={() => onOpenChange(false)}
         spacing="md"
       />
     </XDialog>

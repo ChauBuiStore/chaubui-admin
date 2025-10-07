@@ -168,13 +168,10 @@ export function useProduct() {
     }
   }, []);
 
-  // Chỉ mở form khi có dữ liệu product
   const shouldShowEditForm = showEditForm && !!editingProductData?.data;
 
-  // Loading state cho edit form
   const isEditFormLoading = showEditForm && (isLoadingEditingProduct || !editingProductData?.data);
 
-  // Đảm bảo editingProduct luôn có giá trị khi form mở
   const safeEditingProduct = shouldShowEditForm ? editingProductData?.data || null : null;
 
   const handleDeleteConfirm = async () => {

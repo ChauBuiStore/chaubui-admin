@@ -96,16 +96,12 @@ export function useSearchParams(initial: FilterState = {}) {
           });
 
           const newURL = params.toString() ? `?${params.toString()}` : window.location.pathname;
-
-          // Chỉ update URL nếu thực sự khác với URL hiện tại
-          if (newURL !== window.location.pathname + window.location.search) {
-            router.replace(newURL, { scroll: false });
-          }
+          router.replace(newURL, { scroll: false });
 
           setTimeout(() => {
             isUpdatingFromUser.current = false;
           }, 50);
-        }, 150); // Tăng timeout để batch nhiều updates hơn
+        }, 100);
 
         return newFilters;
       });

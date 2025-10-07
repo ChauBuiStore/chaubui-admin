@@ -31,10 +31,8 @@ export function EditCategoryGroup({
 }: EditCategoryGroupProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
-    try {
-      await onSubmit(data);
-      onOpenChange(false);
-    } catch {}
+    await onSubmit(data);
+    onOpenChange(false);
   };
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -86,7 +84,6 @@ export function EditCategoryGroup({
         fields={formFields}
         onSubmit={handleSubmit}
         loading={loading}
-        onSuccess={() => handleOpenChange(false)}
         spacing="md"
         onFormReady={(form) => {
           form.reset({

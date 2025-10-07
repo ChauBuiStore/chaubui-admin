@@ -67,8 +67,6 @@ export interface XFormProps<T = Record<string, unknown>> {
   loading?: boolean;
   disabled?: boolean;
   className?: string;
-  onSuccess?: (data: unknown) => void;
-  onError?: (error: Error) => void;
   onFormReady?: (form: ReturnType<typeof useForm>) => void;
 }
 
@@ -84,8 +82,6 @@ function XFormInner<T extends Record<string, unknown>>(
     loading = false,
     disabled = false,
     className,
-    onSuccess,
-    onError,
     onFormReady,
     ...restProps
   } = props;
@@ -109,10 +105,10 @@ function XFormInner<T extends Record<string, unknown>>(
   const handleSubmit = form.handleSubmit(async (data: FieldValues) => {
     try {
       const result = onSubmit(data as T);
-      const awaited = result instanceof Promise ? await result : result;
-      onSuccess?.(awaited);
+      await (result instanceof Promise ? result : Promise.resolve(result));
+      form.reset();
     } catch (error) {
-      onError?.(error as Error);
+      throw error;
     }
   });
 

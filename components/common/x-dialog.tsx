@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangleIcon, CheckCircleIcon, InfoIcon, XCircleIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DefaultValues, FieldValues, FormProvider, useForm, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
@@ -273,6 +273,7 @@ export const XFormDialog = <T extends FieldValues = FieldValues>({
   cancelText = "Cancel",
   loading = false,
   children,
+  open,
   ...props
 }: XFormDialogProps<T>) => {
   const form = useForm<T>({
@@ -281,14 +282,22 @@ export const XFormDialog = <T extends FieldValues = FieldValues>({
     mode: "onChange",
   });
 
+  const prevOpenRef = useRef(open);
+
   useEffect(() => {
-    if (defaultValues) {
+    if (open && !prevOpenRef.current && defaultValues) {
       form.reset(defaultValues as DefaultValues<T>);
     }
-  }, [form, defaultValues]);
+    prevOpenRef.current = open;
+  }, [open, defaultValues, form]);
 
-  const handleSubmit = (data: T) => {
-    onSubmit?.(data);
+  const handleSubmit = async (data: T) => {
+    try {
+      await onSubmit?.(data);
+      form.reset();
+    } catch (error) {
+      throw error;
+    }
   };
 
   const handleCancel = () => {
@@ -302,6 +311,7 @@ export const XFormDialog = <T extends FieldValues = FieldValues>({
 
   return (
     <XDialog
+      open={open}
       title={title}
       description={description}
       onConfirm={handleFormSubmit}

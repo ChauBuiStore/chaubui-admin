@@ -18,10 +18,8 @@ interface CreateSizeProps {
 export function CreateSize({ open, onOpenChange, onSubmit, loading }: CreateSizeProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
-    try {
-      await onSubmit(data);
-      onOpenChange(false);
-    } catch {}
+    await onSubmit(data);
+    onOpenChange(false);
   };
 
   const fields: XFormField[] = [
@@ -69,7 +67,6 @@ export function CreateSize({ open, onOpenChange, onSubmit, loading }: CreateSize
         fields={fields}
         onSubmit={handleSubmit}
         loading={loading}
-        onSuccess={() => onOpenChange(false)}
       />
     </XDialog>
   );

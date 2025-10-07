@@ -29,10 +29,8 @@ export function EditCategory({
 }: EditCategoryProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const handleSubmit = async (data: FieldValues) => {
-    try {
-      await onSubmit(data);
-      onOpenChange(false);
-    } catch {}
+    await onSubmit(data);
+    onOpenChange(false);
   };
 
   const formFields: XFormField[] = [
@@ -85,7 +83,6 @@ export function EditCategory({
         fields={formFields}
         onSubmit={handleSubmit}
         loading={loading}
-        onSuccess={() => onOpenChange(false)}
         spacing="md"
         onFormReady={(form) => {
           const formData = {

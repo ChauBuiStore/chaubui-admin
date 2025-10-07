@@ -29,10 +29,8 @@ export function EditSize({
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (data: FieldValues) => {
-    try {
-      await onSubmit(data);
-      onOpenChange(false);
-    } catch {}
+    await onSubmit(data);
+    onOpenChange(false);
   };
 
   const fields: XFormField[] = [
@@ -80,7 +78,6 @@ export function EditSize({
         fields={fields}
         onSubmit={handleSubmit}
         loading={loading || isLoadingData}
-        onSuccess={() => onOpenChange(false)}
         onFormReady={(form) => {
           form.reset({
             nameVi: size?.nameVi || "",

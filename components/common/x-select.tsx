@@ -4,7 +4,18 @@ import { ChevronDown, Loader2, X } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 
 import { XBadge, XButton } from "@/components/common";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 interface SelectOption {
@@ -25,6 +36,8 @@ interface XSelectProps {
   hasMoreData?: boolean;
   multiple?: boolean;
   hasError?: boolean;
+  searchPlaceholder?: string;
+  emptyText?: string;
 }
 
 export function XSelect({
@@ -40,6 +53,8 @@ export function XSelect({
   hasMoreData = false,
   multiple = false,
   hasError = false,
+  searchPlaceholder = "Search...",
+  emptyText = "No results found",
 }: XSelectProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -150,27 +165,35 @@ export function XSelect({
       <SelectTrigger className={cn("w-full", hasError && "border-destructive", className)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent className="max-h-[300px]">
-        <div ref={scrollRef} className="max-h-[250px] overflow-y-auto">
-          {options.length > 0 ? (
-            options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))
-          ) : !loading ? (
-            <div className="flex items-center justify-center p-4 text-sm text-muted-foreground">
-              No data found.
-            </div>
-          ) : null}
+      <SelectContent className="max-h-[300px] p-0">
+        <Command shouldFilter>
+          <CommandInput placeholder={searchPlaceholder} />
+          <CommandList>
+            <CommandEmpty>{emptyText}</CommandEmpty>
+            <CommandGroup>
+              <div ref={scrollRef} className="max-h-[250px] overflow-y-auto">
+                {options.map((option) => (
+                  <CommandItem
+                    key={option.value}
+                    value={option.label}
+                    onSelect={() => {
+                      onValueChange?.(option.value);
+                    }}
+                  >
+                    {option.label}
+                  </CommandItem>
+                ))}
 
-          {loading && (
-            <div className="flex items-center justify-center p-2 text-sm text-muted-foreground">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Loading...
-            </div>
-          )}
-        </div>
+                {loading && (
+                  <div className="flex items-center justify-center p-2 text-sm text-muted-foreground">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading...
+                  </div>
+                )}
+              </div>
+            </CommandGroup>
+          </CommandList>
+        </Command>
       </SelectContent>
     </Select>
   );

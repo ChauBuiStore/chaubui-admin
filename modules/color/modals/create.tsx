@@ -6,7 +6,7 @@ import { FieldValues } from "react-hook-form";
 import { XColorPicker, XDialog, XForm, XFormField } from "@/components/common";
 import { FORM_TYPES } from "@/lib/constants";
 
-import { createColorSchema } from "../schemas";
+import { createColorSchema } from "../schemas/color.schema";
 
 interface CreateColorProps {
   open: boolean;

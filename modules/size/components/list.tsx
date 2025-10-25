@@ -1,13 +1,13 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { ActionsConfig, XTable } from "@/components/common";
 import { PaginationMeta } from "@/lib/types";
 import { formatDate } from "@/lib/utils/date.ultis";
 
-import { Size } from "../types";
+import { Size } from "../types/size.type";
 
 interface SizesListProps {
   sizes: Size[];
@@ -38,51 +38,45 @@ export function SizesList({
     setSelectedRows(selectedSizes);
   };
 
-  const columns: ColumnDef<Size>[] = useMemo(
-    () => [
-      {
-        accessorKey: "nameVi",
-        header: "NameVi",
-        cell: ({ row }) => {
-          const size = row.original;
-          return <span className="font-medium">{size.nameVi}</span>;
-        },
+  const columns: ColumnDef<Size>[] = [
+    {
+      accessorKey: "nameVi",
+      header: "NameVi",
+      cell: ({ row }) => {
+        const size = row.original;
+        return <span className="font-medium">{size.nameVi}</span>;
       },
-      {
-        accessorKey: "nameEn",
-        header: "NameEn",
-        cell: ({ row }) => {
-          const size = row.original;
-          return <span className="font-medium">{size.nameEn}</span>;
-        },
+    },
+    {
+      accessorKey: "nameEn",
+      header: "NameEn",
+      cell: ({ row }) => {
+        const size = row.original;
+        return <span className="font-medium">{size.nameEn}</span>;
       },
-      {
-        accessorKey: "nameKm",
-        header: "NameKm",
-        cell: ({ row }) => {
-          const size = row.original;
-          return <span className="font-medium">{size.nameKm}</span>;
-        },
+    },
+    {
+      accessorKey: "nameKm",
+      header: "NameKm",
+      cell: ({ row }) => {
+        const size = row.original;
+        return <span className="font-medium">{size.nameKm}</span>;
       },
-      {
-        accessorKey: "createdAt",
-        header: "Created Date",
-        cell: ({ row }) => {
-          const size = row.original;
-          return formatDate(size.createdAt);
-        },
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Created Date",
+      cell: ({ row }) => {
+        const size = row.original;
+        return formatDate(size.createdAt);
       },
-    ],
-    [],
-  );
+    },
+  ];
 
-  const actionsConfig: ActionsConfig<Size> = useMemo(
-    () => ({
-      onEdit: (size) => onEditSize(size),
-      onDelete: (size) => onDeleteSize(size),
-    }),
-    [onEditSize, onDeleteSize],
-  );
+  const actionsConfig: ActionsConfig<Size> = {
+    onEdit: (size) => onEditSize(size),
+    onDelete: (size) => onDeleteSize(size),
+  };
 
   return (
     <XTable

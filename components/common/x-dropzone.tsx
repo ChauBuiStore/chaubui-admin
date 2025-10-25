@@ -8,7 +8,7 @@ import { useDropzone } from "react-dropzone";
 
 import { XButton, XLabel } from "@/components/common";
 import { useToast } from "@/lib/hooks";
-import { UploadService } from "@/lib/services";
+import { uploadService } from "@/lib/services";
 import { FileUpload } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +53,7 @@ export function XDropzone({
 
   const uploadMutation = useMutation({
     mutationFn: async (files: File[]) => {
-      const response = await UploadService.upload(files);
+      const response = await uploadService.upload(files);
 
       if (response.data) {
         return response.data;
@@ -108,7 +108,7 @@ export function XDropzone({
   );
 
   const deleteMutation = useMutation({
-    mutationFn: (fileId: string) => UploadService.delete(fileId),
+    mutationFn: (fileId: string) => uploadService.delete(fileId),
     onSuccess: (_, fileId) => {
       setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId));
       onFileDelete?.(fileId);

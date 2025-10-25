@@ -1,18 +1,19 @@
 "use client";
 
-import { FolderIcon, PlusIcon } from "lucide-react";
+import { MenuIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
 
 import { XButton } from "@/components/common";
 
-import { CategoriesList } from "./components/list";
-import { useCategory } from "./hooks";
-import { CreateCategory, DeleteCategory, EditCategory } from "./modals";
+import { MenusList } from "../components/list";
+import { useMenu } from "../hooks/use-menu";
+import { CreateMenu } from "../modals/create";
+import { DeleteMenu } from "../modals/delete";
+import { EditMenu } from "../modals/edit";
 
-export function CategoriesPage() {
+export function MenusPage() {
   const {
-    categories,
-    categoryGroups,
+    menus,
     pagination,
     isLoading,
     showCreateForm,
@@ -21,22 +22,23 @@ export function CategoriesPage() {
     setShowEditForm,
     showDeleteForm,
     setShowDeleteForm,
-    editingCategory,
-    selectedCategory,
-    selectedCategories,
+    editingMenu,
+    isLoadingEditData,
+    selectedMenu,
+    selectedMenus,
     isSubmitting,
     handleCreateSubmit,
     handleEditSubmit,
-    handleEditCategory,
+    handleEditMenu,
     handleDeleteConfirm,
-    handleDeleteCategory,
+    handleDeleteMenu,
     handleBulkDelete,
     handlePageChange,
     handlePageSizeChange,
     handleSearchChange,
-  } = useCategory();
+  } = useMenu();
 
-  const handleCreateCategory = useCallback(() => {
+  const handleCreateMenu = useCallback(() => {
     setShowCreateForm(true);
   }, [setShowCreateForm]);
 
@@ -45,54 +47,53 @@ export function CategoriesPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <FolderIcon className="h-8 w-8" />
-            Category Management
+            <MenuIcon className="h-8 w-8" />
+            Menu Management
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <XButton onClick={handleCreateCategory}>
+          <XButton onClick={handleCreateMenu}>
             <PlusIcon className="h-4 w-4" />
-            Add Category
+            Add Menu
           </XButton>
         </div>
       </div>
 
-      <CategoriesList
-        categories={categories}
+      <MenusList
+        menus={menus}
         pagination={pagination}
         isLoading={isLoading}
         onBulkDelete={handleBulkDelete}
-        onEditCategory={handleEditCategory}
-        onDeleteCategory={handleDeleteCategory}
+        onEditMenu={handleEditMenu}
+        onDeleteMenu={handleDeleteMenu}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onSearchChange={handleSearchChange}
       />
 
-      <CreateCategory
+      <CreateMenu
         open={showCreateForm}
         onOpenChange={setShowCreateForm}
         onSubmit={handleCreateSubmit}
         loading={isSubmitting}
-        categoryGroups={categoryGroups}
       />
 
-      <EditCategory
+      <EditMenu
         open={showEditForm}
         onOpenChange={setShowEditForm}
         onSubmit={handleEditSubmit}
         loading={isSubmitting}
-        categoryGroups={categoryGroups}
-        category={editingCategory}
+        isLoadingData={isLoadingEditData}
+        menu={editingMenu}
       />
 
-      <DeleteCategory
+      <DeleteMenu
         open={showDeleteForm}
         onOpenChange={setShowDeleteForm}
         onConfirm={handleDeleteConfirm}
         loading={isSubmitting}
-        category={selectedCategory}
-        selectedCategories={selectedCategories}
+        selectedMenus={selectedMenus}
+        menu={selectedMenu}
       />
     </div>
   );

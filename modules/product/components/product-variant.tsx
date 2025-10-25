@@ -6,8 +6,8 @@ import { useFieldArray, UseFormReturn } from "react-hook-form";
 
 import { XButton, XRadioGroup } from "@/components/common";
 import { FormField } from "@/components/ui";
-import { Color } from "@/modules/color/types";
-import { Size } from "@/modules/size/types";
+import { Color } from "@/modules/color/types/color.type";
+import { Size } from "@/modules/size/types/size.type";
 
 import { CreateProductFormData } from "../schemas";
 import { VariantType } from "../types";

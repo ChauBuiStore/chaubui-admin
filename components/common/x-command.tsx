@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -18,7 +18,9 @@ import { useDebounce } from "@/lib/hooks";
 
 export interface XCommandItemConfig {
   label: string;
+  value?: string;
   shortcut?: string;
+  isSelected?: boolean;
   onSelect?: () => void;
 }
 
@@ -112,8 +114,13 @@ export function XCommand({
           <CommandGroup key={gi} heading={group.heading}>
             {group.items.map((item, ii) => (
               <CommandItem key={ii} onSelect={item.onSelect}>
-                {item.label}
-                {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
+                <div className="flex items-center justify-between w-full">
+                  <span>{item.label}</span>
+                  <div className="flex items-center gap-2">
+                    {item.isSelected && <Check className="h-4 w-4" />}
+                    {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
+                  </div>
+                </div>
               </CommandItem>
             ))}
           </CommandGroup>

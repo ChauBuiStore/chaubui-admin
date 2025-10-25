@@ -6,7 +6,7 @@ import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
-import { CategoryService, ColorService, ProductService, SizeService } from "@/lib/services";
+import { categoryService, colorService, productService, sizeService } from "@/lib/services";
 import { CreateProductData, Product, UpdateProductData } from "@/modules/product/types";
 
 export function useProduct() {
@@ -25,28 +25,28 @@ export function useProduct() {
     isLoading,
   } = useQuery({
     queryKey: [QUERY_KEYS.PRODUCTS, filters],
-    queryFn: () => ProductService.getProducts(filters),
+    queryFn: () => productService.getProducts(filters),
   });
 
   const { data: editingProductData, isLoading: isLoadingEditingProduct } = useQuery({
     queryKey: [QUERY_KEYS.PRODUCTS, "detail", editingProductId],
-    queryFn: () => ProductService.getProductById(editingProductId!),
+    queryFn: () => productService.getProductById(editingProductId!),
     enabled: !!editingProductId,
   });
 
   const { data: categoriesData } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORY_ALL],
-    queryFn: () => CategoryService.getCategories({ isAll: true }),
+    queryFn: () => categoryService.getCategories({ isAll: true }),
   });
 
   const { data: colorsData } = useQuery({
     queryKey: [QUERY_KEYS.COLORS_ALL],
-    queryFn: () => ColorService.getColors({ isAll: true }),
+    queryFn: () => colorService.getColors({ isAll: true }),
   });
 
   const { data: sizesData } = useQuery({
     queryKey: [QUERY_KEYS.SIZES_ALL],
-    queryFn: () => SizeService.getSizes({ isAll: true }),
+    queryFn: () => sizeService.getSizes({ isAll: true }),
   });
 
   if (error) {
@@ -61,7 +61,7 @@ export function useProduct() {
 
   const createMutation = useMutation({
     mutationFn: (data: CreateProductData) => {
-      return ProductService.createProduct(data);
+      return productService.createProduct(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
@@ -74,7 +74,7 @@ export function useProduct() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateProductData }) =>
-      ProductService.updateProduct(id, data),
+      productService.updateProduct(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
       success("Product updated successfully!");
@@ -85,7 +85,7 @@ export function useProduct() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => ProductService.deleteProduct(id),
+    mutationFn: (id: string) => productService.deleteProduct(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
       success("Product deleted successfully!");
@@ -96,7 +96,7 @@ export function useProduct() {
   });
 
   const bulkDeleteMutation = useMutation({
-    mutationFn: (ids: string[]) => ProductService.bulkDeleteProducts(ids),
+    mutationFn: (ids: string[]) => productService.bulkDeleteProducts(ids),
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
       success(`Successfully deleted ${ids.length} products!`);

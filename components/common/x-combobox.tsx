@@ -96,6 +96,7 @@ export function XCombobox({
             items: options.map((option) => ({
               label: option.label,
               value: option.value,
+              isSelected: value === option.value,
               onSelect: () => {
                 onValueChange?.(option.value);
                 setOpen(false);

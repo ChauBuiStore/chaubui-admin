@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 
-import { httpClient } from "@/lib/configs";
+import { clearOnTokenExpired, setOnTokenExpired } from "@/lib/configs";
 import { ROUTES } from "@/lib/constants";
-import { AuthService } from "@/lib/services";
+import { authService } from "@/lib/services";
 import { ApiResponse, AuthResponse, LoginCredentials } from "@/lib/types";
 import { authCookies } from "@/lib/utils/cookies.utils";
 import { isTokenValid } from "@/lib/utils/token.utils";
@@ -60,21 +60,17 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
   }, [router]);
 
   useEffect(() => {
-    if (httpClient && typeof httpClient === "object" && "setOnTokenExpired" in httpClient) {
-      httpClient.setOnTokenExpired(logoutSilently);
-    }
+    setOnTokenExpired(logoutSilently);
 
     return () => {
-      if (httpClient && typeof httpClient === "object" && "clearOnTokenExpired" in httpClient) {
-        httpClient.clearOnTokenExpired();
-      }
+      clearOnTokenExpired();
     };
   }, [logoutSilently]);
 
   const login = async (credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> => {
     setIsLoading(true);
     try {
-      const result = await AuthService.login(credentials);
+      const result = await authService.login(credentials);
 
       if (result.status === "success" && result.data?.accessToken) {
         setToken(result.data.accessToken);
@@ -90,7 +86,7 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
   const logout = async (): Promise<ApiResponse<{ message: string }>> => {
     setIsLoading(true);
     try {
-      const result = await AuthService.logout();
+      const result = await authService.logout();
       setToken(null);
       authCookies.remove();
       router.push(ROUTES.LOGIN);

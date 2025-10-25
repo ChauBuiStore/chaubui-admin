@@ -5,6 +5,7 @@ export const FORM_TYPES = {
   EMAIL: "email",
   PASSWORD: "password",
   SELECT: "select",
+  COMBOBOX: "combobox",
   RADIO: "radio",
   CHECKBOX: "checkbox",
   TEXTAREA: "textarea",

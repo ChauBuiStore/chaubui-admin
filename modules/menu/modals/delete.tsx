@@ -2,7 +2,7 @@
 
 import { XConfirmDialog } from "@/components/common";
 
-import { Menu } from "../types";
+import { Menu } from "../types/menu.type";
 
 interface DeleteMenuModalProps {
   open: boolean;

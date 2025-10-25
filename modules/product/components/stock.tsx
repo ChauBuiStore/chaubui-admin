@@ -4,7 +4,7 @@ import { AlertCircle, Info } from "lucide-react";
 
 import { XButton, XPopover } from "@/components/common";
 import { formatPrice } from "@/lib/utils/currency.utils";
-import { Color } from "@/modules/color/types";
+import { Color } from "@/modules/color/types/color.type";
 import { Product, ProductVariant } from "@/modules/product/types";
 
 interface StockProps {

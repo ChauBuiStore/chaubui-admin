@@ -6,8 +6,9 @@ import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
-import { ColorService } from "@/lib/services";
-import { Color, CreateColorRequest, UpdateColorRequest } from "@/modules/color/types";
+import { colorService } from "@/lib/services";
+
+import { Color, CreateColorRequest, UpdateColorRequest } from "../types/color.type";
 
 export function useColor() {
   const queryClient = useQueryClient();
@@ -22,7 +23,7 @@ export function useColor() {
     isLoading,
   } = useQuery({
     queryKey: [QUERY_KEYS.COLORS, filters],
-    queryFn: () => ColorService.getColors(filters),
+    queryFn: () => colorService.getColors(filters),
   });
 
   if (error) {
@@ -33,7 +34,7 @@ export function useColor() {
   const pagination = colorsData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateColorRequest) => ColorService.createColor(data),
+    mutationFn: (data: CreateColorRequest) => colorService.createColor(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLOR_BY_ID] });
@@ -46,7 +47,7 @@ export function useColor() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateColorRequest }) =>
-      ColorService.updateColor(id, data),
+      colorService.updateColor(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLOR_BY_ID] });
@@ -58,7 +59,7 @@ export function useColor() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => ColorService.deleteColor(id),
+    mutationFn: (id: string) => colorService.deleteColor(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLOR_BY_ID] });
@@ -70,7 +71,7 @@ export function useColor() {
   });
 
   const bulkDeleteMutation = useMutation({
-    mutationFn: (ids: string[]) => ColorService.bulkDeleteColors(ids),
+    mutationFn: (ids: string[]) => colorService.bulkDeleteColors(ids),
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
       success(`Successfully deleted ${ids.length} colors!`);
@@ -89,7 +90,7 @@ export function useColor() {
 
   const { data: editingColorData, isLoading: isLoadingEditData } = useQuery({
     queryKey: [QUERY_KEYS.COLOR_BY_ID, editingColorId],
-    queryFn: () => ColorService.getColorById(editingColorId!),
+    queryFn: () => colorService.getColorById(editingColorId!),
     enabled: !!editingColorId,
     select: (data) => data.data,
   });

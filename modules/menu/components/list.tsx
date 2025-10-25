@@ -7,7 +7,7 @@ import { ActionsConfig, XTable } from "@/components/common";
 import { PaginationMeta } from "@/lib/types";
 import { formatDate } from "@/lib/utils/date.ultis";
 
-import { Menu } from "../types";
+import { Menu } from "../types/menu.type";
 
 interface MenusListProps {
   menus: Menu[];

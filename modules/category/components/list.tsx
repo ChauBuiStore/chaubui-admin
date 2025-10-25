@@ -7,7 +7,7 @@ import { ActionsConfig, XTable } from "@/components/common/x-table";
 import { PaginationMeta } from "@/lib/types";
 import { formatDate } from "@/lib/utils/date.ultis";
 
-import { Category } from "../types/categories.type";
+import { Category } from "../types/category.type";
 
 interface CategoriesListProps {
   categories: Category[];
@@ -78,17 +78,9 @@ export function CategoriesList({
         cell: ({ row }) => {
           const category = row.original;
           return (
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full border border-primary/20">
-                {category.group?.nameVi || "N/A"}
-              </span>
-              <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full border border-primary/20">
-                {category.group?.nameEn || "N/A"}
-              </span>
-              <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full border border-primary/20">
-                {category.group?.nameKm || "N/A"}
-              </span>
-            </div>
+            <span className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full border border-primary/20">
+              {category.group?.nameEn || "N/A"}
+            </span>
           );
         },
       },

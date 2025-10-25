@@ -4,8 +4,12 @@ import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
-import { CategoryGroupService, CategoryService } from "@/lib/services";
-import { Category, CreateCategoryData, UpdateCategoryData } from "@/modules/category/types";
+import { categoryGroupService, categoryService } from "@/lib/services";
+import {
+  Category,
+  CreateCategoryData,
+  UpdateCategoryData,
+} from "@/modules/category/types/category.type";
 
 export function useCategory() {
   const queryClient = useQueryClient();
@@ -21,12 +25,12 @@ export function useCategory() {
     isLoading,
   } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORY, filters],
-    queryFn: () => CategoryService.getCategories(filters),
+    queryFn: () => categoryService.getCategories(filters),
   });
 
   const { data: categoryGroupsData } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORY_GROUP_ALL],
-    queryFn: () => CategoryGroupService.getCategoryGroups({ isAll: true }),
+    queryFn: () => categoryGroupService.getCategoryGroups({ isAll: true }),
   });
 
   if (error) {
@@ -38,7 +42,7 @@ export function useCategory() {
   const pagination = categoriesData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateCategoryData) => CategoryService.createCategory(data),
+    mutationFn: (data: CreateCategoryData) => categoryService.createCategory(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
@@ -51,7 +55,7 @@ export function useCategory() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateCategoryData }) =>
-      CategoryService.updateCategory(id, data),
+      categoryService.updateCategory(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_BY_ID] });
@@ -64,7 +68,7 @@ export function useCategory() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => CategoryService.deleteCategory(id),
+    mutationFn: (id: string) => categoryService.deleteCategory(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
@@ -76,7 +80,7 @@ export function useCategory() {
   });
 
   const bulkDeleteMutation = useMutation({
-    mutationFn: (ids: string[]) => CategoryService.bulkDeleteCategories(ids),
+    mutationFn: (ids: string[]) => categoryService.bulkDeleteCategories(ids),
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
@@ -96,7 +100,7 @@ export function useCategory() {
 
   const { data: editingCategoryData, isLoading: isLoadingEditData } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORY_BY_ID, editingCategoryId],
-    queryFn: () => CategoryService.getCategoryById(editingCategoryId!),
+    queryFn: () => categoryService.getCategoryById(editingCategoryId!),
     enabled: !!editingCategoryId,
     select: (data) => data.data,
   });

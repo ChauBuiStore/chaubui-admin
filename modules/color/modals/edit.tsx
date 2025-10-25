@@ -6,7 +6,7 @@ import { FieldValues } from "react-hook-form";
 import { XColorPicker, XDialog, XForm, XFormField } from "@/components/common";
 import { FORM_TYPES } from "@/lib/constants";
 
-import { updateColorSchema } from "../schemas";
+import { updateColorSchema } from "../schemas/color.schema";
 import { Color } from "../types/color.type";
 
 interface EditColorProps {

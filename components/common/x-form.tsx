@@ -5,7 +5,15 @@ import React, { forwardRef, useEffect, useState } from "react";
 import { ControllerRenderProps, FieldPath, FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { XCheckbox, XInput, XLabel, XRadioGroup, XSelect, XTextarea } from "@/components/common";
+import {
+  XCheckbox,
+  XCombobox,
+  XInput,
+  XLabel,
+  XRadioGroup,
+  XSelect,
+  XTextarea,
+} from "@/components/common";
 import {
   Form,
   FormControl,
@@ -22,6 +30,7 @@ const getFieldType = (type?: string): XFormField["type"] => {
   const validTypes = [
     FORM_TYPES.INPUT,
     FORM_TYPES.SELECT,
+    FORM_TYPES.COMBOBOX,
     FORM_TYPES.TEXTAREA,
     FORM_TYPES.RADIO,
     FORM_TYPES.CHECKBOX,
@@ -37,6 +46,7 @@ export interface XFormField {
   subType?: "text" | "email" | "password" | "number" | "tel" | "url";
   label?: string;
   placeholder?: string;
+  searchPlaceholder?: string;
   required?: boolean;
   helperText?: string;
   showPassword?: boolean;
@@ -172,6 +182,48 @@ function XFormInner<T extends Record<string, unknown>>(
                         }}
                         disabled={isFieldDisabled}
                         placeholder={field.placeholder}
+                        className={cn(
+                          hasError &&
+                            "border-destructive focus:border-destructive focus:ring-destructive",
+                        )}
+                      />
+                    </FormControl>
+                    {!hasError && field.helperText && (
+                      <FormDescription>{field.helperText}</FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            );
+          }
+
+          if (fieldType === FORM_TYPES.COMBOBOX) {
+            return (
+              <FormField
+                key={field.name}
+                name={field.name as never}
+                render={({
+                  field: rhfField,
+                }: {
+                  field: ControllerRenderProps<FieldValues, FieldPath<FieldValues>>;
+                }) => (
+                  <FormItem>
+                    {field.label && (
+                      <FormLabel className="gap-1" required={field.required}>
+                        {field.label}
+                      </FormLabel>
+                    )}
+                    <FormControl>
+                      <XCombobox
+                        options={field.options || []}
+                        value={rhfField.value ? String(rhfField.value) : ""}
+                        onValueChange={(value) => {
+                          rhfField.onChange(value);
+                        }}
+                        disabled={isFieldDisabled}
+                        placeholder={field.placeholder}
+                        searchPlaceholder={field.searchPlaceholder}
                         className={cn(
                           hasError &&
                             "border-destructive focus:border-destructive focus:ring-destructive",

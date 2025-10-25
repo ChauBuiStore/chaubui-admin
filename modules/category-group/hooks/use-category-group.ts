@@ -4,12 +4,12 @@ import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
-import { CategoryGroupService } from "@/lib/services";
+import { categoryGroupService } from "@/lib/services";
 import {
   CategoryGroup,
   CreateCategoryGroupData,
   UpdateCategoryGroupData,
-} from "@/modules/category-group/types";
+} from "@/modules/category-group/types/category-group.type";
 
 export function useCategoryGroup() {
   const queryClient = useQueryClient();
@@ -25,7 +25,7 @@ export function useCategoryGroup() {
     isLoading,
   } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORY_GROUP, filters],
-    queryFn: () => CategoryGroupService.getCategoryGroups(filters),
+    queryFn: () => categoryGroupService.getCategoryGroups(filters),
   });
 
   if (error) {
@@ -36,7 +36,7 @@ export function useCategoryGroup() {
   const meta = categoryGroupData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateCategoryGroupData) => CategoryGroupService.createCategoryGroup(data),
+    mutationFn: (data: CreateCategoryGroupData) => categoryGroupService.createCategoryGroup(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       success("Category group created successfully!");
@@ -48,7 +48,7 @@ export function useCategoryGroup() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateCategoryGroupData }) =>
-      CategoryGroupService.updateCategoryGroup(id, data),
+      categoryGroupService.updateCategoryGroup(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP_BY_ID] });
@@ -60,7 +60,7 @@ export function useCategoryGroup() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => CategoryGroupService.deleteCategoryGroup(id),
+    mutationFn: (id: string) => categoryGroupService.deleteCategoryGroup(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       success("Category group deleted successfully!");
@@ -71,7 +71,7 @@ export function useCategoryGroup() {
   });
 
   const bulkDeleteMutation = useMutation({
-    mutationFn: (ids: string[]) => CategoryGroupService.bulkDeleteCategoryGroups(ids),
+    mutationFn: (ids: string[]) => categoryGroupService.bulkDeleteCategoryGroups(ids),
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       success(`Successfully deleted ${ids.length} category groups!`);
@@ -90,7 +90,7 @@ export function useCategoryGroup() {
 
   const { data: editingCategoryGroup, isLoading: isLoadingEditData } = useQuery({
     queryKey: [QUERY_KEYS.CATEGORY_GROUP_BY_ID, editingCategoryGroupId],
-    queryFn: () => CategoryGroupService.getCategoryGroupById(editingCategoryGroupId!),
+    queryFn: () => categoryGroupService.getCategoryGroupById(editingCategoryGroupId!),
     enabled: !!editingCategoryGroupId,
     select: (data) => data.data,
   });

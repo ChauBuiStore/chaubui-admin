@@ -1,39 +1,37 @@
-import { ENDPOINTS, httpClient } from "@/lib/configs";
+import { authFetcher, ENDPOINTS } from "@/lib/configs";
 import { ApiResponse } from "@/lib/types";
-import { CreateSizeData, Size, SizeFilters, UpdateSizeData } from "@/modules/size/types";
+import { CreateSizeData, Size, SizeFilters, UpdateSizeData } from "@/modules/size/types/size.type";
 
-class SizeService {
-  static async getSizes(filters?: SizeFilters): Promise<ApiResponse<Size[]>> {
-    const response = await httpClient.get<Size[]>(ENDPOINTS.SIZE.GET_ALL, {
+export const sizeService = {
+  getSizes: async (filters?: SizeFilters): Promise<ApiResponse<Size[]>> => {
+    const response = await authFetcher.get<Size[]>(ENDPOINTS.SIZE.GET_ALL, {
       params: filters,
     });
     return response;
-  }
+  },
 
-  static async getSizeById(id: string): Promise<ApiResponse<Size>> {
-    const response = await httpClient.get<Size>(ENDPOINTS.SIZE.GET_BY_ID.replace(":id", id));
+  getSizeById: async (id: string): Promise<ApiResponse<Size>> => {
+    const response = await authFetcher.get<Size>(ENDPOINTS.SIZE.GET_BY_ID.replace(":id", id));
     return response;
-  }
+  },
 
-  static async createSize(data: CreateSizeData): Promise<ApiResponse<Size>> {
-    const response = await httpClient.post<Size>(ENDPOINTS.SIZE.CREATE, data);
+  createSize: async (data: CreateSizeData): Promise<ApiResponse<Size>> => {
+    const response = await authFetcher.post<Size>(ENDPOINTS.SIZE.CREATE, data);
     return response;
-  }
+  },
 
-  static async updateSize(id: string, data: UpdateSizeData): Promise<ApiResponse<Size>> {
-    const response = await httpClient.put<Size>(ENDPOINTS.SIZE.UPDATE.replace(":id", id), data);
+  updateSize: async (id: string, data: UpdateSizeData): Promise<ApiResponse<Size>> => {
+    const response = await authFetcher.put<Size>(ENDPOINTS.SIZE.UPDATE.replace(":id", id), data);
     return response;
-  }
+  },
 
-  static async deleteSize(id: string): Promise<ApiResponse<void>> {
-    const response = await httpClient.delete<void>(ENDPOINTS.SIZE.DELETE.replace(":id", id));
+  deleteSize: async (id: string): Promise<ApiResponse<void>> => {
+    const response = await authFetcher.delete<void>(ENDPOINTS.SIZE.DELETE.replace(":id", id));
     return response;
-  }
+  },
 
-  static async bulkDeleteSizes(ids: string[]): Promise<ApiResponse<void>> {
-    const response = await httpClient.delete<void>(ENDPOINTS.SIZE.BULK_DELETE, { ids });
+  bulkDeleteSizes: async (ids: string[]): Promise<ApiResponse<void>> => {
+    const response = await authFetcher.delete<void>(ENDPOINTS.SIZE.BULK_DELETE, { ids });
     return response;
-  }
-}
-
-export default SizeService;
+  },
+};

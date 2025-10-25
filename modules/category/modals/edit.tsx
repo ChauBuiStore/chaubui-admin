@@ -7,8 +7,8 @@ import { XDialog } from "@/components/common/x-dialog";
 import XForm, { XFormField } from "@/components/common/x-form";
 import { FORM_TYPES } from "@/lib/constants";
 
-import { updateCategorySchema } from "../schemas";
-import { Category } from "../types/categories.type";
+import { updateCategorySchema } from "../schemas/category.schema";
+import { Category } from "../types/category.type";
 
 interface EditCategoryProps {
   open: boolean;
@@ -57,9 +57,10 @@ export function EditCategory({
     },
     {
       name: "groupId",
-      type: FORM_TYPES.SELECT,
+      type: FORM_TYPES.COMBOBOX,
       label: "Category Group",
-      placeholder: "Select category group",
+      placeholder: "Search category group...",
+      searchPlaceholder: "Type to search...",
       required: true,
       options: categoryGroups.map((g) => ({ value: g.id, label: g.nameEn })),
     },

@@ -3,16 +3,16 @@
 import { UseFormReturn } from "react-hook-form";
 
 import {
+  XCombobox,
   XFormDialog,
   XInput,
   XInputNumber,
   XScrollArea,
-  XSelect,
   XTextEditor,
 } from "@/components/common";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui";
-import { Color } from "@/modules/color/types";
-import { Size } from "@/modules/size/types";
+import { Color } from "@/modules/color/types/color.type";
+import { Size } from "@/modules/size/types/size.type";
 
 import { ProductThumbnail, ProductUpload, ProductVariantForm } from "../components";
 import { UpdateProductFormData, updateProductSchema } from "../schemas";
@@ -160,7 +160,7 @@ export function EditProduct({
                             onChange={(value) => field.onChange(value ?? undefined)}
                             onBlur={field.onBlur}
                             ref={field.ref}
-                            size="sm"
+                            size="md"
                             min={0}
                             hasError={!!fieldState.error}
                           />
@@ -183,7 +183,7 @@ export function EditProduct({
                             onChange={(value) => field.onChange(value ?? undefined)}
                             onBlur={field.onBlur}
                             ref={field.ref}
-                            size="sm"
+                            size="md"
                             min={0}
                             hasError={!!fieldState.error}
                           />
@@ -201,7 +201,7 @@ export function EditProduct({
                     <FormItem>
                       <FormLabel>Category *</FormLabel>
                       <FormControl>
-                        <XSelect
+                        <XCombobox
                           options={categories.map((category) => ({
                             value: category.id,
                             label: category.nameEn,
@@ -230,7 +230,7 @@ export function EditProduct({
                           onChange={(value) => field.onChange(value ?? undefined)}
                           onBlur={field.onBlur}
                           ref={field.ref}
-                          size="sm"
+                          size="md"
                           min={0}
                           hasError={!!fieldState.error}
                         />
@@ -253,7 +253,7 @@ export function EditProduct({
                           onChange={(value) => field.onChange(value ?? undefined)}
                           onBlur={field.onBlur}
                           ref={field.ref}
-                          size="sm"
+                          size="md"
                           min={0}
                           hasError={!!fieldState.error}
                         />
@@ -264,12 +264,24 @@ export function EditProduct({
                 />
               </div>
 
-              <ProductThumbnail form={form} isEdit={true} />
+              <FormField
+                control={form.control}
+                name="thumbnailUrl"
+                render={({ fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Thumbnail *</FormLabel>
+                    <FormControl>
+                      <ProductThumbnail form={form} isEdit={true} hasError={!!fieldState.error} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
                 name="description"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormControl>
                       <XTextEditor
@@ -277,7 +289,11 @@ export function EditProduct({
                         required
                         placeholder="Nhập mô tả sản phẩm..."
                         value={field.value}
-                        onChange={field.onChange}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          form.trigger("description");
+                        }}
+                        error={!!fieldState.error}
                       />
                     </FormControl>
                     <FormMessage />

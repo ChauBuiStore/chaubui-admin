@@ -1,13 +1,13 @@
 "use client";
 
 import { useRef } from "react";
-import { FieldValues } from "react-hook-form";
+import { FieldValues, UseFormReturn } from "react-hook-form";
 
 import { XDialog, XForm, XFormField } from "@/components/common";
 import { FORM_TYPES } from "@/lib/constants";
 
-import { updateSizeSchema } from "../schemas";
-import { Size } from "../types";
+import { updateSizeSchema } from "../schemas/size.schema";
+import { Size } from "../types/size.type";
 
 interface EditSizeProps {
   open: boolean;
@@ -78,7 +78,7 @@ export function EditSize({
         fields={fields}
         onSubmit={handleSubmit}
         loading={loading || isLoadingData}
-        onFormReady={(form) => {
+        onFormReady={(form: UseFormReturn<FieldValues, unknown, unknown>) => {
           form.reset({
             nameVi: size?.nameVi || "",
             nameEn: size?.nameEn || "",

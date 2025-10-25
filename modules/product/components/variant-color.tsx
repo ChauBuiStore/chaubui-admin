@@ -2,9 +2,9 @@
 
 import { UseFormReturn } from "react-hook-form";
 
-import { XInputNumber, XSelect } from "@/components/common";
+import { XCombobox, XInputNumber } from "@/components/common";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui";
-import { Color } from "@/modules/color/types";
+import { Color } from "@/modules/color/types/color.type";
 
 import { CreateProductFormData, UpdateProductFormData } from "../schemas";
 import { VariantType } from "../types";
@@ -55,7 +55,7 @@ export function VariantColor({ form, colors, index, variantType }: VariantColorP
             <FormItem>
               <FormLabel className="text-sm font-medium">Color *</FormLabel>
               <FormControl>
-                <XSelect
+                <XCombobox
                   options={getAvailableColors(index).map((color: Color) => ({
                     value: color.id,
                     label: color.nameEn,
@@ -85,7 +85,7 @@ export function VariantColor({ form, colors, index, variantType }: VariantColorP
                     onChange={(value) => field.onChange(value ?? undefined)}
                     onBlur={field.onBlur}
                     ref={field.ref}
-                    size="sm"
+                    size="md"
                     min={0}
                     hasError={!!fieldState.error}
                   />
@@ -108,7 +108,7 @@ export function VariantColor({ form, colors, index, variantType }: VariantColorP
                     onChange={(value) => field.onChange(value ?? undefined)}
                     onBlur={field.onBlur}
                     ref={field.ref}
-                    size="sm"
+                    size="md"
                     min={0}
                     hasError={!!fieldState.error}
                   />
@@ -134,7 +134,7 @@ export function VariantColor({ form, colors, index, variantType }: VariantColorP
                   onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  size="sm"
+                  size="md"
                   min={0}
                   hasError={!!fieldState.error}
                 />
@@ -157,7 +157,7 @@ export function VariantColor({ form, colors, index, variantType }: VariantColorP
                   onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  size="sm"
+                  size="md"
                   min={0}
                   hasError={!!fieldState.error}
                 />

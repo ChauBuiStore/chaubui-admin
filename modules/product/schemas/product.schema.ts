@@ -50,7 +50,14 @@ export const createProductSchema = z
     nameVi: z.string().min(1, "Product nameVi is required"),
     nameEn: z.string().min(1, "Product nameEn is required"),
     nameKm: z.string().optional(),
-    description: z.string().min(1, "Product description is required"),
+    description: z
+      .string()
+      .transform((val) => {
+        // Remove HTML tags and check if content is empty
+        const textContent = val.replace(/<[^>]*>/g, "").trim();
+        return textContent === "" ? "" : val;
+      })
+      .pipe(z.string().min(1, "Product description is required")),
     originalPrice: z
       .union([z.string(), z.number(), z.undefined()])
       .transform((val) => {
@@ -83,12 +90,12 @@ export const createProductSchema = z
         return isNaN(num) ? undefined : num;
       })
       .pipe(z.number().min(0, "Stock quantity must be greater than or equal to 0").optional()),
-    categoryId: z.string().min(1, "Please select a category"),
+    categoryId: z.string().min(1, "Category is required"),
     variantType: z.enum(VariantType, {
       message: "Please select a variant type",
     }),
-    thumbnailUrl: z.string().optional(),
-    thumbnailId: z.string().optional(),
+    thumbnailUrl: z.string().min(1, "Thumbnail is required"),
+    thumbnailId: z.string().min(1, "Thumbnail is required"),
     images: z.array(productImageSchema).optional(),
     variants: z.array(productVariantSchema).optional().default([]),
   })
@@ -145,7 +152,7 @@ export const createProductSchema = z
         if (!variant.colorId || variant.colorId.trim() === "") {
           ctx.addIssue({
             code: "custom",
-            message: "Please select a color",
+            message: "Color is required",
             path: ["variants", i, "colorId"],
           });
         }
@@ -155,7 +162,7 @@ export const createProductSchema = z
         if (!variant.sizeId || variant.sizeId.trim() === "") {
           ctx.addIssue({
             code: "custom",
-            message: "Please select a size",
+            message: "Size is required",
             path: ["variants", i, "sizeId"],
           });
         }

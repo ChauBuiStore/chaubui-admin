@@ -1,17 +1,20 @@
 "use client";
 
-import { PaletteIcon, PlusIcon } from "lucide-react";
+import { FolderIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
 
 import { XButton } from "@/components/common";
 
-import { ColorsList } from "./components/list";
-import { useColor } from "./hooks";
-import { CreateColor, DeleteColor, EditColor } from "./modals";
+import { CategoriesList } from "../components/list";
+import { useCategory } from "../hooks/use-category";
+import { CreateCategory } from "../modals/create";
+import { DeleteCategory } from "../modals/delete";
+import { EditCategory } from "../modals/edit";
 
-export function ColorsPage() {
+export function CategoriesPage() {
   const {
-    colors,
+    categories,
+    categoryGroups,
     pagination,
     isLoading,
     showCreateForm,
@@ -20,23 +23,22 @@ export function ColorsPage() {
     setShowEditForm,
     showDeleteForm,
     setShowDeleteForm,
-    editingColor,
-    isLoadingEditData,
-    selectedColor,
-    selectedColors,
+    editingCategory,
+    selectedCategory,
+    selectedCategories,
     isSubmitting,
     handleCreateSubmit,
     handleEditSubmit,
-    handleEditColor,
+    handleEditCategory,
     handleDeleteConfirm,
-    handleDeleteColor,
+    handleDeleteCategory,
     handleBulkDelete,
     handlePageChange,
     handlePageSizeChange,
     handleSearchChange,
-  } = useColor();
+  } = useCategory();
 
-  const handleCreateColor = useCallback(() => {
+  const handleCreateCategory = useCallback(() => {
     setShowCreateForm(true);
   }, [setShowCreateForm]);
 
@@ -45,53 +47,54 @@ export function ColorsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <PaletteIcon className="h-8 w-8" />
-            Color Management
+            <FolderIcon className="h-8 w-8" />
+            Category Management
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <XButton onClick={handleCreateColor}>
+          <XButton onClick={handleCreateCategory}>
             <PlusIcon className="h-4 w-4" />
-            Add Color
+            Add Category
           </XButton>
         </div>
       </div>
 
-      <ColorsList
-        colors={colors}
+      <CategoriesList
+        categories={categories}
         pagination={pagination}
         isLoading={isLoading}
         onBulkDelete={handleBulkDelete}
-        onEditColor={handleEditColor}
-        onDeleteColor={handleDeleteColor}
+        onEditCategory={handleEditCategory}
+        onDeleteCategory={handleDeleteCategory}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onSearchChange={handleSearchChange}
       />
 
-      <CreateColor
+      <CreateCategory
         open={showCreateForm}
         onOpenChange={setShowCreateForm}
         onSubmit={handleCreateSubmit}
         loading={isSubmitting}
+        categoryGroups={categoryGroups}
       />
 
-      <EditColor
+      <EditCategory
         open={showEditForm}
         onOpenChange={setShowEditForm}
         onSubmit={handleEditSubmit}
         loading={isSubmitting}
-        isLoadingData={isLoadingEditData}
-        color={editingColor}
+        categoryGroups={categoryGroups}
+        category={editingCategory}
       />
 
-      <DeleteColor
+      <DeleteCategory
         open={showDeleteForm}
         onOpenChange={setShowDeleteForm}
         onConfirm={handleDeleteConfirm}
         loading={isSubmitting}
-        selectedColors={selectedColors}
-        color={selectedColor}
+        category={selectedCategory}
+        selectedCategories={selectedCategories}
       />
     </div>
   );

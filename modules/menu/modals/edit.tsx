@@ -6,8 +6,8 @@ import { FieldValues } from "react-hook-form";
 import { XDialog, XForm, XFormField } from "@/components/common";
 import { FORM_TYPES } from "@/lib/constants";
 
-import { updateMenuSchema } from "../schemas";
-import { Menu } from "../types";
+import { updateMenuSchema } from "../schemas/menu.schema";
+import { Menu } from "../types/menu.type";
 
 interface EditMenuProps {
   open: boolean;

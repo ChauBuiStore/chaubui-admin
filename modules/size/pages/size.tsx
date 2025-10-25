@@ -1,17 +1,19 @@
 "use client";
 
-import { MenuIcon, PlusIcon } from "lucide-react";
+import { PlusIcon, RulerIcon } from "lucide-react";
 import { useCallback } from "react";
 
 import { XButton } from "@/components/common";
 
-import { MenusList } from "./components";
-import { useMenu } from "./hooks";
-import { CreateMenu, DeleteMenu, EditMenu } from "./modals";
+import { SizesList } from "../components";
+import { useSize } from "../hooks/use-size";
+import { CreateSize } from "../modals/create";
+import { DeleteSize } from "../modals/delete";
+import { EditSize } from "../modals/edit";
 
-export function MenusPage() {
+export function SizesPage() {
   const {
-    menus,
+    sizes,
     pagination,
     isLoading,
     showCreateForm,
@@ -20,23 +22,23 @@ export function MenusPage() {
     setShowEditForm,
     showDeleteForm,
     setShowDeleteForm,
-    editingMenu,
+    editingSize,
     isLoadingEditData,
-    selectedMenu,
-    selectedMenus,
+    selectedSize,
+    selectedSizes,
     isSubmitting,
     handleCreateSubmit,
     handleEditSubmit,
-    handleEditMenu,
+    handleEditSize,
     handleDeleteConfirm,
-    handleDeleteMenu,
+    handleDeleteSize,
     handleBulkDelete,
     handlePageChange,
     handlePageSizeChange,
     handleSearchChange,
-  } = useMenu();
+  } = useSize();
 
-  const handleCreateMenu = useCallback(() => {
+  const handleCreateSize = useCallback(() => {
     setShowCreateForm(true);
   }, [setShowCreateForm]);
 
@@ -45,53 +47,53 @@ export function MenusPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <MenuIcon className="h-8 w-8" />
-            Menu Management
+            <RulerIcon className="h-8 w-8" />
+            Size Management
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <XButton onClick={handleCreateMenu}>
+          <XButton onClick={handleCreateSize}>
             <PlusIcon className="h-4 w-4" />
-            Add Menu
+            Add Size
           </XButton>
         </div>
       </div>
 
-      <MenusList
-        menus={menus}
+      <SizesList
+        sizes={sizes}
         pagination={pagination}
         isLoading={isLoading}
         onBulkDelete={handleBulkDelete}
-        onEditMenu={handleEditMenu}
-        onDeleteMenu={handleDeleteMenu}
+        onEditSize={handleEditSize}
+        onDeleteSize={handleDeleteSize}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onSearchChange={handleSearchChange}
       />
 
-      <CreateMenu
+      <CreateSize
         open={showCreateForm}
         onOpenChange={setShowCreateForm}
         onSubmit={handleCreateSubmit}
         loading={isSubmitting}
       />
 
-      <EditMenu
+      <EditSize
         open={showEditForm}
         onOpenChange={setShowEditForm}
         onSubmit={handleEditSubmit}
         loading={isSubmitting}
         isLoadingData={isLoadingEditData}
-        menu={editingMenu}
+        size={editingSize}
       />
 
-      <DeleteMenu
+      <DeleteSize
         open={showDeleteForm}
         onOpenChange={setShowDeleteForm}
         onConfirm={handleDeleteConfirm}
         loading={isSubmitting}
-        selectedMenus={selectedMenus}
-        menu={selectedMenu}
+        selectedSizes={selectedSizes}
+        size={selectedSize}
       />
     </div>
   );

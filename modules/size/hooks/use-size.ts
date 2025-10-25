@@ -6,8 +6,9 @@ import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
-import { SizeService } from "@/lib/services";
-import { CreateSizeData, Size, UpdateSizeData } from "@/modules/size/types";
+import { sizeService } from "@/lib/services";
+
+import { CreateSizeData, Size, UpdateSizeData } from "../types/size.type";
 
 export function useSize() {
   const queryClient = useQueryClient();
@@ -22,7 +23,7 @@ export function useSize() {
     isLoading,
   } = useQuery({
     queryKey: [QUERY_KEYS.SIZES, filters],
-    queryFn: () => SizeService.getSizes(filters),
+    queryFn: () => sizeService.getSizes(filters),
   });
 
   if (error) {
@@ -33,7 +34,7 @@ export function useSize() {
   const pagination = sizesData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateSizeData) => SizeService.createSize(data),
+    mutationFn: (data: CreateSizeData) => sizeService.createSize(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZES] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZE_BY_ID] });
@@ -46,7 +47,7 @@ export function useSize() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateSizeData }) =>
-      SizeService.updateSize(id, data),
+      sizeService.updateSize(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZES] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZE_BY_ID] });
@@ -58,7 +59,7 @@ export function useSize() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => SizeService.deleteSize(id),
+    mutationFn: (id: string) => sizeService.deleteSize(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZES] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZE_BY_ID] });
@@ -70,7 +71,7 @@ export function useSize() {
   });
 
   const bulkDeleteMutation = useMutation({
-    mutationFn: (ids: string[]) => SizeService.bulkDeleteSizes(ids),
+    mutationFn: (ids: string[]) => sizeService.bulkDeleteSizes(ids),
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZES] });
       success(`Successfully deleted ${ids.length} sizes!`);
@@ -89,7 +90,7 @@ export function useSize() {
 
   const { data: editingSizeData, isLoading: isLoadingEditData } = useQuery({
     queryKey: [QUERY_KEYS.SIZE_BY_ID, editingSizeId],
-    queryFn: () => SizeService.getSizeById(editingSizeId!),
+    queryFn: () => sizeService.getSizeById(editingSizeId!),
     enabled: !!editingSizeId,
     select: (data) => data.data,
   });

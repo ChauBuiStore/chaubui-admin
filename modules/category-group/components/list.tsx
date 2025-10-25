@@ -7,7 +7,7 @@ import { ActionsConfig, XTable } from "@/components/common/x-table";
 import { PaginationMeta } from "@/lib/types";
 import { formatDate } from "@/lib/utils/date.ultis";
 
-import { CategoryGroup } from "../types/categories-group.type";
+import { CategoryGroup } from "../types/category-group.type";
 
 interface CategoriesListProps {
   categoriesGroup: CategoryGroup[];

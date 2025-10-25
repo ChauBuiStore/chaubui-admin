@@ -6,8 +6,8 @@ import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
-import { MenuService } from "@/lib/services";
-import { CreateMenuData, Menu, UpdateMenuData } from "@/modules/menu/types";
+import { menuService } from "@/lib/services";
+import { CreateMenuData, Menu, UpdateMenuData } from "@/modules/menu/types/menu.type";
 
 export function useMenu() {
   const queryClient = useQueryClient();
@@ -20,7 +20,7 @@ export function useMenu() {
     isLoading,
   } = useQuery({
     queryKey: [QUERY_KEYS.MENU, filters],
-    queryFn: () => MenuService.getMenus(filters),
+    queryFn: () => menuService.getMenus(filters),
   });
 
   if (error) {
@@ -31,7 +31,7 @@ export function useMenu() {
   const pagination = menusData?.meta;
 
   const createMutation = useMutation({
-    mutationFn: (data: CreateMenuData) => MenuService.createMenu(data),
+    mutationFn: (data: CreateMenuData) => menuService.createMenu(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU_BY_ID] });
@@ -44,7 +44,7 @@ export function useMenu() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateMenuData }) =>
-      MenuService.updateMenu(id, data),
+      menuService.updateMenu(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU_BY_ID] });
@@ -56,7 +56,7 @@ export function useMenu() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => MenuService.deleteMenu(id),
+    mutationFn: (id: string) => menuService.deleteMenu(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU_BY_ID] });
@@ -68,7 +68,7 @@ export function useMenu() {
   });
 
   const bulkDeleteMutation = useMutation({
-    mutationFn: (ids: string[]) => MenuService.bulkDeleteMenus(ids),
+    mutationFn: (ids: string[]) => menuService.bulkDeleteMenus(ids),
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
       success(`Successfully deleted ${ids.length} menus!`);
@@ -87,7 +87,7 @@ export function useMenu() {
 
   const { data: editingMenuData, isLoading: isLoadingEditData } = useQuery({
     queryKey: [QUERY_KEYS.MENU_BY_ID, editingMenuId],
-    queryFn: () => MenuService.getMenuById(editingMenuId!),
+    queryFn: () => menuService.getMenuById(editingMenuId!),
     enabled: !!editingMenuId,
     select: (data) => data.data,
   });

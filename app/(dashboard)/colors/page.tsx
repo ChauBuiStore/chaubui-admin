@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { ColorsPage } from "@/modules/color";
+import { ColorsPage } from "@/modules/color/pages";
 
 export const metadata: Metadata = {
   title: "Colors",

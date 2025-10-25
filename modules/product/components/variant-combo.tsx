@@ -2,10 +2,10 @@
 
 import { UseFormReturn } from "react-hook-form";
 
-import { XInputNumber, XSelect } from "@/components/common";
+import { XCombobox, XInputNumber } from "@/components/common";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui";
-import { Color } from "@/modules/color/types";
-import { Size } from "@/modules/size/types";
+import { Color } from "@/modules/color/types/color.type";
+import { Size } from "@/modules/size/types/size.type";
 
 import { CreateProductFormData, UpdateProductFormData } from "../schemas";
 import { VariantType } from "../types";
@@ -103,7 +103,7 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
             <FormItem>
               <FormLabel className="text-sm font-medium">Color *</FormLabel>
               <FormControl>
-                <XSelect
+                <XCombobox
                   options={getAvailableColors(index).map((color: Color) => ({
                     value: color.id,
                     label: color.nameEn,
@@ -132,7 +132,7 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
                   onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  size="sm"
+                  size="md"
                   min={0}
                   hasError={!!fieldState.error}
                 />
@@ -155,7 +155,7 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
                   onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  size="sm"
+                  size="md"
                   min={0}
                   hasError={!!fieldState.error}
                 />
@@ -174,7 +174,7 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
             <FormItem>
               <FormLabel className="text-sm font-medium">Size *</FormLabel>
               <FormControl>
-                <XSelect
+                <XCombobox
                   options={getAvailableSizes(index).map((size: Size) => ({
                     value: size.id,
                     label: size.nameEn,
@@ -203,7 +203,7 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
                   onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  size="sm"
+                  size="md"
                   min={0}
                   hasError={!!fieldState.error}
                 />
@@ -226,7 +226,7 @@ export function VariantCombo({ form, colors, sizes, index, variantType }: Varian
                   onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  size="sm"
+                  size="md"
                   min={0}
                   hasError={!!fieldState.error}
                 />

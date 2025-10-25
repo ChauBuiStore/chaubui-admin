@@ -1,17 +1,20 @@
 "use client";
 
-import { FolderIcon, PlusIcon } from "lucide-react";
+import { PaletteIcon, PlusIcon } from "lucide-react";
+import { useCallback } from "react";
 
 import { XButton } from "@/components/common";
 
-import { CategoriesGroupList } from "./components/list";
-import { useCategoryGroup } from "./hooks";
-import { CreateCategoryGroup, DeleteCategoryGroup, EditCategoryGroup } from "./modals";
+import { ColorsList } from "../components/list";
+import { useColor } from "../hooks/use-color";
+import { CreateColor } from "../modals/create";
+import { DeleteColor } from "../modals/delete";
+import { EditColor } from "../modals/edit";
 
-export function CategoriesGroupPage() {
+export function ColorsPage() {
   const {
-    categoriesGroup,
-    meta,
+    colors,
+    pagination,
     isLoading,
     showCreateForm,
     setShowCreateForm,
@@ -19,76 +22,78 @@ export function CategoriesGroupPage() {
     setShowEditForm,
     showDeleteForm,
     setShowDeleteForm,
-    editingCategoryGroup,
+    editingColor,
     isLoadingEditData,
-    selectedCategoryGroup,
-    selectedCategoryGroups,
+    selectedColor,
+    selectedColors,
     isSubmitting,
     handleCreateSubmit,
     handleEditSubmit,
-    handleEditCategory,
+    handleEditColor,
     handleDeleteConfirm,
-    handleDeleteCategory,
+    handleDeleteColor,
     handleBulkDelete,
     handlePageChange,
     handlePageSizeChange,
     handleSearchChange,
-    setEditingCategoryGroupId,
-  } = useCategoryGroup();
+  } = useColor();
+
+  const handleCreateColor = useCallback(() => {
+    setShowCreateForm(true);
+  }, [setShowCreateForm]);
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <FolderIcon className="h-8 w-8" />
-            <span>Category Group Management</span>
+            <PaletteIcon className="h-8 w-8" />
+            Color Management
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <XButton onClick={() => setShowCreateForm(true)} className="w-full sm:w-auto">
+          <XButton onClick={handleCreateColor}>
             <PlusIcon className="h-4 w-4" />
-            <span>Add Category Group</span>
+            Add Color
           </XButton>
         </div>
       </div>
 
-      <CategoriesGroupList
-        categoriesGroup={categoriesGroup}
-        pagination={meta}
+      <ColorsList
+        colors={colors}
+        pagination={pagination}
         isLoading={isLoading}
         onBulkDelete={handleBulkDelete}
-        onEditCategory={handleEditCategory}
-        onDeleteCategory={handleDeleteCategory}
+        onEditColor={handleEditColor}
+        onDeleteColor={handleDeleteColor}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onSearchChange={handleSearchChange}
       />
 
-      <CreateCategoryGroup
+      <CreateColor
         open={showCreateForm}
         onOpenChange={setShowCreateForm}
         onSubmit={handleCreateSubmit}
         loading={isSubmitting}
       />
 
-      <EditCategoryGroup
+      <EditColor
         open={showEditForm}
         onOpenChange={setShowEditForm}
         onSubmit={handleEditSubmit}
         loading={isSubmitting}
-        categoryGroup={editingCategoryGroup}
         isLoadingData={isLoadingEditData}
-        onClose={() => setEditingCategoryGroupId(null)}
+        color={editingColor}
       />
 
-      <DeleteCategoryGroup
+      <DeleteColor
         open={showDeleteForm}
         onOpenChange={setShowDeleteForm}
         onConfirm={handleDeleteConfirm}
         loading={isSubmitting}
-        categoryGroup={selectedCategoryGroup}
-        selectedCategoryGroups={selectedCategoryGroups}
+        selectedColors={selectedColors}
+        color={selectedColor}
       />
     </div>
   );

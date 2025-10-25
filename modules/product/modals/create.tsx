@@ -3,16 +3,16 @@
 import { UseFormReturn } from "react-hook-form";
 
 import {
+  XCombobox,
   XFormDialog,
   XInput,
   XInputNumber,
   XScrollArea,
-  XSelect,
   XTextEditor,
 } from "@/components/common";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui";
-import { Color } from "@/modules/color/types";
-import { Size } from "@/modules/size/types";
+import { Color } from "@/modules/color/types/color.type";
+import { Size } from "@/modules/size/types/size.type";
 
 import { ProductThumbnail, ProductUpload, ProductVariantForm } from "../components";
 import { CreateProductFormData, createProductSchema } from "../schemas";
@@ -130,7 +130,7 @@ export function CreateProduct({
                             onChange={(value) => field.onChange(value ?? undefined)}
                             onBlur={field.onBlur}
                             ref={field.ref}
-                            size="sm"
+                            size="md"
                             min={0}
                             hasError={!!fieldState.error}
                           />
@@ -153,7 +153,7 @@ export function CreateProduct({
                             onChange={(value) => field.onChange(value ?? undefined)}
                             onBlur={field.onBlur}
                             ref={field.ref}
-                            size="sm"
+                            size="md"
                             min={0}
                             hasError={!!fieldState.error}
                           />
@@ -171,7 +171,7 @@ export function CreateProduct({
                     <FormItem>
                       <FormLabel>Category *</FormLabel>
                       <FormControl>
-                        <XSelect
+                        <XCombobox
                           options={categories.map((category) => ({
                             value: category.id,
                             label: category.nameEn,
@@ -200,9 +200,10 @@ export function CreateProduct({
                           onChange={(value) => field.onChange(value ?? undefined)}
                           onBlur={field.onBlur}
                           ref={field.ref}
-                          size="sm"
+                          size="md"
                           min={0}
                           hasError={!!fieldState.error}
+                          wrapperClassName="space-y-1"
                         />
                       </FormControl>
                       <FormMessage />
@@ -223,9 +224,10 @@ export function CreateProduct({
                           onChange={(value) => field.onChange(value ?? undefined)}
                           onBlur={field.onBlur}
                           ref={field.ref}
-                          size="sm"
+                          size="md"
                           min={0}
                           hasError={!!fieldState.error}
+                          wrapperClassName="space-y-1"
                         />
                       </FormControl>
                       <FormMessage />
@@ -234,12 +236,24 @@ export function CreateProduct({
                 />
               </div>
 
-              <ProductThumbnail form={form} isEdit={false} />
+              <FormField
+                control={form.control}
+                name="thumbnailUrl"
+                render={({ fieldState }) => (
+                  <FormItem>
+                    <FormLabel>Thumbnail *</FormLabel>
+                    <FormControl>
+                      <ProductThumbnail form={form} isEdit={false} hasError={!!fieldState.error} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}
                 name="description"
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormControl>
                       <XTextEditor
@@ -247,7 +261,11 @@ export function CreateProduct({
                         required
                         placeholder="Nhập mô tả sản phẩm..."
                         value={field.value}
-                        onChange={field.onChange}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          form.trigger("description");
+                        }}
+                        error={!!fieldState.error}
                       />
                     </FormControl>
                     <FormMessage />

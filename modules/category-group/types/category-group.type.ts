@@ -1,4 +1,4 @@
-import { Category } from "@/modules/category/types/categories.type";
+import { Category } from "@/modules/category/types/category.type";
 
 export interface CategoryGroup {
   id: string;

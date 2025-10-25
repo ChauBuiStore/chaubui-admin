@@ -2,9 +2,9 @@
 
 import { UseFormReturn } from "react-hook-form";
 
-import { XInputNumber, XSelect } from "@/components/common";
+import { XCombobox, XInputNumber } from "@/components/common";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui";
-import { Size } from "@/modules/size/types";
+import { Size } from "@/modules/size/types/size.type";
 
 import { CreateProductFormData, UpdateProductFormData } from "../schemas";
 import { VariantType } from "../types";
@@ -55,7 +55,7 @@ export function VariantSize({ form, sizes, index, variantType }: VariantSizeProp
             <FormItem>
               <FormLabel className="text-sm font-medium">Size *</FormLabel>
               <FormControl>
-                <XSelect
+                <XCombobox
                   options={getAvailableSizes(index).map((size) => ({
                     value: size.id,
                     label: size.nameEn,
@@ -85,7 +85,7 @@ export function VariantSize({ form, sizes, index, variantType }: VariantSizeProp
                     onChange={(value) => field.onChange(value ?? undefined)}
                     onBlur={field.onBlur}
                     ref={field.ref}
-                    size="sm"
+                    size="md"
                     min={0}
                     hasError={!!fieldState.error}
                   />
@@ -108,7 +108,7 @@ export function VariantSize({ form, sizes, index, variantType }: VariantSizeProp
                     onChange={(value) => field.onChange(value ?? undefined)}
                     onBlur={field.onBlur}
                     ref={field.ref}
-                    size="sm"
+                    size="md"
                     min={0}
                     hasError={!!fieldState.error}
                   />
@@ -134,7 +134,7 @@ export function VariantSize({ form, sizes, index, variantType }: VariantSizeProp
                   onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  size="sm"
+                  size="md"
                   min={0}
                   hasError={!!fieldState.error}
                 />
@@ -157,7 +157,7 @@ export function VariantSize({ form, sizes, index, variantType }: VariantSizeProp
                   onChange={(value) => field.onChange(value ?? undefined)}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  size="sm"
+                  size="md"
                   min={0}
                   hasError={!!fieldState.error}
                 />

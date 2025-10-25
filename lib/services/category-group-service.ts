@@ -1,61 +1,59 @@
-import { ENDPOINTS, httpClient } from "@/lib/configs";
+import { authFetcher, ENDPOINTS } from "@/lib/configs";
 import { ApiResponse } from "@/lib/types";
 import {
   CategoryGroup,
   CategoryGroupFilters,
   CreateCategoryGroupData,
   UpdateCategoryGroupData,
-} from "@/modules/category-group/types";
+} from "@/modules/category-group/types/category-group.type";
 
-class CategoryGroupService {
-  static async getCategoryGroups(
+export const categoryGroupService = {
+  getCategoryGroups: async (
     filters?: CategoryGroupFilters,
-  ): Promise<ApiResponse<CategoryGroup[]>> {
-    const response = await httpClient.get<CategoryGroup[]>(ENDPOINTS.CATEGORY_GROUP.GET_ALL, {
+  ): Promise<ApiResponse<CategoryGroup[]>> => {
+    const response = await authFetcher.get<CategoryGroup[]>(ENDPOINTS.CATEGORY_GROUP.GET_ALL, {
       params: filters,
     });
 
     return response;
-  }
+  },
 
-  static async getCategoryGroupById(id: string): Promise<ApiResponse<CategoryGroup>> {
-    const response = await httpClient.get<CategoryGroup>(
+  getCategoryGroupById: async (id: string): Promise<ApiResponse<CategoryGroup>> => {
+    const response = await authFetcher.get<CategoryGroup>(
       ENDPOINTS.CATEGORY_GROUP.GET_BY_ID.replace(":id", id),
     );
     return response;
-  }
+  },
 
-  static async createCategoryGroup(
+  createCategoryGroup: async (
     data: CreateCategoryGroupData,
-  ): Promise<ApiResponse<CategoryGroup>> {
-    const response = await httpClient.post<CategoryGroup>(ENDPOINTS.CATEGORY_GROUP.CREATE, data);
+  ): Promise<ApiResponse<CategoryGroup>> => {
+    const response = await authFetcher.post<CategoryGroup>(ENDPOINTS.CATEGORY_GROUP.CREATE, data);
     return response;
-  }
+  },
 
-  static async updateCategoryGroup(
+  updateCategoryGroup: async (
     id: string,
     data: UpdateCategoryGroupData,
-  ): Promise<ApiResponse<CategoryGroup>> {
-    const response = await httpClient.put<CategoryGroup>(
+  ): Promise<ApiResponse<CategoryGroup>> => {
+    const response = await authFetcher.put<CategoryGroup>(
       ENDPOINTS.CATEGORY_GROUP.UPDATE.replace(":id", id),
       data,
     );
     return response;
-  }
+  },
 
-  static async deleteCategoryGroup(id: string): Promise<ApiResponse<void>> {
-    const response = await httpClient.delete<void>(
+  deleteCategoryGroup: async (id: string): Promise<ApiResponse<void>> => {
+    const response = await authFetcher.delete<void>(
       ENDPOINTS.CATEGORY_GROUP.DELETE.replace(":id", id),
     );
     return response;
-  }
+  },
 
-  static async bulkDeleteCategoryGroups(ids: string[]): Promise<ApiResponse<void>> {
-    const response = await httpClient.delete<void>(ENDPOINTS.CATEGORY_GROUP.BULK_DELETE, {
+  bulkDeleteCategoryGroups: async (ids: string[]): Promise<ApiResponse<void>> => {
+    const response = await authFetcher.delete<void>(ENDPOINTS.CATEGORY_GROUP.BULK_DELETE, {
       ids,
     });
     return response;
-  }
-}
-
-export default CategoryGroupService;
+  },
+};

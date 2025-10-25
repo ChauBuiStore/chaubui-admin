@@ -6,7 +6,7 @@ import { FieldValues } from "react-hook-form";
 import { XDialog, XForm, XFormField } from "@/components/common";
 import { FORM_TYPES } from "@/lib/constants";
 
-import { createSizeSchema } from "../schemas";
+import { createSizeSchema } from "../schemas/size.schema";
 
 interface CreateSizeProps {
   open: boolean;

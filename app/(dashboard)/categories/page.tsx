@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { CategoriesPage } from "@/modules/category";
+import { CategoriesPage } from "@/modules/category/pages";
 
 export const metadata: Metadata = {
   title: "Categories",

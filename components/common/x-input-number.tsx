@@ -151,7 +151,7 @@ export const XInputNumber = forwardRef<HTMLInputElement, XInputNumberProps>(
     };
 
     return (
-      <div className={cn("space-y-1", wrapperClassName)}>
+      <div className={cn("space-y-2", wrapperClassName)}>
         {label && (
           <XLabel
             required={required}
@@ -177,7 +177,7 @@ export const XInputNumber = forwardRef<HTMLInputElement, XInputNumberProps>(
             className={cn(
               sizeClasses[size],
               hasError ? "border-destructive focus:border-destructive focus:ring-destructive" : "",
-              disabled ? "bg-muted cursor-not-allowed" : "",
+              disabled ? "bg-muted cursor-not-allowed" : "bg-background",
               readOnly ? "bg-muted cursor-default" : "",
               "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
               inputClassName,

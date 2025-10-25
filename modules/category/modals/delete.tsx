@@ -2,7 +2,7 @@
 
 import { XConfirmDialog } from "@/components/common/x-dialog";
 
-import { Category } from "../types/categories.type";
+import { Category } from "../types/category.type";
 
 interface DeleteCategoryModalProps {
   open: boolean;

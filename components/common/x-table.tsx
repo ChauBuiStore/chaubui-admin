@@ -308,11 +308,11 @@ const PaginationControls = <T,>({
           <XSelect
             className="w-20"
             options={pageSizes.map((s) => ({ value: `${s}`, label: `${s}` }))}
-            value={`${
+            value={String(
               pagination
                 ? pagination.itemsPerPage
-                : table.getState().pagination?.pageSize || pageSizes[0]
-            }`}
+                : table.getState().pagination?.pageSize || pageSizes[0],
+            )}
             onValueChange={(val) => handlePageSizeChange(val as string)}
           />
         </div>

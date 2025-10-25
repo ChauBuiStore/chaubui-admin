@@ -8,7 +8,7 @@ import { useDropzone } from "react-dropzone";
 
 import { XButton, XLabel } from "@/components/common";
 import { useToast } from "@/lib/hooks";
-import { UploadService } from "@/lib/services";
+import { uploadService } from "@/lib/services";
 import { FileUpload } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +24,7 @@ interface XDropzoneThumbnailProps {
     id: string;
   };
   title?: string;
+  hasError?: boolean;
 }
 
 export function XDropzoneThumbnail({
@@ -36,7 +37,8 @@ export function XDropzoneThumbnail({
   className,
   disabled = false,
   initialThumbnail,
-  title = "Thumbnail Upload",
+  title,
+  hasError = false,
 }: XDropzoneThumbnailProps) {
   const [uploadedFile, setUploadedFile] = useState<FileUpload | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -73,7 +75,7 @@ export function XDropzoneThumbnail({
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
-      const response = await UploadService.upload([file]);
+      const response = await uploadService.upload([file]);
 
       if (response.data && response.data.length > 0) {
         return response.data[0];
@@ -113,7 +115,7 @@ export function XDropzoneThumbnail({
   );
 
   const deleteMutation = useMutation({
-    mutationFn: (fileId: string) => UploadService.delete(fileId),
+    mutationFn: (fileId: string) => uploadService.delete(fileId),
     onSuccess: () => {
       setUploadedFile(null);
       onFileDelete?.();
@@ -174,17 +176,22 @@ export function XDropzoneThumbnail({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <XLabel className="mb-2">{title}</XLabel>
+      {title && (
+        <div className="space-y-1">
+          <XLabel className="mb-2">{title}</XLabel>
+        </div>
+      )}
 
       <div
         {...getRootProps()}
         className={cn(
           "border-2 border-dashed border rounded-lg p-2 text-center cursor-pointer transition-colors",
+          hasError && "border-destructive",
           isDragActive && "border-primary bg-primary/10",
           disabled && "opacity-50 cursor-not-allowed",
           (isUploading || deleteMutation.isPending) &&
             "border-primary bg-primary/10 cursor-not-allowed",
-          !(isUploading || deleteMutation.isPending) && !disabled && "hover:border",
+          !(isUploading || deleteMutation.isPending) && !disabled && !hasError && "hover:border",
         )}
       >
         <input {...getInputProps()} className="hidden" />

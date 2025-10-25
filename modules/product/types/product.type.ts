@@ -1,6 +1,6 @@
-import { Category } from "@/modules/category/types";
-import { Color } from "@/modules/color/types";
-import { Size } from "@/modules/size/types";
+import { Category } from "@/modules/category/types/category.type";
+import { Color } from "@/modules/color/types/color.type";
+import { Size } from "@/modules/size/types/size.type";
 
 import { ProductImage } from "./product-image.type";
 import { ProductVariant, ProductVariantData, VariantType } from "./product-variant.type";

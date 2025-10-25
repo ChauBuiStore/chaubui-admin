@@ -2,7 +2,7 @@
 
 import { XConfirmDialog } from "@/components/common";
 
-import { Size } from "../types";
+import { Size } from "../types/size.type";
 
 interface DeleteSizeModalProps {
   open: boolean;

@@ -1,12 +1,4 @@
-export interface CategoryGroup {
-  id: string;
-  nameVi: string;
-  nameEn: string;
-  nameKm: string;
-  slug: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-}
+import { CategoryGroup } from "@/modules/category-group/types/category-group.type";
 
 export interface Category {
   id: string;

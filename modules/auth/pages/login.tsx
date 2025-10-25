@@ -8,7 +8,8 @@ import { useRef } from "react";
 import { XButton, XCard, XForm, XFormField } from "@/components/common";
 import { AUTH_MESSAGES, FORM_TYPES, ROUTES } from "@/lib/constants";
 import { useAuth, useToast } from "@/lib/hooks";
-import { type LoginFormData, loginSchema } from "@/modules/auth/schema";
+
+import { type LoginFormData, loginSchema } from "../schema/login.schema";
 
 export function LoginPage() {
   const formRef = useRef<HTMLFormElement | null>(null);

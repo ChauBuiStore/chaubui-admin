@@ -7,8 +7,8 @@ import { XDialog } from "@/components/common/x-dialog";
 import XForm, { XFormField } from "@/components/common/x-form";
 import { FORM_TYPES } from "@/lib/constants";
 
-import { updateCategoryGroupSchema } from "../schemas";
-import { CategoryGroup } from "../types/categories-group.type";
+import { updateCategoryGroupSchema } from "../schemas/category-group.schema";
+import { CategoryGroup } from "../types/category-group.type";
 
 interface EditCategoryGroupProps {
   open: boolean;

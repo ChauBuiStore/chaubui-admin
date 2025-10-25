@@ -1,8 +1,8 @@
-import { ENDPOINTS, httpClient } from "@/lib/configs";
+import { authFetcher, ENDPOINTS } from "@/lib/configs";
 import type { ApiResponse, FileUpload } from "@/lib/types";
 
-class UploadService {
-  static async upload(files: File | File[]): Promise<ApiResponse<FileUpload[]>> {
+export const uploadService = {
+  upload: async (files: File | File[]): Promise<ApiResponse<FileUpload[]>> => {
     const fileArray = Array.isArray(files) ? files : [files];
 
     if (fileArray.length === 0) {
@@ -14,15 +14,16 @@ class UploadService {
       formData.append(`files`, file);
     });
 
-    const response = await httpClient.postFormData<FileUpload[]>(ENDPOINTS.UPLOAD.UPLOAD, formData);
+    const response = await authFetcher.postFormData<FileUpload[]>(
+      ENDPOINTS.UPLOAD.UPLOAD,
+      formData,
+    );
 
     return response;
-  }
+  },
 
-  static async delete(id: string): Promise<ApiResponse<void>> {
-    const response = await httpClient.delete<void>(ENDPOINTS.UPLOAD.DELETE.replace(":id", id));
+  delete: async (id: string): Promise<ApiResponse<void>> => {
+    const response = await authFetcher.delete<void>(ENDPOINTS.UPLOAD.DELETE.replace(":id", id));
     return response;
-  }
-}
-
-export default UploadService;
+  },
+};

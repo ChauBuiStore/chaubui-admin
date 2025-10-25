@@ -4,7 +4,6 @@ import { useCallback, useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
 
 import { XDropzoneThumbnail } from "@/components/common";
-import { FormControl, FormItem, FormMessage } from "@/components/ui";
 
 import { CreateProductFormData, UpdateProductFormData } from "../schemas";
 import { ProductImage } from "../types";
@@ -13,12 +12,14 @@ interface ProductThumbnailProps {
   form: UseFormReturn<CreateProductFormData> | UseFormReturn<UpdateProductFormData>;
   productThumbnail?: ProductImage[];
   isEdit?: boolean;
+  hasError?: boolean;
 }
 
 export function ProductThumbnail({
   form,
   productThumbnail = [],
   isEdit = false,
+  hasError = false,
 }: ProductThumbnailProps) {
   const initialThumbnail = useMemo(() => {
     const thumbnailId = form.getValues("thumbnailId");
@@ -47,6 +48,7 @@ export function ProductThumbnail({
     (thumbnailUrl: string, thumbnailId: string) => {
       form.setValue("thumbnailUrl", thumbnailUrl);
       form.setValue("thumbnailId", thumbnailId);
+      form.trigger(["thumbnailUrl", "thumbnailId"]);
     },
     [form],
   );
@@ -54,20 +56,16 @@ export function ProductThumbnail({
   const handleFileDelete = useCallback(() => {
     form.setValue("thumbnailUrl", "");
     form.setValue("thumbnailId", "");
+    form.trigger(["thumbnailUrl", "thumbnailId"]);
   }, [form]);
 
   return (
-    <FormItem>
-      <FormControl>
-        <XDropzoneThumbnail
-          className="w-1/3"
-          title="Thumbnail"
-          initialThumbnail={initialThumbnail}
-          onUploadSuccess={handleThumbnailUpload}
-          onFileDelete={handleFileDelete}
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
+    <XDropzoneThumbnail
+      className="w-1/3"
+      initialThumbnail={initialThumbnail}
+      onUploadSuccess={handleThumbnailUpload}
+      onFileDelete={handleFileDelete}
+      hasError={hasError}
+    />
   );
 }

@@ -1,18 +1,19 @@
 "use client";
 
-import { PlusIcon, RulerIcon } from "lucide-react";
-import { useCallback } from "react";
+import { FolderIcon, PlusIcon } from "lucide-react";
 
 import { XButton } from "@/components/common";
 
-import { SizesList } from "./components";
-import { useSize } from "./hooks";
-import { CreateSize, DeleteSize, EditSize } from "./modals";
+import { CategoriesGroupList } from "../components/list";
+import { useCategoryGroup } from "../hooks/use-category-group";
+import { CreateCategoryGroup } from "../modals/create";
+import { DeleteCategoryGroup } from "../modals/delete";
+import { EditCategoryGroup } from "../modals/edit";
 
-export function SizesPage() {
+export function CategoriesGroupPage() {
   const {
-    sizes,
-    pagination,
+    categoriesGroup,
+    meta,
     isLoading,
     showCreateForm,
     setShowCreateForm,
@@ -20,78 +21,76 @@ export function SizesPage() {
     setShowEditForm,
     showDeleteForm,
     setShowDeleteForm,
-    editingSize,
+    editingCategoryGroup,
     isLoadingEditData,
-    selectedSize,
-    selectedSizes,
+    selectedCategoryGroup,
+    selectedCategoryGroups,
     isSubmitting,
     handleCreateSubmit,
     handleEditSubmit,
-    handleEditSize,
+    handleEditCategory,
     handleDeleteConfirm,
-    handleDeleteSize,
+    handleDeleteCategory,
     handleBulkDelete,
     handlePageChange,
     handlePageSizeChange,
     handleSearchChange,
-  } = useSize();
-
-  const handleCreateSize = useCallback(() => {
-    setShowCreateForm(true);
-  }, [setShowCreateForm]);
+    setEditingCategoryGroupId,
+  } = useCategoryGroup();
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <RulerIcon className="h-8 w-8" />
-            Size Management
+            <FolderIcon className="h-8 w-8" />
+            <span>Category Group Management</span>
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <XButton onClick={handleCreateSize}>
+          <XButton onClick={() => setShowCreateForm(true)} className="w-full sm:w-auto">
             <PlusIcon className="h-4 w-4" />
-            Add Size
+            <span>Add Category Group</span>
           </XButton>
         </div>
       </div>
 
-      <SizesList
-        sizes={sizes}
-        pagination={pagination}
+      <CategoriesGroupList
+        categoriesGroup={categoriesGroup}
+        pagination={meta}
         isLoading={isLoading}
         onBulkDelete={handleBulkDelete}
-        onEditSize={handleEditSize}
-        onDeleteSize={handleDeleteSize}
+        onEditCategory={handleEditCategory}
+        onDeleteCategory={handleDeleteCategory}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onSearchChange={handleSearchChange}
       />
 
-      <CreateSize
+      <CreateCategoryGroup
         open={showCreateForm}
         onOpenChange={setShowCreateForm}
         onSubmit={handleCreateSubmit}
         loading={isSubmitting}
       />
 
-      <EditSize
+      <EditCategoryGroup
         open={showEditForm}
         onOpenChange={setShowEditForm}
         onSubmit={handleEditSubmit}
         loading={isSubmitting}
+        categoryGroup={editingCategoryGroup}
         isLoadingData={isLoadingEditData}
-        size={editingSize}
+        onClose={() => setEditingCategoryGroupId(null)}
       />
 
-      <DeleteSize
+      <DeleteCategoryGroup
         open={showDeleteForm}
         onOpenChange={setShowDeleteForm}
         onConfirm={handleDeleteConfirm}
         loading={isSubmitting}
-        selectedSizes={selectedSizes}
-        size={selectedSize}
+        categoryGroup={selectedCategoryGroup}
+        selectedCategoryGroups={selectedCategoryGroups}
       />
     </div>
   );

@@ -2,6 +2,7 @@ export const ENDPOINTS = {
   AUTH: {
     LOGIN: "/auth/login",
     LOGOUT: "/auth/logout",
+    ME: "/auth/me",
   },
   CATEGORY_GROUP: {
     GET_ALL: "/category-group",

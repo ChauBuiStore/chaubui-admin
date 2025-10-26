@@ -6,17 +6,19 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useState 
 import { clearOnTokenExpired, setOnTokenExpired } from "@/lib/configs";
 import { ROUTES } from "@/lib/constants";
 import { authService } from "@/lib/services";
-import { ApiResponse, AuthResponse, LoginCredentials } from "@/lib/types";
+import { ApiResponse, AuthResponse, LoginCredentials, User } from "@/lib/types";
 import { authCookies } from "@/lib/utils/cookies.utils";
-import { isTokenValid } from "@/lib/utils/token.utils";
+import { isTokenValid, parseJWTToken } from "@/lib/utils/token.utils";
 
 interface AuthContextType {
   token: string | null;
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<ApiResponse<AuthResponse>>;
   logout: () => Promise<ApiResponse<{ message: string }>>;
   logoutSilently: () => void;
+  getCurrentUser: () => Promise<ApiResponse<User>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +29,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children = null }: AuthProviderProps) {
   const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
   const router = useRouter();
@@ -39,6 +42,10 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
           const isValid = isTokenValid(storedToken);
           if (isValid) {
             setToken(storedToken);
+            const tokenInfo = parseJWTToken(storedToken);
+            if (tokenInfo.payload) {
+              setUser(tokenInfo.payload);
+            }
           } else {
             authCookies.remove();
           }
@@ -55,6 +62,7 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
 
   const logoutSilently = useCallback(() => {
     setToken(null);
+    setUser(null);
     authCookies.remove();
     router.push(ROUTES.LOGIN);
   }, [router]);
@@ -67,6 +75,18 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
     };
   }, [logoutSilently]);
 
+  const getCurrentUser = async (): Promise<ApiResponse<User>> => {
+    try {
+      const result = await authService.me();
+      if (result.status === "success" && result.data) {
+        setUser(result.data);
+      }
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const login = async (credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> => {
     setIsLoading(true);
     try {
@@ -75,6 +95,7 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
       if (result.status === "success" && result.data?.accessToken) {
         setToken(result.data.accessToken);
         authCookies.set(result.data.accessToken);
+        await getCurrentUser();
       }
 
       return result;
@@ -88,6 +109,7 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
     try {
       const result = await authService.logout();
       setToken(null);
+      setUser(null);
       authCookies.remove();
       router.push(ROUTES.LOGIN);
       return result;
@@ -98,11 +120,13 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
 
   const value: AuthContextType = {
     token: isHydrated ? token : null,
+    user: isHydrated ? user : null,
     isAuthenticated: isHydrated ? !!token : false,
     isLoading: !isHydrated || isLoading,
     login,
     logout,
     logoutSilently,
+    getCurrentUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

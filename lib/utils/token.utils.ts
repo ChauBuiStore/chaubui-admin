@@ -1,8 +1,10 @@
+import { User } from "@/lib/types";
+
 export interface TokenInfo {
   isValid: boolean;
   isExpired: boolean;
   expiresAt?: Date;
-  payload?: unknown;
+  payload?: User;
 }
 
 export function parseJWTToken(token: string): TokenInfo {

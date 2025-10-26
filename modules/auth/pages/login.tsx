@@ -21,14 +21,14 @@ export function LoginPage() {
     mutationFn: authLogin,
     onSuccess: (result) => {
       if (result?.status === "success" && result?.data?.accessToken) {
-        success(result.message || AUTH_MESSAGES.LOGIN_SUCCESS);
+        success(AUTH_MESSAGES.LOGIN_SUCCESS);
         router.push(ROUTES.DASHBOARD);
       } else {
-        error(result?.message || AUTH_MESSAGES.LOGIN_FAILED);
+        error(AUTH_MESSAGES.LOGIN_FAILED);
       }
     },
-    onError: (err: Error) => {
-      error(err.message || AUTH_MESSAGES.LOGIN_ERROR);
+    onError: () => {
+      error(AUTH_MESSAGES.LOGIN_FAILED);
     },
   });
 

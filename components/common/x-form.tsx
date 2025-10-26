@@ -78,6 +78,7 @@ export interface XFormProps<T = Record<string, unknown>> {
   disabled?: boolean;
   className?: string;
   onFormReady?: (form: ReturnType<typeof useForm>) => void;
+  shouldResetOnSubmit?: boolean;
 }
 
 function XFormInner<T extends Record<string, unknown>>(
@@ -93,6 +94,7 @@ function XFormInner<T extends Record<string, unknown>>(
     disabled = false,
     className,
     onFormReady,
+    shouldResetOnSubmit = false,
     ...restProps
   } = props;
   const [showPasswordStates, setShowPasswordStates] = useState<Record<string, boolean>>({});
@@ -116,7 +118,10 @@ function XFormInner<T extends Record<string, unknown>>(
     try {
       const result = onSubmit(data as T);
       await (result instanceof Promise ? result : Promise.resolve(result));
-      form.reset();
+      // Only reset form if explicitly requested
+      if (shouldResetOnSubmit) {
+        form.reset();
+      }
     } catch (error) {
       throw error;
     }

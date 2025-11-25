@@ -14,14 +14,14 @@ export const statusLabel: Record<OrderStatus, string> = {
 
 export const statusColor: Record<
   OrderStatus,
-  "default" | "secondary" | "destructive" | "success" | "warning" | "info"
+  "default" | "secondary" | "destructive" | "success" | "warning" | "info" | "outline"
 > = {
   NEW: "info",
   PENDING_CONFIRMATION: "warning",
   CANCELLED: "destructive",
-  CONFIRMED: "info",
-  IN_PRODUCTION: "secondary",
-  SHIPPING: "default",
+  CONFIRMED: "default",
+  IN_PRODUCTION: "outline",
+  SHIPPING: "secondary",
   COMPLETED: "success",
   CANCELLED_NO_REFUND: "destructive",
   CANCELLED_PARTIAL_REFUND: "destructive",

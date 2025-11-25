@@ -6,34 +6,8 @@ import { XTable } from "@/components/common/x-table";
 import { PaginationMeta } from "@/lib/types";
 import { formatVND } from "@/lib/utils/currency.utils";
 
-import { Order, OrderStatus } from "../types/order.type";
-
-const statusLabel: Record<OrderStatus, string> = {
-  NEW: "New",
-  PENDING_CONFIRMATION: "Pending confirmation",
-  CANCELLED: "Cancelled",
-  CONFIRMED: "Confirmed",
-  IN_PRODUCTION: "In production",
-  SHIPPING: "Shipping",
-  COMPLETED: "Completed",
-  CANCELLED_NO_REFUND: "Cancelled - No refund",
-  CANCELLED_PARTIAL_REFUND: "Cancelled - Partial refund",
-};
-
-const statusColor: Record<
-  OrderStatus,
-  "default" | "secondary" | "destructive" | "success" | "warning" | "info"
-> = {
-  NEW: "info",
-  PENDING_CONFIRMATION: "warning",
-  CANCELLED: "destructive",
-  CONFIRMED: "secondary",
-  IN_PRODUCTION: "secondary",
-  SHIPPING: "secondary",
-  COMPLETED: "success",
-  CANCELLED_NO_REFUND: "destructive",
-  CANCELLED_PARTIAL_REFUND: "destructive",
-};
+import { statusColor, statusLabel } from "../constants/order.constant";
+import { Order } from "../types/order.type";
 
 interface OrdersListProps {
   data: Order[];

@@ -4,56 +4,9 @@ import { ArrowRight, Clock, User } from "lucide-react";
 import React from "react";
 
 import { XBadge } from "@/components/common";
-import { DATE_FORMATS } from "@/lib/constants";
-import { formatDate } from "@/lib/utils/date.ultis";
 
 import { statusColor, statusLabel } from "../constants/order.constant";
-import { Order, OrderStatusHistory } from "../types/order.type";
-
-interface OrderStatusExampleProps {
-  order: Order;
-}
-
-export function OrderStatusExample({ order }: OrderStatusExampleProps) {
-  const formatDateTime = (date: Date | string) => {
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    return formatDate(dateObj, DATE_FORMATS.DATE_SLASH_TIME);
-  };
-
-  return (
-    <div className="rounded-lg border bg-card p-5 space-y-6">
-      <div>
-        <h3 className="text-sm font-semibold mb-3">Order Status</h3>
-        <div className="flex items-center gap-3">
-          <XBadge variant={statusColor[order.status]}>{statusLabel[order.status]}</XBadge>
-          <span className="text-xs text-muted-foreground">
-            Last updated: {formatDateTime(order.updatedAt)}
-          </span>
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-sm font-semibold mb-3">Status Change History</h3>
-        {!order.statusHistory?.length ? (
-          <div className="text-sm text-muted-foreground py-4 text-center border rounded-md bg-muted/30">
-            No status change history
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {order.statusHistory?.map((history, index) => (
-              <OrderStatusHistoryItem
-                key={history.id}
-                history={history}
-                isLast={index === (order.statusHistory?.length ?? 0) - 1}
-                formatDateTime={formatDateTime}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+import { OrderStatusHistory } from "../types/order.type";
 
 interface OrderStatusHistoryItemProps {
   history: OrderStatusHistory;
@@ -61,7 +14,11 @@ interface OrderStatusHistoryItemProps {
   formatDateTime: (date: Date | string) => string;
 }
 
-function OrderStatusHistoryItem({ history, isLast, formatDateTime }: OrderStatusHistoryItemProps) {
+export function OrderStatusHistoryItem({
+  history,
+  isLast,
+  formatDateTime,
+}: OrderStatusHistoryItemProps) {
   return (
     <div className="relative">
       {!isLast && <div className="absolute left-[11px] top-8 bottom-0 w-0.5 bg-border" />}

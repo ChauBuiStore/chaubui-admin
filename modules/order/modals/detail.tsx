@@ -6,7 +6,7 @@ import { XButton, XDialog, XScrollArea, XTextarea } from "@/components/common";
 
 import { OrderInfoCard } from "../components/order-info";
 import { OrderItemsList } from "../components/order-items-list";
-import { OrderStatusExample } from "../components/order-status-example";
+import { OrderStatusHistory } from "../components/order-status-history";
 import { OrderSummary } from "../components/order-summary";
 import { statusLabel } from "../constants/order.constant";
 import { getNextStatus } from "../helpers/order.helper";
@@ -98,10 +98,7 @@ export function OrderDetail({
               <OrderItemsList items={order.items} />
               <OrderSummary order={order} />
             </div>
-
-            {/* <OrderStatusCard order={order} /> */}
-
-            <OrderStatusExample order={order} />
+            <OrderStatusHistory order={order} />
           </div>
         )}
       </XScrollArea>

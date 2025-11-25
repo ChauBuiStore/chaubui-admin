@@ -8,12 +8,6 @@ import { useAuth } from "@/lib/hooks";
 export function Header() {
   const { user } = useAuth();
 
-  // Lấy ký tự đầu của email để hiển thị avatar
-  const getInitials = (email?: string) => {
-    if (!email) return "U";
-    return email.substring(0, 1).toUpperCase();
-  };
-
   return (
     <header className="flex flex-row justify-between h-18 shrink-0 items-center gap-2 border-b px-4 relative z-40">
       <div className="flex flex-row items-center gap-2">
@@ -23,9 +17,9 @@ export function Header() {
       </div>
       <div className="flex flex-row items-center gap-2">
         <Avatar>
-          <AvatarFallback>{getInitials(user?.email)}</AvatarFallback>
+          <AvatarFallback>{user?.fullName?.charAt(0)}</AvatarFallback>
         </Avatar>
-        <span className="text-sm font-medium">{user?.email}</span>
+        <span className="text-sm font-medium">{user?.fullName}</span>
       </div>
     </header>
   );

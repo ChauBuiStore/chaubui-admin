@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { CATEGORY_GROUP_MESSAGES } from "@/lib/constants/message.constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { categoryGroupService } from "@/lib/services";
 import {
@@ -39,7 +40,7 @@ export function useCategoryGroup() {
     mutationFn: (data: CreateCategoryGroupData) => categoryGroupService.createCategoryGroup(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
-      success("Category group created successfully!");
+      success(CATEGORY_GROUP_MESSAGES.CREATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -52,7 +53,7 @@ export function useCategoryGroup() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP_BY_ID] });
-      success("Category group updated successfully!");
+      success(CATEGORY_GROUP_MESSAGES.UPDATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -63,7 +64,7 @@ export function useCategoryGroup() {
     mutationFn: (id: string) => categoryGroupService.deleteCategoryGroup(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
-      success("Category group deleted successfully!");
+      success(CATEGORY_GROUP_MESSAGES.DELETED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -74,7 +75,7 @@ export function useCategoryGroup() {
     mutationFn: (ids: string[]) => categoryGroupService.bulkDeleteCategoryGroups(ids),
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
-      success(`Successfully deleted ${ids.length} category groups!`);
+      success(CATEGORY_GROUP_MESSAGES.BULK_DELETED_SUCCESS(ids.length));
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -121,7 +122,7 @@ export function useCategoryGroup() {
       if (selectedCategoryGroup && selectedCategoryGroups.length === 0) {
         if (selectedCategoryGroup.categories && selectedCategoryGroup.categories.length > 0) {
           showError(
-            `Không thể xóa nhóm danh mục "${selectedCategoryGroup.nameVi}" vì còn danh mục con. Vui lòng xóa danh mục con trước.`,
+            CATEGORY_GROUP_MESSAGES.CANNOT_DELETE_WITH_CHILDREN(selectedCategoryGroup.nameVi),
           );
           setShowDeleteForm(false);
           setSelectedCategoryGroup(null);
@@ -136,9 +137,7 @@ export function useCategoryGroup() {
 
         if (categoriesWithChildren.length > 0) {
           const categoryNames = categoriesWithChildren.map((cat) => cat.nameVi).join(", ");
-          showError(
-            `Không thể xóa các nhóm danh mục "${categoryNames}" vì còn danh mục con. Vui lòng xóa danh mục con trước.`,
-          );
+          showError(CATEGORY_GROUP_MESSAGES.CANNOT_DELETE_MULTIPLE_WITH_CHILDREN(categoryNames));
           setShowDeleteForm(false);
           setSelectedCategoryGroups([]);
           return;

@@ -1,39 +1,20 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Lock, LogIn, Mail, Sparkles } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useRef } from "react";
 
 import { XButton, XCard, XForm, XFormField } from "@/components/common";
-import { AUTH_MESSAGES, FORM_TYPES, ROUTES } from "@/lib/constants";
-import { useAuth, useToast } from "@/lib/hooks";
+import { FORM_TYPES } from "@/lib/constants";
+import { useAuth } from "@/lib/hooks";
 
 import { type LoginFormData, loginSchema } from "../schema/login.schema";
 
 export function LoginPage() {
   const formRef = useRef<HTMLFormElement | null>(null);
-  const router = useRouter();
-  const { login: authLogin } = useAuth();
-  const { success, error } = useToast();
+  const { loginMutation } = useAuth();
 
-  const loginMutation = useMutation({
-    mutationFn: authLogin,
-    onSuccess: (result) => {
-      if (result?.status === "success" && result?.data?.accessToken) {
-        success(AUTH_MESSAGES.LOGIN_SUCCESS);
-        router.push(ROUTES.DASHBOARD);
-      } else {
-        error(AUTH_MESSAGES.LOGIN_FAILED);
-      }
-    },
-    onError: () => {
-      error(AUTH_MESSAGES.LOGIN_FAILED);
-    },
-  });
-
-  const handleSubmit = async (data: LoginFormData) => {
-    loginMutation.mutateAsync(data);
+  const handleSubmit = (data: LoginFormData) => {
+    loginMutation.mutate(data);
   };
 
   const fields: XFormField[] = [

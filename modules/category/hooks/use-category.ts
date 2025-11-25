@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { CATEGORY_MESSAGES } from "@/lib/constants/message.constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { categoryGroupService, categoryService } from "@/lib/services";
 import {
@@ -46,7 +47,7 @@ export function useCategory() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
-      success("Category created successfully!");
+      success(CATEGORY_MESSAGES.CREATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -60,7 +61,7 @@ export function useCategory() {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_BY_ID] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
-      success("Category updated successfully!");
+      success(CATEGORY_MESSAGES.UPDATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -72,7 +73,7 @@ export function useCategory() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
-      success("Category deleted successfully!");
+      success(CATEGORY_MESSAGES.DELETED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -84,7 +85,7 @@ export function useCategory() {
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.CATEGORY_GROUP] });
-      success(`Successfully deleted ${ids.length} categories!`);
+      success(CATEGORY_MESSAGES.BULK_DELETED_SUCCESS(ids.length));
     },
     onError: (error) => {
       showError((error as Error).message);

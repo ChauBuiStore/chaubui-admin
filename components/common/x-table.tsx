@@ -3,25 +3,29 @@
 import {
   ColumnDef,
   ColumnFiltersState,
+  ExpandedState,
   FilterFn,
   FilterFnOption,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  Row,
   RowSelectionState,
   Table as TanStackTable,
   useReactTable,
 } from "@tanstack/react-table";
 import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  ChevronUp,
   MoreVertical,
   Trash2,
 } from "lucide-react";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { XButton, XCheckbox, XDropdownMenu, XLabel, XSelect } from "@/components/common";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui";
@@ -48,6 +52,7 @@ interface TableBodyProps<T> {
   columns: ColumnDef<T>[];
   emptyStateMessage?: string;
   loading?: boolean;
+  renderExpanded?: (row: Row<T>) => React.ReactNode;
 }
 
 const SelectAllCheckbox = <T,>({
@@ -191,7 +196,8 @@ const createActionsColumn = <T,>(config?: ActionsConfig<T>): ColumnDef<T> => ({
           {actions.map((action, index) => {
             const isDisabled = action.disabled?.(row.original) || false;
             const isHidden = action.hidden?.(row.original) || false;
-            const isDeleteAction = action.label?.toLowerCase() === "delete";
+            const actionLabel = action.label?.toLowerCase() || "";
+            const isDeleteAction = actionLabel === "delete" || actionLabel === "cancel order";
 
             if (isHidden) {
               return null;
@@ -426,7 +432,7 @@ const XTableHeader = <T,>({ table }: TableHeaderProps<T>) => {
   );
 };
 
-const XTableBody = <T,>({ table, columns, loading = false }: TableBodyProps<T>) => {
+const XTableBody = <T,>({ table, columns, loading = false, renderExpanded }: TableBodyProps<T>) => {
   const rows = table.getRowModel().rows;
 
   return (
@@ -447,17 +453,23 @@ const XTableBody = <T,>({ table, columns, loading = false }: TableBodyProps<T>) 
         </TableRow>
       ) : rows?.length ? (
         rows.map((row) => (
-          <TableRow
-            key={row.id}
-            className={row.getIsSelected() ? "bg-muted/50" : ""}
-            aria-selected={row.getIsSelected()}
-          >
-            {row.getVisibleCells().map((cell, cellIndex) => (
-              <TableCell key={cell.id} className={cellIndex === 0 ? "font-medium" : ""}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </TableCell>
-            ))}
-          </TableRow>
+          <Fragment key={row.id}>
+            <TableRow
+              className={row.getIsSelected() ? "bg-muted/50" : ""}
+              aria-selected={row.getIsSelected()}
+            >
+              {row.getVisibleCells().map((cell, cellIndex) => (
+                <TableCell key={cell.id} className={cellIndex === 0 ? "font-medium" : ""}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+            {renderExpanded && row.getIsExpanded() && (
+              <TableRow className="bg-muted/30">
+                <TableCell colSpan={row.getVisibleCells().length}>{renderExpanded(row)}</TableCell>
+              </TableRow>
+            )}
+          </Fragment>
         ))
       ) : (
         <TableRow>
@@ -495,6 +507,9 @@ interface XTableProps<T = Record<string, unknown>> {
   pagination?: PaginationMeta;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
+  renderExpanded?: (row: Row<T>) => React.ReactNode;
+  getRowCanExpand?: (row: Row<T>) => boolean;
+  showFooter?: boolean;
 }
 
 const defaultGetRowId = <T,>(row: T): string => {
@@ -561,12 +576,16 @@ export function XTable<T = Record<string, unknown>>({
   pagination: serverPagination,
   onPageChange,
   onPageSizeChange,
+  renderExpanded,
+  getRowCanExpand,
+  showFooter = true,
 }: XTableProps<T>) {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: serverPagination ? serverPagination.itemsPerPage : pageSize,
   });
+  const [expanded, setExpanded] = useState<ExpandedState>({});
 
   const { filters: urlFilters, setFilter } = useSearchParams();
 
@@ -592,6 +611,35 @@ export function XTable<T = Record<string, unknown>>({
     const columnsWithFilterFn = applyFilterFnToColumns(columns, filterConfig);
 
     const baseColumns = [
+      ...(renderExpanded
+        ? [
+            {
+              id: "__expander__",
+              header: () => null,
+              enableSorting: false,
+              enableHiding: false,
+              cell: ({ row }: { row: Row<T> }) => {
+                if (!row.getCanExpand()) return null;
+                const isOpen = row.getIsExpanded();
+                return (
+                  <XButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={row.getToggleExpandedHandler()}
+                    aria-label={isOpen ? "Collapse row" : "Expand row"}
+                  >
+                    {isOpen ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </XButton>
+                );
+              },
+              size: 36,
+            } as ColumnDef<T>,
+          ]
+        : []),
       ...(enableSelection ? [createSelectColumn<T>(canSelectRow)] : []),
       ...columnsWithFilterFn,
     ];
@@ -601,7 +649,15 @@ export function XTable<T = Record<string, unknown>>({
     }
 
     return baseColumns;
-  }, [enableSelection, enableActions, columns, actionsConfig, filterConfig, canSelectRow]);
+  }, [
+    enableSelection,
+    enableActions,
+    columns,
+    actionsConfig,
+    filterConfig,
+    canSelectRow,
+    renderExpanded,
+  ]);
 
   const memoizedGetRowId = useCallback(getRowId, [getRowId]);
 
@@ -648,6 +704,7 @@ export function XTable<T = Record<string, unknown>>({
     state: {
       rowSelection,
       columnFilters,
+      expanded,
       ...(serverPagination ? {} : { pagination }),
     },
     getRowId: memoizedGetRowId,
@@ -655,9 +712,11 @@ export function XTable<T = Record<string, unknown>>({
     onRowSelectionChange: handleRowSelectionChange,
     onColumnFiltersChange: () => {},
     onPaginationChange: serverPagination ? undefined : setPagination,
+    onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: serverPagination ? undefined : getPaginationRowModel(),
+    getRowCanExpand: getRowCanExpand || (() => Boolean(renderExpanded)),
     ...(serverPagination
       ? {
           pageCount:
@@ -739,9 +798,14 @@ export function XTable<T = Record<string, unknown>>({
       )}
       <Table className="mb-4">
         <XTableHeader table={table} />
-        <XTableBody table={table} columns={finalColumns} loading={loading} />
+        <XTableBody
+          table={table}
+          columns={finalColumns}
+          loading={loading}
+          renderExpanded={renderExpanded}
+        />
       </Table>
-      {data.length > 0 && (
+      {showFooter && data.length > 0 && (
         <PaginationControls
           table={table}
           onBulkDelete={onBulkDelete}

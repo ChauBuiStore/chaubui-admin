@@ -131,7 +131,6 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
         immediatelyRender: false,
         onUpdate: ({ editor }) => {
           const html = editor.getHTML();
-          // Check if content is actually empty (only contains empty HTML tags)
           const textContent = html.replace(/<[^>]*>/g, "").trim();
           const isEmpty = textContent === "" || html === "<p></p>" || html === "<p><br></p>";
           onChange?.(isEmpty ? "" : html);

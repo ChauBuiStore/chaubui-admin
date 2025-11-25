@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { MENU_MESSAGES } from "@/lib/constants/message.constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { menuService } from "@/lib/services";
 import { CreateMenuData, Menu, UpdateMenuData } from "@/modules/menu/types/menu.type";
@@ -35,7 +36,7 @@ export function useMenu() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU_BY_ID] });
-      success("Menu created successfully!");
+      success(MENU_MESSAGES.CREATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -48,7 +49,7 @@ export function useMenu() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU_BY_ID] });
-      success("Menu updated successfully!");
+      success(MENU_MESSAGES.UPDATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -60,7 +61,7 @@ export function useMenu() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU_BY_ID] });
-      success("Menu deleted successfully!");
+      success(MENU_MESSAGES.DELETED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -71,7 +72,7 @@ export function useMenu() {
     mutationFn: (ids: string[]) => menuService.bulkDeleteMenus(ids),
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.MENU] });
-      success(`Successfully deleted ${ids.length} menus!`);
+      success(MENU_MESSAGES.BULK_DELETED_SUCCESS(ids.length));
     },
     onError: (error) => {
       showError((error as Error).message);

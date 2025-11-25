@@ -1,14 +1,28 @@
 "use client";
 
+import { useMutation, type UseMutationResult, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 
 import { clearOnTokenExpired, setOnTokenExpired } from "@/lib/configs";
-import { ROUTES } from "@/lib/constants";
+import { AUTH_MESSAGES, ROUTES } from "@/lib/constants";
+import { useToast } from "@/lib/hooks";
 import { authService } from "@/lib/services";
 import { ApiResponse, AuthResponse, LoginCredentials, User } from "@/lib/types";
 import { authCookies } from "@/lib/utils/cookies.utils";
-import { isTokenValid, parseJWTToken } from "@/lib/utils/token.utils";
+import { isTokenValid } from "@/lib/utils/token.utils";
+
+const USER_STORAGE_KEY = "auth_user";
+
+const getStoredUser = (): User | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(USER_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as User) : null;
+  } catch {
+    return null;
+  }
+};
 
 interface AuthContextType {
   token: string | null;
@@ -18,7 +32,8 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<ApiResponse<AuthResponse>>;
   logout: () => Promise<ApiResponse<{ message: string }>>;
   logoutSilently: () => void;
-  getCurrentUser: () => Promise<ApiResponse<User>>;
+  loginMutation: UseMutationResult<ApiResponse<AuthResponse>, Error, LoginCredentials>;
+  logoutMutation: UseMutationResult<ApiResponse<{ message: string }>, Error, void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +48,8 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { error: showError, success } = useToast();
 
   useEffect(() => {
     const initAuth = () => {
@@ -42,15 +59,19 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
           const isValid = isTokenValid(storedToken);
           if (isValid) {
             setToken(storedToken);
-            const tokenInfo = parseJWTToken(storedToken);
-            if (tokenInfo.payload) {
-              setUser(tokenInfo.payload);
+            const storedUser = getStoredUser();
+            if (storedUser) {
+              setUser(storedUser);
             }
           } else {
             authCookies.remove();
+            if (typeof window !== "undefined") {
+              localStorage.removeItem(USER_STORAGE_KEY);
+            }
           }
         }
-      } catch {
+      } catch (error) {
+        console.error("Error initializing auth:", error);
       } finally {
         setIsLoading(false);
         setIsHydrated(true);
@@ -64,8 +85,12 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
     setToken(null);
     setUser(null);
     authCookies.remove();
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(USER_STORAGE_KEY);
+    }
+    queryClient.clear();
     router.push(ROUTES.LOGIN);
-  }, [router]);
+  }, [router, queryClient]);
 
   useEffect(() => {
     setOnTokenExpired(logoutSilently);
@@ -75,58 +100,68 @@ export function AuthProvider({ children = null }: AuthProviderProps) {
     };
   }, [logoutSilently]);
 
-  const getCurrentUser = async (): Promise<ApiResponse<User>> => {
-    try {
-      const result = await authService.me();
-      if (result.status === "success" && result.data) {
-        setUser(result.data);
-      }
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const login = async (credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> => {
-    setIsLoading(true);
-    try {
-      const result = await authService.login(credentials);
-
+  const loginMutation = useMutation<ApiResponse<AuthResponse>, Error, LoginCredentials>({
+    mutationFn: (credentials: LoginCredentials) => authService.login(credentials),
+    onSuccess: (result: ApiResponse<AuthResponse>) => {
       if (result.status === "success" && result.data?.accessToken) {
         setToken(result.data.accessToken);
         authCookies.set(result.data.accessToken);
-        await getCurrentUser();
+        if (result.data.user) {
+          setUser(result.data.user);
+          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(result.data.user));
+        }
+        success(AUTH_MESSAGES.LOGIN_SUCCESS);
+        router.push(ROUTES.DASHBOARD);
       }
+    },
+    onError: (error: Error) => {
+      showError(error.message || AUTH_MESSAGES.LOGIN_FAILED);
+    },
+  });
 
-      return result;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = async (): Promise<ApiResponse<{ message: string }>> => {
-    setIsLoading(true);
-    try {
-      const result = await authService.logout();
+  const logoutMutation = useMutation<ApiResponse<{ message: string }>, Error, void>({
+    mutationFn: () => authService.logout(),
+    onSuccess: () => {
       setToken(null);
       setUser(null);
       authCookies.remove();
+      localStorage.removeItem(USER_STORAGE_KEY);
+      queryClient.clear();
+      success(AUTH_MESSAGES.LOGOUT_SUCCESS);
       router.push(ROUTES.LOGIN);
-      return result;
-    } finally {
-      setIsLoading(false);
-    }
+    },
+    onError: (error: Error) => {
+      showError(error.message || AUTH_MESSAGES.LOGOUT_FAILED);
+      setToken(null);
+      setUser(null);
+      authCookies.remove();
+      localStorage.removeItem(USER_STORAGE_KEY);
+      queryClient.clear();
+      router.push(ROUTES.LOGIN);
+    },
+  });
+
+  const login = async (credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> => {
+    return loginMutation.mutateAsync(credentials);
   };
+
+  const logout = async (): Promise<ApiResponse<{ message: string }>> => {
+    return logoutMutation.mutateAsync();
+  };
+
+  const isMutating = loginMutation.isPending || logoutMutation.isPending;
+  const isLoadingState = !isHydrated || isLoading || isMutating;
 
   const value: AuthContextType = {
     token: isHydrated ? token : null,
     user: isHydrated ? user : null,
     isAuthenticated: isHydrated ? !!token : false,
-    isLoading: !isHydrated || isLoading,
+    isLoading: isLoadingState,
     login,
     logout,
     logoutSilently,
-    getCurrentUser,
+    loginMutation,
+    logoutMutation,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

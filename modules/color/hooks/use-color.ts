@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { COLOR_MESSAGES } from "@/lib/constants/message.constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { colorService } from "@/lib/services";
 
@@ -38,7 +39,7 @@ export function useColor() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLOR_BY_ID] });
-      success("Color created successfully!");
+      success(COLOR_MESSAGES.CREATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -51,7 +52,7 @@ export function useColor() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLOR_BY_ID] });
-      success("Color updated successfully!");
+      success(COLOR_MESSAGES.UPDATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -63,7 +64,7 @@ export function useColor() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLOR_BY_ID] });
-      success("Color deleted successfully!");
+      success(COLOR_MESSAGES.DELETED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -74,7 +75,7 @@ export function useColor() {
     mutationFn: (ids: string[]) => colorService.bulkDeleteColors(ids),
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COLORS] });
-      success(`Successfully deleted ${ids.length} colors!`);
+      success(COLOR_MESSAGES.BULK_DELETED_SUCCESS(ids.length));
     },
     onError: (error) => {
       showError((error as Error).message);

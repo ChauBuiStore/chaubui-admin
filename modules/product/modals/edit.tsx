@@ -61,7 +61,7 @@ export function EditProduct({
     salePrice: product.salePrice != null ? Number(product.salePrice) : undefined,
     discountPercent: product.discountPercent != null ? Number(product.discountPercent) : undefined,
     stock: product.stock != null ? Number(product.stock) : undefined,
-    categoryId: product.category.id,
+    categoryId: product.category?.id || "",
     variantType: product.variantType,
     thumbnailUrl: product.thumbnailUrl || product.thumbnail?.[0]?.file?.url || "",
     thumbnailId: product.thumbnailId || product.thumbnail?.[0]?.file?.id || "",

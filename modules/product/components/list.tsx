@@ -9,9 +9,7 @@ import { PaginationMeta } from "@/lib/types";
 import { formatDate } from "@/lib/utils/date.ultis";
 import { Product } from "@/modules/product/types";
 
-import { Color } from "./color";
 import { Price } from "./price";
-import { Size } from "./size";
 import { Stock } from "./stock";
 import { StockStatus } from "./stock-status";
 
@@ -115,22 +113,6 @@ export function ProductsList({
         },
       },
       {
-        accessorKey: "colors",
-        header: "Colors",
-        cell: ({ row }) => {
-          const product = row.original;
-          return <Color product={product} />;
-        },
-      },
-      {
-        accessorKey: "sizes",
-        header: "Sizes",
-        cell: ({ row }) => {
-          const product = row.original;
-          return <Size product={product} />;
-        },
-      },
-      {
         accessorKey: "price",
         header: "Price",
         cell: ({ row }) => {
@@ -143,7 +125,11 @@ export function ProductsList({
         header: () => <div className="text-right">Stock</div>,
         cell: ({ row }) => {
           const product = row.original;
-          return <Stock product={product} />;
+          const total =
+            Array.isArray(product.variants) && product.variants.length > 0
+              ? product.variants.reduce((sum, v) => sum + (v?.stock || 0), 0)
+              : product.stock || 0;
+          return <span className="text-right block">{total}</span>;
         },
       },
       {
@@ -189,14 +175,15 @@ export function ProductsList({
         pagination={pagination}
         onPageChange={onPageChange}
         onPageSizeChange={onPageSizeChange}
+        renderExpanded={(row) => <Stock product={row.original} />}
+        getRowCanExpand={(row) =>
+          Array.isArray((row.original as Product).variants) &&
+          (row.original as Product).variants!.length > 0
+        }
         searchConfig={{
           enabled: true,
           columnKey: "search",
           placeholder: "Search product by name...",
-        }}
-        filterConfig={{
-          enabled: false,
-          filters: [],
         }}
         onSearchChange={onSearchChange}
       />

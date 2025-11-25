@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { SIZE_MESSAGES } from "@/lib/constants/message.constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { sizeService } from "@/lib/services";
 
@@ -38,7 +39,7 @@ export function useSize() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZES] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZE_BY_ID] });
-      success("Size created successfully!");
+      success(SIZE_MESSAGES.CREATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -51,7 +52,7 @@ export function useSize() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZES] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZE_BY_ID] });
-      success("Size updated successfully!");
+      success(SIZE_MESSAGES.UPDATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -63,7 +64,7 @@ export function useSize() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZES] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZE_BY_ID] });
-      success("Size deleted successfully!");
+      success(SIZE_MESSAGES.DELETED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -74,7 +75,7 @@ export function useSize() {
     mutationFn: (ids: string[]) => sizeService.bulkDeleteSizes(ids),
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SIZES] });
-      success(`Successfully deleted ${ids.length} sizes!`);
+      success(SIZE_MESSAGES.BULK_DELETED_SUCCESS(ids.length));
     },
     onError: (error) => {
       showError((error as Error).message);

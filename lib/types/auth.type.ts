@@ -5,12 +5,19 @@ export interface LoginCredentials {
 
 export interface AuthResponse {
   accessToken: string;
+  user: User;
 }
 
 export interface User {
-  sub: string; // user.id
+  id: string;
+  userName: string;
   email: string;
+  dateOfBirth: string;
+  fullName: string;
   role: string;
-  iat?: number; // issued at (timeline từ JWT)
-  exp?: number; // expires at (timeline từ JWT)
+  createdAt: string;
+  updatedAt: string;
+  phoneNumber: string;
+  address: string;
+  gender: string | null;
 }

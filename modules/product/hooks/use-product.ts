@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { FieldValues } from "react-hook-form";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
+import { PRODUCT_MESSAGES } from "@/lib/constants/message.constants";
 import { useSearchParams, useToast } from "@/lib/hooks";
 import { categoryService, colorService, productService, sizeService } from "@/lib/services";
 import { CreateProductData, Product, UpdateProductData } from "@/modules/product/types";
@@ -65,7 +66,7 @@ export function useProduct() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
-      success("Product created successfully!");
+      success(PRODUCT_MESSAGES.CREATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -77,7 +78,7 @@ export function useProduct() {
       productService.updateProduct(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
-      success("Product updated successfully!");
+      success(PRODUCT_MESSAGES.UPDATED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -88,7 +89,7 @@ export function useProduct() {
     mutationFn: (id: string) => productService.deleteProduct(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
-      success("Product deleted successfully!");
+      success(PRODUCT_MESSAGES.DELETED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -99,7 +100,7 @@ export function useProduct() {
     mutationFn: (ids: string[]) => productService.bulkDeleteProducts(ids),
     onSuccess: (_, ids) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
-      success(`Successfully deleted ${ids.length} products!`);
+      success(PRODUCT_MESSAGES.BULK_DELETED_SUCCESS(ids.length));
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -131,7 +132,7 @@ export function useProduct() {
       );
 
       if (invalidImages.length > 0) {
-        showError("Some images have invalid data. Please check and try again.");
+        showError(PRODUCT_MESSAGES.INVALID_IMAGES_DATA);
         return;
       }
 
@@ -141,7 +142,7 @@ export function useProduct() {
       );
 
       if (duplicateSortOrders.length > 0) {
-        showError("Images have duplicate sort orders. Please check and try again.");
+        showError(PRODUCT_MESSAGES.DUPLICATE_SORT_ORDERS);
         return;
       }
     }

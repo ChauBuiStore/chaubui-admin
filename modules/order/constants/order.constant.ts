@@ -1,0 +1,28 @@
+import { OrderStatus } from "../types/order.type";
+
+export const statusLabel: Record<OrderStatus, string> = {
+  NEW: "New",
+  PENDING_CONFIRMATION: "Pending confirmation",
+  CANCELLED: "Cancelled",
+  CONFIRMED: "Confirmed",
+  IN_PRODUCTION: "In production",
+  SHIPPING: "Shipping",
+  COMPLETED: "Completed",
+  CANCELLED_NO_REFUND: "Cancelled - No refund",
+  CANCELLED_PARTIAL_REFUND: "Cancelled - Partial refund",
+};
+
+export const statusColor: Record<
+  OrderStatus,
+  "default" | "secondary" | "destructive" | "success" | "warning" | "info"
+> = {
+  NEW: "info",
+  PENDING_CONFIRMATION: "warning",
+  CANCELLED: "destructive",
+  CONFIRMED: "info",
+  IN_PRODUCTION: "secondary",
+  SHIPPING: "default",
+  COMPLETED: "success",
+  CANCELLED_NO_REFUND: "destructive",
+  CANCELLED_PARTIAL_REFUND: "destructive",
+};

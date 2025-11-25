@@ -7,13 +7,13 @@ import {
   FolderTreeIcon,
   HomeIcon,
   LogOutIcon,
-  MenuIcon,
   PackageIcon,
   PaletteIcon,
   RulerIcon,
+  ShoppingCartIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import {
@@ -31,7 +31,7 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui";
 import { ROUTES } from "@/lib/constants";
-import { useAuth, useToast } from "@/lib/hooks";
+import { useAuth } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
 interface SidebarItem {
@@ -54,12 +54,6 @@ const sidebarItems: SidebarItem[] = [
     href: ROUTES.DASHBOARD,
     icon: HomeIcon,
     description: "Dashboard management",
-  },
-  {
-    title: "Menu Management",
-    href: ROUTES.MENU,
-    icon: MenuIcon,
-    description: "Menu management",
   },
   {
     title: "Color Management",
@@ -97,6 +91,12 @@ const sidebarItems: SidebarItem[] = [
     icon: PackageIcon,
     description: "Product management",
   },
+  {
+    title: "Order Management",
+    href: ROUTES.ORDER,
+    icon: ShoppingCartIcon,
+    description: "Order management",
+  },
 ];
 
 interface SidebarProps {
@@ -105,9 +105,7 @@ interface SidebarProps {
 
 export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { logout, isLoading } = useAuth();
-  const { toast } = useToast();
+  const { logoutMutation, isLoading } = useAuth();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [manuallyCollapsed, setManuallyCollapsed] = useState<string[]>([]);
 
@@ -133,20 +131,8 @@ export function Sidebar({ className }: SidebarProps) {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      const result = await logout();
-      if (result) {
-        toast("Logout successful", { type: "success" });
-        router.push(ROUTES.LOGIN);
-      } else {
-        toast("An error occurred during logout", {
-          type: "error",
-        });
-      }
-    } catch {
-      toast("An error occurred, please try again later", { type: "error" });
-    }
+  const handleLogout = () => {
+    logoutMutation.mutate();
   };
 
   return (
@@ -157,7 +143,7 @@ export function Sidebar({ className }: SidebarProps) {
             <HomeIcon className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-primary-foreground">Châu Bùi Store</h2>
+            <h2 className="text-lg font-bold text-primary-foreground">Livinndecoration</h2>
             <p className="text-xs text-primary-foreground/80">Admin Dashboard</p>
           </div>
         </div>
@@ -315,7 +301,7 @@ export function Sidebar({ className }: SidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={handleLogout}
-              disabled={isLoading}
+              disabled={isLoading || logoutMutation.isPending}
               className="h-12 px-3 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10 transition-all duration-200 group cursor-pointer"
               tooltip="Logout"
             >

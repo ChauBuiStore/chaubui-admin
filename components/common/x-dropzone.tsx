@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 import { XButton, XLabel } from "@/components/common";
+import { UPLOAD_MESSAGES } from "@/lib/constants/message.constants";
 import { useToast } from "@/lib/hooks";
 import { uploadService } from "@/lib/services";
 import { FileUpload } from "@/lib/types";
@@ -71,9 +72,7 @@ export function XDropzone({
       }
 
       onUploadSuccess?.(responseArray as FileUpload[]);
-      success(
-        `Successfully uploaded ${responseArray.length} file${responseArray.length > 1 ? "s" : ""}`,
-      );
+      success(UPLOAD_MESSAGES.UPLOAD_SUCCESS(responseArray.length));
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -94,11 +93,7 @@ export function XDropzone({
 
       const totalFiles = uploadedFiles.length + acceptedFiles.length;
       if (totalFiles > maxFiles) {
-        showError(
-          `Maximum ${maxFiles} files allowed. You have ${
-            uploadedFiles.length
-          } files, can only add ${maxFiles - uploadedFiles.length} more.`,
-        );
+        showError(UPLOAD_MESSAGES.MAX_FILES_EXCEEDED(maxFiles, uploadedFiles.length));
         return;
       }
 
@@ -112,7 +107,7 @@ export function XDropzone({
     onSuccess: (_, fileId) => {
       setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId));
       onFileDelete?.(fileId);
-      success(`File deleted successfully`);
+      success(UPLOAD_MESSAGES.FILE_DELETED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -251,7 +246,9 @@ export function XDropzone({
               <div className="flex flex-col items-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
                 <p className="text-sm text-primary mb-2 font-medium">
-                  {uploadMutation.isPending ? `Uploading files...` : "Deleting file..."}
+                  {uploadMutation.isPending
+                    ? UPLOAD_MESSAGES.UPLOADING_FILES
+                    : UPLOAD_MESSAGES.DELETING_FILE}
                 </p>
                 {uploadMutation.isPending && (
                   <p className="text-xs text-muted-foreground">Please wait a moment</p>

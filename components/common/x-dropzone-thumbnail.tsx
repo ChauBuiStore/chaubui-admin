@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 import { XButton, XLabel } from "@/components/common";
+import { UPLOAD_MESSAGES } from "@/lib/constants/message.constants";
 import { useToast } from "@/lib/hooks";
 import { uploadService } from "@/lib/services";
 import { FileUpload } from "@/lib/types";
@@ -86,7 +87,7 @@ export function XDropzoneThumbnail({
     onSuccess: (file: FileUpload) => {
       setUploadedFile(file);
       onUploadSuccess?.(file.url, file.id);
-      success("Thumbnail uploaded successfully");
+      success(UPLOAD_MESSAGES.THUMBNAIL_UPLOAD_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -119,7 +120,7 @@ export function XDropzoneThumbnail({
     onSuccess: () => {
       setUploadedFile(null);
       onFileDelete?.();
-      success("Thumbnail deleted successfully");
+      success(UPLOAD_MESSAGES.THUMBNAIL_DELETED_SUCCESS);
     },
     onError: (error) => {
       showError((error as Error).message);
@@ -204,7 +205,9 @@ export function XDropzoneThumbnail({
               <div className="flex flex-col items-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
                 <p className="text-sm text-primary mb-2 font-medium">
-                  {isUploading ? "Uploading thumbnail..." : "Deleting thumbnail..."}
+                  {isUploading
+                    ? UPLOAD_MESSAGES.UPLOADING_THUMBNAIL
+                    : UPLOAD_MESSAGES.DELETING_THUMBNAIL}
                 </p>
                 {isUploading && (
                   <p className="text-xs text-muted-foreground">Please wait a moment</p>

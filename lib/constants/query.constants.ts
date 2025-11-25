@@ -17,4 +17,6 @@ export const QUERY_KEYS = {
   SIZES: "sizes",
   SIZES_ALL: "sizes-all",
   SIZE_BY_ID: "size-by-id",
+  ORDERS: "orders",
+  ORDER_BY_ID: "order-by-id",
 };

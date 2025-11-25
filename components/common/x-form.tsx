@@ -34,6 +34,7 @@ const getFieldType = (type?: string): XFormField["type"] => {
     FORM_TYPES.TEXTAREA,
     FORM_TYPES.RADIO,
     FORM_TYPES.CHECKBOX,
+    FORM_TYPES.NUMBER,
   ] as const;
   return validTypes.includes(type as (typeof validTypes)[number])
     ? (type as XFormField["type"])
@@ -118,7 +119,6 @@ function XFormInner<T extends Record<string, unknown>>(
     try {
       const result = onSubmit(data as T);
       await (result instanceof Promise ? result : Promise.resolve(result));
-      // Only reset form if explicitly requested
       if (shouldResetOnSubmit) {
         form.reset();
       }

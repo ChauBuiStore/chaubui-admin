@@ -53,7 +53,6 @@ export const createProductSchema = z
     description: z
       .string()
       .transform((val) => {
-        // Remove HTML tags and check if content is empty
         const textContent = val.replace(/<[^>]*>/g, "").trim();
         return textContent === "" ? "" : val;
       })

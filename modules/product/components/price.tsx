@@ -8,39 +8,53 @@ interface PriceProps {
 }
 
 export function Price({ product }: PriceProps) {
-  const displayPrice =
-    product.variants && product.variants.length > 0
-      ? product.variants[0].salePrice || product.variants[0].originalPrice
-      : product.salePrice;
+  const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
 
-  const displayOriginalPrice =
-    product.variants && product.variants.length > 0
-      ? product.variants[0].originalPrice
-      : product.originalPrice;
+  let displayPrice = product.salePrice;
 
-  const displayDiscountPercent =
-    product.variants && product.variants.length > 0
-      ? product.variants[0].discountPercent || 0
-      : product.discountPercent;
+  let rangeMin: number | null = null;
+  let rangeMax: number | null = null;
 
-  const hasDiscount = displayDiscountPercent > 0;
+  if (hasVariants) {
+    const raw = product.variants.map((v) => {
+      const saleNum = v.salePrice !== undefined && v.salePrice !== null ? Number(v.salePrice) : NaN;
+      const origNum =
+        v.originalPrice !== undefined && v.originalPrice !== null ? Number(v.originalPrice) : NaN;
+      if (!Number.isNaN(saleNum) && saleNum > 0) return saleNum;
+      if (!Number.isNaN(origNum) && origNum > 0) return origNum;
+      return NaN;
+    });
+
+    const valid = raw.filter((n) => !Number.isNaN(n));
+    if (valid.length > 0) {
+      rangeMin = Math.min(...valid);
+      rangeMax = Math.max(...valid);
+    } else {
+      const fallback = product.variants
+        .map((v) => Number(v.salePrice ?? v.originalPrice))
+        .filter((n) => !Number.isNaN(n));
+      if (fallback.length > 0) {
+        rangeMin = Math.min(...fallback);
+        rangeMax = Math.max(...fallback);
+      } else {
+        rangeMin = 0;
+        rangeMax = 0;
+      }
+    }
+  } else {
+    displayPrice = product.salePrice ?? product.originalPrice ?? 0;
+  }
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
-        <span className={`font-bold ${hasDiscount ? "text-primary" : ""}`}>
-          {formatPrice(displayPrice)}
-        </span>
-        {hasDiscount && (
-          <span className="px-1.5 py-0.5 bg-destructive/10 text-destructive text-xs rounded font-medium">
-            -{displayDiscountPercent}%
+      {hasVariants ? (
+        <div className="flex items-center gap-2">
+          <span className="font-bold">
+            {formatPrice(rangeMin || 0)} ~ {formatPrice(rangeMax || 0)}
           </span>
-        )}
-      </div>
-      {hasDiscount && (
-        <span className="text-xs text-muted-foreground line-through">
-          {formatPrice(displayOriginalPrice)}
-        </span>
+        </div>
+      ) : (
+        <span className="font-bold">{formatPrice(displayPrice)}</span>
       )}
     </div>
   );

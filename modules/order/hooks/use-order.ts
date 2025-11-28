@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams as useNextSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { PAGINATION_CONSTANTS, QUERY_KEYS } from "@/lib/constants";
 import { ORDER_MESSAGES } from "@/lib/constants/message.constants";
@@ -16,6 +16,8 @@ export function useOrder() {
   const { filters, setFilter } = useSearchParams({
     search: undefined,
     status: "NEW",
+    page: PAGINATION_CONSTANTS.PAGE,
+    limit: PAGINATION_CONSTANTS.LIMIT,
   });
   const { toast } = useToast();
 
@@ -26,14 +28,49 @@ export function useOrder() {
   const [defaultStatus, setDefaultStatus] = useState<OrderStatus | undefined>(undefined);
   const [viewOrderId, setViewOrderId] = useState<string | null>(null);
 
+  const hasUrlParams = searchParams.toString().length > 0;
+  const statusFromUrl = searchParams.get("status");
+  const hasStatusInUrl = !!statusFromUrl;
+
+  const queryFilters = useMemo(() => {
+    if (!hasUrlParams || !hasStatusInUrl) {
+      return undefined;
+    }
+
+    const page = searchParams.get("page");
+    const limit = searchParams.get("limit");
+    const search = searchParams.get("search");
+
+    return {
+      status: statusFromUrl as OrderStatus,
+      page: page ? parseInt(page, 10) : PAGINATION_CONSTANTS.PAGE,
+      limit: limit ? parseInt(limit, 10) : PAGINATION_CONSTANTS.LIMIT,
+      ...(search && { search }),
+    };
+  }, [searchParams, hasUrlParams, hasStatusInUrl, statusFromUrl]);
+
+  useEffect(() => {
+    if (!hasUrlParams) {
+      setFilter({
+        page: PAGINATION_CONSTANTS.PAGE,
+        limit: PAGINATION_CONSTANTS.LIMIT,
+        status: "NEW",
+      });
+    }
+  }, [hasUrlParams, setFilter]);
+
   const {
     data: ordersData,
     isLoading,
     error,
   } = useQuery({
-    queryKey: [QUERY_KEYS.ORDERS, filters],
-    queryFn: () => orderService.getOrders(filters),
+    queryKey: [QUERY_KEYS.ORDERS, queryFilters],
+    queryFn: () => orderService.getOrders(queryFilters!),
+    enabled: !!queryFilters,
   });
+
+  const isInitializing = !hasUrlParams || !hasStatusInUrl;
+  const isLoadingOrders = isLoading || isInitializing;
 
   if (error) {
     toast((error as Error).message, { type: "error" });
@@ -114,8 +151,8 @@ export function useOrder() {
       setFilter({
         page,
         limit: filters.limit || PAGINATION_CONSTANTS.LIMIT,
-        search: filters.search || "",
-        status: filters.status || "NEW",
+        status: (filters.status as OrderStatus) || "NEW",
+        ...(filters.search && { search: filters.search }),
       });
     },
     [setFilter, filters.limit, filters.search, filters.status],
@@ -126,8 +163,8 @@ export function useOrder() {
       setFilter({
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        search: filters.search || "",
-        status: filters.status || "NEW",
+        status: (filters.status as OrderStatus) || "NEW",
+        ...(filters.search && { search: filters.search }),
       });
     },
     [setFilter, filters.search, filters.status],
@@ -136,10 +173,10 @@ export function useOrder() {
   const handleSearchChange = useCallback(
     (searchTerm: string) => {
       setFilter({
-        search: searchTerm,
         page: PAGINATION_CONSTANTS.PAGE,
         limit: filters.limit || PAGINATION_CONSTANTS.LIMIT,
-        status: filters.status || "NEW",
+        status: (filters.status as OrderStatus) || "NEW",
+        ...(searchTerm && { search: searchTerm }),
       });
     },
     [setFilter, filters.limit, filters.status],
@@ -151,7 +188,7 @@ export function useOrder() {
         status: st,
         page: PAGINATION_CONSTANTS.PAGE,
         limit: filters.limit || PAGINATION_CONSTANTS.LIMIT,
-        search: filters.search || "",
+        ...(filters.search && { search: filters.search }),
       });
     },
     [setFilter, filters.limit, filters.search],
@@ -163,14 +200,13 @@ export function useOrder() {
   const updateStatus = (id: string, payload: UpdateOrderStatusRequest) =>
     updateStatusMutation.mutateAsync({ id, payload });
 
-  const statusFromUrl = searchParams.get("status");
   const currentStatus: OrderStatus =
     (statusFromUrl as OrderStatus) || (filters.status as OrderStatus) || "NEW";
 
   return {
     orders,
     pagination,
-    isLoading,
+    isLoading: isLoadingOrders,
     isLoadingDetail,
     isSubmitting,
     selectedOrder,

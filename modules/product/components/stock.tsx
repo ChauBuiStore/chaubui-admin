@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { XTable } from "@/components/common/x-table";
+import { PAGINATION_CONSTANTS } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils/currency.utils";
 import { Product, ProductVariant } from "@/modules/product/types";
 
@@ -105,7 +106,7 @@ export function Stock({ product }: StockProps) {
       columns={columns}
       enableSelection={false}
       enableActions={false}
-      pageSize={20}
+      pageSize={PAGINATION_CONSTANTS.LIMIT}
       showFooter={false}
     />
   );

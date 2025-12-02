@@ -148,22 +148,38 @@ export function useSize() {
 
   const handlePageChange = useCallback(
     (page: number) => {
-      setFilter({
+      const filterUpdate: { page: number; limit: number; keyword?: string } = {
         page,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        keyword: filters.keyword || "",
-      });
+      };
+      if (filters.keyword) {
+        filterUpdate.keyword =
+          typeof filters.keyword === "string"
+            ? filters.keyword
+            : Array.isArray(filters.keyword)
+              ? filters.keyword[0]
+              : String(filters.keyword);
+      }
+      setFilter(filterUpdate);
     },
     [setFilter, filters.keyword],
   );
 
   const handlePageSizeChange = useCallback(
     (pageSize: number) => {
-      setFilter({
+      const filterUpdate: { limit: number; page: number; keyword?: string } = {
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        keyword: filters.keyword || "",
-      });
+      };
+      if (filters.keyword) {
+        filterUpdate.keyword =
+          typeof filters.keyword === "string"
+            ? filters.keyword
+            : Array.isArray(filters.keyword)
+              ? filters.keyword[0]
+              : String(filters.keyword);
+      }
+      setFilter(filterUpdate);
     },
     [setFilter, filters.keyword],
   );

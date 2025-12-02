@@ -206,22 +206,30 @@ export function useProduct() {
 
   const handlePageChange = useCallback(
     (page: number) => {
-      setFilter({
+      const filterUpdate: { page: number; limit: number; search?: string } = {
         page,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        search: filters.search || "",
-      });
+      };
+      if (filters.search) {
+        filterUpdate.search =
+          typeof filters.search === "string" ? filters.search : String(filters.search);
+      }
+      setFilter(filterUpdate);
     },
     [setFilter, filters.search],
   );
 
   const handlePageSizeChange = useCallback(
     (pageSize: number) => {
-      setFilter({
+      const filterUpdate: { limit: number; page: number; search?: string } = {
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        search: filters.search || "",
-      });
+      };
+      if (filters.search) {
+        filterUpdate.search =
+          typeof filters.search === "string" ? filters.search : String(filters.search);
+      }
+      setFilter(filterUpdate);
     },
     [setFilter, filters.search],
   );

@@ -236,7 +236,7 @@ const PaginationControls = <T,>({
   onPageChange,
   onPageSizeChange,
 }: PaginationControlsProps<T>) => {
-  const pageSizes = [20, 50, 100];
+  const pageSizes = [10, 50, 100];
 
   const currentPage = pagination
     ? Number(pagination.currentPage)
@@ -296,6 +296,25 @@ const PaginationControls = <T,>({
   const canPreviousPage = pagination ? currentPage > 1 : table.getCanPreviousPage();
   const canNextPage = pagination ? currentPage < totalPages : table.getCanNextPage();
 
+  // Đảm bảo value luôn nằm trong pageSizes
+  const getCurrentPageSize = () => {
+    const currentSize = pagination
+      ? pagination.itemsPerPage
+      : table.getState().pagination?.pageSize || pageSizes[0];
+
+    // Nếu currentSize không nằm trong pageSizes, tìm giá trị gần nhất hoặc dùng giá trị mặc định
+    if (pageSizes.includes(currentSize)) {
+      return currentSize;
+    }
+    // Tìm giá trị gần nhất trong pageSizes
+    const closestSize = pageSizes.reduce((prev, curr) => {
+      return Math.abs(curr - currentSize) < Math.abs(prev - currentSize) ? curr : prev;
+    });
+    return closestSize;
+  };
+
+  const currentPageSize = getCurrentPageSize();
+
   return (
     <div
       className="flex items-center justify-between px-4"
@@ -314,11 +333,7 @@ const PaginationControls = <T,>({
           <XSelect
             className="w-20"
             options={pageSizes.map((s) => ({ value: `${s}`, label: `${s}` }))}
-            value={String(
-              pagination
-                ? pagination.itemsPerPage
-                : table.getState().pagination?.pageSize || pageSizes[0],
-            )}
+            value={String(currentPageSize)}
             onValueChange={(val) => handlePageSizeChange(val as string)}
           />
         </div>

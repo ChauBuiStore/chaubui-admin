@@ -158,22 +158,34 @@ export function useCategory() {
 
   const handlePageChange = useCallback(
     (page: number) => {
-      setFilter({
+      const filterUpdate: { page: number; limit: number; keyword?: string } = {
         page,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        keyword: filters.keyword || "",
-      });
+      };
+      if (filters.keyword) {
+        const keyword = Array.isArray(filters.keyword)
+          ? String(filters.keyword[0])
+          : String(filters.keyword);
+        filterUpdate.keyword = keyword;
+      }
+      setFilter(filterUpdate);
     },
     [setFilter, filters.keyword],
   );
 
   const handlePageSizeChange = useCallback(
     (pageSize: number) => {
-      setFilter({
+      const filterUpdate: { limit: number; page: number; keyword?: string } = {
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        keyword: filters.keyword || "",
-      });
+      };
+      if (filters.keyword) {
+        const keyword = Array.isArray(filters.keyword)
+          ? String(filters.keyword[0])
+          : String(filters.keyword);
+        filterUpdate.keyword = keyword;
+      }
+      setFilter(filterUpdate);
     },
     [setFilter, filters.keyword],
   );

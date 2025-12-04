@@ -302,11 +302,24 @@ export function EditProduct({
               />
             </div>
 
-            <ProductUpload
-              form={form}
-              productImages={product?.images || []}
-              isEdit={true}
-              multiple={true}
+            <FormField
+              control={form.control}
+              name="images"
+              render={({ fieldState }) => (
+                <FormItem>
+                  <FormLabel>Files Upload *</FormLabel>
+                  <FormControl>
+                    <ProductUpload
+                      form={form}
+                      productImages={product?.images || []}
+                      isEdit={true}
+                      multiple={true}
+                      hasError={!!fieldState.error}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <ProductVariantForm form={form} colors={colors} sizes={sizes} />

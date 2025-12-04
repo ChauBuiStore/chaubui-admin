@@ -296,17 +296,14 @@ const PaginationControls = <T,>({
   const canPreviousPage = pagination ? currentPage > 1 : table.getCanPreviousPage();
   const canNextPage = pagination ? currentPage < totalPages : table.getCanNextPage();
 
-  // Đảm bảo value luôn nằm trong pageSizes
   const getCurrentPageSize = () => {
     const currentSize = pagination
       ? pagination.itemsPerPage
       : table.getState().pagination?.pageSize || pageSizes[0];
 
-    // Nếu currentSize không nằm trong pageSizes, tìm giá trị gần nhất hoặc dùng giá trị mặc định
     if (pageSizes.includes(currentSize)) {
       return currentSize;
     }
-    // Tìm giá trị gần nhất trong pageSizes
     const closestSize = pageSizes.reduce((prev, curr) => {
       return Math.abs(curr - currentSize) < Math.abs(prev - currentSize) ? curr : prev;
     });

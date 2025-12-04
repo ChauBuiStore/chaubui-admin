@@ -24,6 +24,7 @@ interface XDropzoneProps {
   multiple?: boolean;
   initialFiles?: FileUpload[];
   title?: string;
+  hasError?: boolean;
 }
 
 export function XDropzone({
@@ -38,7 +39,8 @@ export function XDropzone({
   disabled = false,
   multiple = true,
   initialFiles = [],
-  title = "Files Upload",
+  title = "",
+  hasError = false,
 }: XDropzoneProps) {
   const [uploadedFiles, setUploadedFiles] = useState<FileUpload[]>(initialFiles);
   const prevInitialFilesRef = useRef<FileUpload[]>(initialFiles);
@@ -223,17 +225,21 @@ export function XDropzone({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <XLabel className="mb-2">{title}</XLabel>
+      {title && <XLabel className="mb-2">{title}</XLabel>}
 
       <div
         {...getRootProps()}
         className={cn(
           "border-2 border-dashed border rounded-lg p-6 text-center cursor-pointer transition-colors",
+          hasError && "border-destructive",
           isDragActive && "border-primary bg-primary/10",
           disabled && "opacity-50 cursor-not-allowed",
           (uploadMutation.isPending || deleteMutation.isPending) &&
             "border-primary bg-primary/10 cursor-not-allowed",
-          !(uploadMutation.isPending || deleteMutation.isPending) && !disabled && "hover:border",
+          !(uploadMutation.isPending || deleteMutation.isPending) &&
+            !disabled &&
+            !hasError &&
+            "hover:border",
         )}
       >
         <input {...getInputProps()} className="hidden" />

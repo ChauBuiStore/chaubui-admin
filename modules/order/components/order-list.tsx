@@ -132,8 +132,14 @@ export function OrdersList({
             label: "Cancel order",
             onClick: onCancel,
             icon: <XCircleIcon className="h-4 w-4" />,
-            disabled: (row) =>
-              !["NEW", "PENDING_CONFIRMATION", "CONFIRMED"].includes(row.status as string),
+            disabled: (row) => {
+              const cancellableStatuses: Order["status"][] = [
+                "PENDING_CONFIRMATION",
+                "IN_PRODUCTION",
+                "SHIPPING",
+              ];
+              return !cancellableStatuses.includes(row.status);
+            },
           },
         ],
       }}

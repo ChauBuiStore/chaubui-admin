@@ -10,6 +10,7 @@ export const statusLabel: Record<OrderStatus, string> = {
   COMPLETED: "Completed",
   CANCELLED_NO_REFUND: "Cancelled - No refund",
   CANCELLED_PARTIAL_REFUND: "Cancelled - Partial refund",
+  FAILED_DELIVERY: "Failed delivery",
 };
 
 export const statusColor: Record<
@@ -25,4 +26,5 @@ export const statusColor: Record<
   COMPLETED: "success",
   CANCELLED_NO_REFUND: "destructive",
   CANCELLED_PARTIAL_REFUND: "destructive",
+  FAILED_DELIVERY: "destructive",
 };

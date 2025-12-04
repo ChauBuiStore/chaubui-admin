@@ -19,6 +19,8 @@ const ORDER_TABS: { key: OrderStatus; label: string }[] = [
   { key: "SHIPPING", label: "Shipping" },
   { key: "COMPLETED", label: "Completed" },
   { key: "CANCELLED", label: "Cancelled" },
+  { key: "CANCELLED_NO_REFUND", label: "Cancelled no refund" },
+  { key: "FAILED_DELIVERY", label: "Failed delivery" },
 ];
 
 export function OrdersPage() {
@@ -77,7 +79,7 @@ export function OrdersPage() {
         className="w-full"
         onValueChange={(v) => handleStatusChange(v as OrderStatus)}
       >
-        <TabsList className="grid grid-cols-3 md:grid-cols-7 w-full mb-4">
+        <TabsList className="grid grid-cols-3 md:grid-cols-9 w-full mb-4">
           {ORDER_TABS.map((t) => (
             <TabsTrigger key={t.key} value={t.key}>
               {t.label}

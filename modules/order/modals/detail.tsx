@@ -9,7 +9,7 @@ import { OrderItemsList } from "../components/order-items-list";
 import { OrderStatusHistory } from "../components/order-status-history";
 import { OrderSummary } from "../components/order-summary";
 import { statusLabel } from "../constants/order.constant";
-import { getNextStatus } from "../helpers/order.helper";
+import { getAvailableStatuses } from "../helpers/order.helper";
 import { Order, OrderStatus } from "../types/order.type";
 
 interface OrderDetailProps {
@@ -30,16 +30,21 @@ export function OrderDetail({
   const [reason, setReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const nextStatus = order ? getNextStatus(order.status) : null;
-  const canChangeStatus = nextStatus !== null;
+  const availableStatuses = order ? getAvailableStatuses(order.status) : [];
+  const sortedStatuses = [...availableStatuses].sort((a, b) => {
+    if (a === "IN_PRODUCTION" && b === "COMPLETED") return -1;
+    if (a === "COMPLETED" && b === "IN_PRODUCTION") return 1;
+    return 0;
+  });
+  const canChangeStatus = sortedStatuses.length > 0;
 
-  const handleChangeStatus = async () => {
-    if (!onSubmitChangeStatus || !nextStatus) return;
+  const handleChangeStatus = async (status: OrderStatus) => {
+    if (!onSubmitChangeStatus) return;
 
     setIsSubmitting(true);
     try {
       await onSubmitChangeStatus({
-        status: nextStatus,
+        status,
         reason: reason.trim() || undefined,
       });
       setReason("");
@@ -72,9 +77,16 @@ export function OrderDetail({
               >
                 Close
               </XButton>
-              <XButton onClick={handleChangeStatus} disabled={isSubmitting} loading={isSubmitting}>
-                {nextStatus ? statusLabel[nextStatus] : ""}
-              </XButton>
+              {sortedStatuses.map((status) => (
+                <XButton
+                  key={status}
+                  onClick={() => handleChangeStatus(status)}
+                  disabled={isSubmitting}
+                  loading={isSubmitting}
+                >
+                  {statusLabel[status]}
+                </XButton>
+              ))}
             </div>
           </div>
         ) : undefined

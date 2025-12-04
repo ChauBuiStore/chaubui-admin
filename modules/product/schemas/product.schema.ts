@@ -95,7 +95,7 @@ export const createProductSchema = z
     }),
     thumbnailUrl: z.string().min(1, "Thumbnail is required"),
     thumbnailId: z.string().min(1, "Thumbnail is required"),
-    images: z.array(productImageSchema).optional(),
+    images: z.array(productImageSchema).min(1, "Files upload is required").default([]),
     variants: z.array(productVariantSchema).optional().default([]),
   })
   .superRefine((data, ctx) => {

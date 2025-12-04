@@ -7,7 +7,8 @@ export type OrderStatus =
   | "SHIPPING"
   | "COMPLETED"
   | "CANCELLED_NO_REFUND"
-  | "CANCELLED_PARTIAL_REFUND";
+  | "CANCELLED_PARTIAL_REFUND"
+  | "FAILED_DELIVERY";
 
 export interface OrderVariantInfo {
   id: string;

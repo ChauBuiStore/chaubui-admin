@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
 
 import { XDropzone } from "@/components/common";
-import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui";
 import { mergeNewUploads, removeImageById } from "@/lib/helpers";
 import { FileUpload } from "@/lib/types";
 
@@ -16,6 +15,7 @@ interface ProductUploadProps {
   productImages?: ProductImage[];
   isEdit?: boolean;
   multiple?: boolean;
+  hasError?: boolean;
 }
 
 export function ProductUpload({
@@ -23,9 +23,8 @@ export function ProductUpload({
   productImages = [],
   isEdit = false,
   multiple = true,
+  hasError = false,
 }: ProductUploadProps) {
-  const [, setUploadedFiles] = useState<FileUpload[]>([]);
-
   const uploadResponseImages = useMemo(() => {
     if (isEdit && productImages && productImages.length > 0) {
       return productImages
@@ -47,11 +46,11 @@ export function ProductUpload({
   }, [isEdit, productImages]);
 
   const handleImageUpload = useCallback(
-    (responses: FileUpload[]) => {
-      const responseArray = Array.isArray(responses) ? responses : [];
-      setUploadedFiles((prev: FileUpload[]) => [...prev, ...responseArray]);
+    (files: FileUpload[]) => {
       const currentImages = form.getValues("images") || [];
-      form.setValue("images", mergeNewUploads(currentImages, responseArray));
+      const mergedImages = mergeNewUploads(currentImages, files);
+      form.setValue("images", mergedImages);
+      form.trigger("images");
     },
     [form],
   );
@@ -59,43 +58,20 @@ export function ProductUpload({
   const handleFileDelete = useCallback(
     (fileId: string) => {
       const currentImages = form.getValues("images") || [];
-      form.setValue("images", removeImageById(currentImages, fileId));
-      setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId));
+      const updatedImages = removeImageById(currentImages, fileId);
+      form.setValue("images", updatedImages);
+      form.trigger("images");
     },
     [form],
   );
 
-  if (isEdit) {
-    return (
-      <FormField
-        control={form.control}
-        name="images"
-        render={({ field }) => (
-          <FormItem>
-            <FormControl>
-              <XDropzone
-                initialFiles={uploadResponseImages}
-                onUploadSuccess={(files) => {
-                  setUploadedFiles(files);
-                  const currentImages = field.value || [];
-                  field.onChange(mergeNewUploads(currentImages, files));
-                }}
-                onFileDelete={handleFileDelete}
-                multiple={multiple}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    );
-  }
-
   return (
     <XDropzone
+      initialFiles={isEdit ? uploadResponseImages : []}
       onUploadSuccess={handleImageUpload}
       onFileDelete={handleFileDelete}
       multiple={multiple}
+      hasError={hasError}
     />
   );
 }

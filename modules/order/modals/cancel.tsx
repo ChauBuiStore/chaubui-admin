@@ -5,15 +5,48 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 
 import { Order, OrderStatus } from "../types/order.type";
 
-const schema = z.object({
-  status: z.enum(["CANCELLED", "CANCELLED_NO_REFUND", "CANCELLED_PARTIAL_REFUND"], {
-    message: "Please select a cancel status",
-  }),
-  reason: z.string().min(1, "Please enter cancellation reason"),
-});
-type CancelForm = z.infer<typeof schema>;
+const createSchema = (orderStatus?: OrderStatus) => {
+  if (orderStatus === "PENDING_CONFIRMATION") {
+    return z.object({
+      status: z.literal("CANCELLED", {
+        message: "Please select a cancel status",
+      }),
+      reason: z.string().min(1, "Please enter cancellation reason"),
+    });
+  }
 
-const cancelStatusOptions = [
+  if (orderStatus === "IN_PRODUCTION") {
+    return z.object({
+      status: z.literal("CANCELLED_NO_REFUND", {
+        message: "Please select a cancel status",
+      }),
+      reason: z.string().min(1, "Please enter cancellation reason"),
+    });
+  }
+
+  if (orderStatus === "SHIPPING") {
+    return z.object({
+      status: z.enum(["CANCELLED_NO_REFUND", "FAILED_DELIVERY"], {
+        message: "Please select a cancel status",
+      }),
+      reason: z.string().min(1, "Please enter cancellation reason"),
+    });
+  }
+
+  return z.object({
+    status: z.enum(["CANCELLED_NO_REFUND", "CANCELLED_PARTIAL_REFUND"], {
+      message: "Please select a cancel status",
+    }),
+    reason: z.string().min(1, "Please enter cancellation reason"),
+  });
+};
+
+type CancelForm = {
+  status: OrderStatus;
+  reason: string;
+};
+
+const allCancelStatusOptions = [
   {
     value: "CANCELLED" as OrderStatus,
     label: "Cancel before confirmation",
@@ -29,6 +62,11 @@ const cancelStatusOptions = [
     label: "Partial refund",
     description: "Refund part of the paid amount",
   },
+  {
+    value: "FAILED_DELIVERY" as OrderStatus,
+    label: "Failed delivery",
+    description: "Delivery failed",
+  },
 ];
 
 interface CancelOrderProps {
@@ -40,6 +78,25 @@ interface CancelOrderProps {
 }
 
 export function CancelOrder({ open, onOpenChange, onSubmit, loading, order }: CancelOrderProps) {
+  const orderStatus = order?.status;
+  const schema = createSchema(orderStatus);
+
+  let cancelStatusOptions = allCancelStatusOptions;
+
+  if (orderStatus === "PENDING_CONFIRMATION") {
+    cancelStatusOptions = allCancelStatusOptions.filter((opt) => opt.value === "CANCELLED");
+  } else if (orderStatus === "IN_PRODUCTION") {
+    cancelStatusOptions = allCancelStatusOptions.filter(
+      (opt) => opt.value === "CANCELLED_NO_REFUND",
+    );
+  } else if (orderStatus === "SHIPPING") {
+    cancelStatusOptions = allCancelStatusOptions.filter(
+      (opt) => opt.value === "CANCELLED_NO_REFUND" || opt.value === "FAILED_DELIVERY",
+    );
+  } else {
+    cancelStatusOptions = allCancelStatusOptions.filter((opt) => opt.value !== "CANCELLED");
+  }
+
   return (
     <XFormDialog
       open={open}

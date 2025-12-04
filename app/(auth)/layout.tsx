@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Login - My App",
-  description: "System login page",
+  title: "Login - Livinndecoration",
+  description: "System login page for Livinndecoration",
 };
 
 export default function AuthLayout({

@@ -10,8 +10,8 @@ import { AuthProvider } from "@/lib/hooks/use-auth";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "My App",
-  description: "Product management application",
+  title: "Livinndecoration",
+  description: "Product management application for Livinndecoration",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

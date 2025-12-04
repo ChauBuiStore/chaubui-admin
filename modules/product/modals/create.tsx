@@ -273,7 +273,26 @@ export function CreateProduct({
                 )}
               />
             </div>
-            <ProductUpload form={form} isEdit={false} multiple={true} />
+
+            <FormField
+              control={form.control}
+              name="images"
+              render={({ fieldState }) => (
+                <FormItem>
+                  <FormLabel>Files Upload *</FormLabel>
+                  <FormControl>
+                    <ProductUpload
+                      form={form}
+                      isEdit={false}
+                      multiple={true}
+                      hasError={!!fieldState.error}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <ProductVariantForm form={form} colors={colors} sizes={sizes} />
           </div>
         </XScrollArea>

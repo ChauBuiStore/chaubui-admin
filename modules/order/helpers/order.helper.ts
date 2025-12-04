@@ -13,30 +13,31 @@ const cancelledFlow: OrderStatus[] = [
   "CANCELLED",
   "CANCELLED_NO_REFUND",
   "CANCELLED_PARTIAL_REFUND",
+  "FAILED_DELIVERY" as OrderStatus,
 ];
 
-export function getStatusIndex(status: OrderStatus): number {
-  if (normalFlow.includes(status)) {
-    return normalFlow.indexOf(status);
-  }
-  if (cancelledFlow.includes(status)) {
-    return cancelledFlow.indexOf(status) + 100;
-  }
-  return 0;
-}
-
-export function getNextStatus(currentStatus: OrderStatus): OrderStatus | null {
+export function getAvailableStatuses(currentStatus: OrderStatus): OrderStatus[] {
   if (cancelledFlow.includes(currentStatus)) {
-    return null;
+    return [];
   }
   if (currentStatus === "COMPLETED") {
-    return null;
+    return [];
   }
 
   const currentIndex = normalFlow.indexOf(currentStatus);
-  if (currentIndex === -1 || currentIndex === normalFlow.length - 1) {
-    return null;
+  if (currentIndex === -1) {
+    return [];
   }
 
-  return normalFlow[currentIndex + 1];
+  const availableStatuses: OrderStatus[] = [];
+
+  if (currentIndex < normalFlow.length - 1) {
+    availableStatuses.push(normalFlow[currentIndex + 1]);
+  }
+
+  if (currentStatus === "SHIPPING" && currentIndex > 0) {
+    availableStatuses.push(normalFlow[currentIndex - 1]);
+  }
+
+  return availableStatuses;
 }

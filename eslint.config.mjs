@@ -14,7 +14,6 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
-  // Turn off rules that conflict with Prettier
   eslintConfigPrettier,
   {
     ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts"],
@@ -28,7 +27,6 @@ const eslintConfig = [
     rules: {
       "simple-import-sort/imports": "error",
       "simple-import-sort/exports": "error",
-      // Surface Prettier issues as ESLint errors
       "prettier/prettier": [
         "error",
         {

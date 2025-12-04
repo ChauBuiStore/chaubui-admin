@@ -54,12 +54,7 @@ export function OrderStatusHistoryItem({
             {history.changedBy && (
               <div className="flex items-center gap-1">
                 <User className="h-3 w-3" />
-                <span>
-                  {history.changedBy.fullName ||
-                    history.changedBy.userName ||
-                    history.changedBy.email ||
-                    "Unknown"}
-                </span>
+                <span>{history.changedBy.fullName}</span>
               </div>
             )}
           </div>

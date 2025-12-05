@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { forwardRef, useEffect, useState } from "react";
-import { ControllerRenderProps, FieldPath, FieldValues, useForm } from "react-hook-form";
+import { ControllerRenderProps, FieldPath, FieldValues, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import {
@@ -80,6 +80,186 @@ export interface XFormProps<T = Record<string, unknown>> {
   className?: string;
   onFormReady?: (form: ReturnType<typeof useForm>) => void;
   shouldResetOnSubmit?: boolean;
+}
+
+function ArrayFieldComponent({
+  field,
+  form,
+  hasError,
+  isFieldDisabled,
+}: {
+  field: XFormField;
+  form: ReturnType<typeof useForm<FieldValues>>;
+  hasError: boolean;
+  isFieldDisabled: boolean;
+}) {
+  const arrayValue = (useWatch({ control: form.control, name: field.name as never }) as unknown[]) || [];
+  const rawErrors = form.formState.errors[field.name];
+  const arrayErrors =
+    rawErrors && typeof rawErrors === "object" && !Array.isArray(rawErrors)
+      ? (rawErrors as { [key: number]: { message: string } })
+      : {};
+
+  const CustomComponent = field.component!;
+  const customComponentClassName = cn(
+    (field.componentProps as { className?: string } | undefined)?.className,
+    hasError && "border-destructive focus:border-destructive focus:ring-destructive",
+  );
+
+  return (
+    <div className="space-y-2">
+      {field.label && (
+        <XLabel className="gap-1" required={field.required}>
+          {field.label}
+        </XLabel>
+      )}
+      <CustomComponent
+        values={arrayValue}
+        onChange={(newValues: unknown[]) => {
+          form.setValue(field.name, newValues, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+          });
+        }}
+        disabled={isFieldDisabled}
+        errors={arrayErrors}
+        maxItems={field.maxItems}
+        minItems={field.minItems}
+        className={customComponentClassName}
+        placeholder={field.placeholder}
+        {...(field.componentProps || {})}
+      />
+    </div>
+  );
+}
+
+function MultiFieldComponent({
+  field,
+  form,
+  hasError,
+  isFieldDisabled,
+}: {
+  field: XFormField;
+  form: ReturnType<typeof useForm<FieldValues>>;
+  hasError: boolean;
+  isFieldDisabled: boolean;
+}) {
+  const watchedFields = useWatch({
+    control: form.control,
+    name: field.fields as never[],
+  });
+
+  const multiFieldValues = field.fields!.reduce(
+    (acc, fieldName, index) => {
+      const value = Array.isArray(watchedFields) ? watchedFields[index] : undefined;
+      acc[fieldName] = value ?? "";
+      return acc;
+    },
+    {} as Record<string, unknown>,
+  );
+
+  const multiFieldErrors = field.fields!.reduce(
+    (acc, fieldName) => {
+      const fieldError = form.formState.errors[fieldName];
+      if (fieldError) {
+        acc[fieldName] = fieldError.message as string;
+      }
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
+  const CustomComponent = field.component!;
+  const customComponentClassName = cn(
+    (field.componentProps as { className?: string } | undefined)?.className,
+    hasError && "border-destructive focus:border-destructive focus:ring-destructive",
+  );
+
+  return (
+    <div className="space-y-2">
+      {field.label && (
+        <XLabel className="gap-1" required={field.required}>
+          {field.label}
+        </XLabel>
+      )}
+      <CustomComponent
+        values={multiFieldValues}
+        onChange={(values: Record<string, unknown>) => {
+          Object.entries(values).forEach(([key, fieldValue]) => {
+            form.setValue(key, fieldValue, {
+              shouldValidate: true,
+              shouldDirty: true,
+              shouldTouch: true,
+            });
+          });
+        }}
+        disabled={isFieldDisabled}
+        errors={multiFieldErrors}
+        className={customComponentClassName}
+        placeholder={field.placeholder}
+        {...(field.componentProps || {})}
+      />
+    </div>
+  );
+}
+
+function SingleFieldComponent({
+  field,
+  form,
+  hasError,
+  errorMessage,
+  isFieldDisabled,
+}: {
+  field: XFormField;
+  form: ReturnType<typeof useForm<FieldValues>>;
+  hasError: boolean;
+  errorMessage: string;
+  isFieldDisabled: boolean;
+}) {
+  const fieldValue = useWatch({ control: form.control, name: field.name as never }) ?? "";
+
+  const CustomComponent = field.component!;
+  const customComponentClassName = cn(
+    (field.componentProps as { className?: string } | undefined)?.className,
+    hasError && "border-destructive focus:border-destructive focus:ring-destructive",
+  );
+
+  return (
+    <div className="space-y-2">
+      {field.label && (
+        <XLabel className="gap-1" required={field.required}>
+          {field.label}
+        </XLabel>
+      )}
+      <CustomComponent
+        value={fieldValue}
+        onChange={(value: unknown) => {
+          if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+            Object.entries(value).forEach(([key, fieldValue]) => {
+              form.setValue(key, fieldValue, {
+                shouldValidate: true,
+                shouldDirty: true,
+                shouldTouch: true,
+              });
+            });
+          } else {
+            form.setValue(field.name, value as never, {
+              shouldValidate: true,
+              shouldDirty: true,
+              shouldTouch: true,
+            });
+          }
+        }}
+        disabled={isFieldDisabled}
+        hasError={hasError}
+        errorMessage={errorMessage}
+        className={customComponentClassName}
+        placeholder={field.placeholder}
+        {...(field.componentProps || {})}
+      />
+    </div>
+  );
 }
 
 function XFormInner<T extends Record<string, unknown>>(
@@ -189,7 +369,7 @@ function XFormInner<T extends Record<string, unknown>>(
                         placeholder={field.placeholder}
                         className={cn(
                           hasError &&
-                            "border-destructive focus:border-destructive focus:ring-destructive",
+                          "border-destructive focus:border-destructive focus:ring-destructive",
                         )}
                       />
                     </FormControl>
@@ -231,7 +411,7 @@ function XFormInner<T extends Record<string, unknown>>(
                         searchPlaceholder={field.searchPlaceholder}
                         className={cn(
                           hasError &&
-                            "border-destructive focus:border-destructive focus:ring-destructive",
+                          "border-destructive focus:border-destructive focus:ring-destructive",
                         )}
                       />
                     </FormControl>
@@ -246,130 +426,39 @@ function XFormInner<T extends Record<string, unknown>>(
           }
 
           if (field.component) {
-            const CustomComponent = field.component;
-            const customComponentClassName = cn(
-              (field.componentProps as { className?: string } | undefined)?.className,
-              hasError && "border-destructive focus:border-destructive focus:ring-destructive",
-            );
-
             if (field.isArray) {
-              const arrayValue = (form.watch(field.name) as unknown[]) || [];
-              const rawErrors = form.formState.errors[field.name];
-              const arrayErrors =
-                rawErrors && typeof rawErrors === "object" && !Array.isArray(rawErrors)
-                  ? (rawErrors as { [key: number]: { message: string } })
-                  : {};
-
               return (
-                <div key={field.name} className="space-y-2">
-                  {field.label && (
-                    <XLabel className="gap-1" required={field.required}>
-                      {field.label}
-                    </XLabel>
-                  )}
-                  <CustomComponent
-                    values={arrayValue}
-                    onChange={(newValues: unknown[]) => {
-                      form.setValue(field.name, newValues, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                        shouldTouch: true,
-                      });
-                    }}
-                    disabled={isFieldDisabled}
-                    errors={arrayErrors}
-                    maxItems={field.maxItems}
-                    minItems={field.minItems}
-                    className={customComponentClassName}
-                    placeholder={field.placeholder}
-                    {...(field.componentProps || {})}
-                  />
-                </div>
+                <ArrayFieldComponent
+                  key={field.name}
+                  field={field}
+                  form={form}
+                  hasError={hasError}
+                  isFieldDisabled={isFieldDisabled}
+                />
               );
             }
 
             if (field.isMultiField && field.fields) {
-              const multiFieldValues = field.fields.reduce(
-                (acc, fieldName) => {
-                  acc[fieldName] = form.watch(fieldName) ?? "";
-                  return acc;
-                },
-                {} as Record<string, unknown>,
-              );
-
-              const multiFieldErrors = field.fields.reduce(
-                (acc, fieldName) => {
-                  const fieldError = form.formState.errors[fieldName];
-                  if (fieldError) {
-                    acc[fieldName] = fieldError.message as string;
-                  }
-                  return acc;
-                },
-                {} as Record<string, string>,
-              );
-
               return (
-                <div key={field.name} className="space-y-2">
-                  {field.label && (
-                    <XLabel className="gap-1" required={field.required}>
-                      {field.label}
-                    </XLabel>
-                  )}
-                  <CustomComponent
-                    values={multiFieldValues}
-                    onChange={(values: Record<string, unknown>) => {
-                      Object.entries(values).forEach(([key, fieldValue]) => {
-                        form.setValue(key, fieldValue, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                          shouldTouch: true,
-                        });
-                      });
-                    }}
-                    disabled={isFieldDisabled}
-                    errors={multiFieldErrors}
-                    className={customComponentClassName}
-                    placeholder={field.placeholder}
-                    {...(field.componentProps || {})}
-                  />
-                </div>
+                <MultiFieldComponent
+                  key={field.name}
+                  field={field}
+                  form={form}
+                  hasError={hasError}
+                  isFieldDisabled={isFieldDisabled}
+                />
               );
             }
 
             return (
-              <div key={field.name} className="space-y-2">
-                {field.label && (
-                  <XLabel className="gap-1" required={field.required}>
-                    {field.label}
-                  </XLabel>
-                )}
-                <CustomComponent
-                  value={form.watch(field.name) ?? ""}
-                  onChange={(value: unknown) => {
-                    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-                      Object.entries(value).forEach(([key, fieldValue]) => {
-                        form.setValue(key, fieldValue, {
-                          shouldValidate: true,
-                          shouldDirty: true,
-                          shouldTouch: true,
-                        });
-                      });
-                    } else {
-                      form.setValue(field.name, value as never, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                        shouldTouch: true,
-                      });
-                    }
-                  }}
-                  disabled={isFieldDisabled}
-                  hasError={hasError}
-                  errorMessage={errorMessage}
-                  className={customComponentClassName}
-                  placeholder={field.placeholder}
-                  {...(field.componentProps || {})}
-                />
-              </div>
+              <SingleFieldComponent
+                key={field.name}
+                field={field}
+                form={form}
+                hasError={hasError}
+                errorMessage={errorMessage}
+                isFieldDisabled={isFieldDisabled}
+              />
             );
           }
 
@@ -398,7 +487,7 @@ function XFormInner<T extends Record<string, unknown>>(
                         className={cn(
                           "resize-none",
                           hasError &&
-                            "border-destructive focus:border-destructive focus:ring-destructive",
+                          "border-destructive focus:border-destructive focus:ring-destructive",
                         )}
                       />
                     </FormControl>
@@ -534,7 +623,7 @@ function XFormInner<T extends Record<string, unknown>>(
                           field.leftIcon || field.prefix ? "pl-10" : "",
                           field.rightIcon || field.suffix ? "pr-10" : "",
                           hasError &&
-                            "border-destructive focus:border-destructive focus:ring-destructive",
+                          "border-destructive focus:border-destructive focus:ring-destructive",
                         )}
                       />
                       {(field.rightIcon || field.suffix) && (

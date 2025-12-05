@@ -126,11 +126,18 @@ export function XFilter({
       );
   }, [finalFilterValues]);
 
+  const initialTempFilterValues = useMemo(() => {
+    return filterOpen ? cleanFilterValues : {};
+  }, [filterOpen, cleanFilterValues]);
+
   useEffect(() => {
     if (filterOpen) {
-      setTempFilterValues(cleanFilterValues);
+      const timer = setTimeout(() => {
+        setTempFilterValues(initialTempFilterValues);
+      }, 0);
+      return () => clearTimeout(timer);
     }
-  }, [filterOpen, cleanFilterValues]);
+  }, [filterOpen, initialTempFilterValues]);
 
   const handleFilterChange = useCallback((key: string, value: string) => {
     const newValue = value === "all" ? "" : value;

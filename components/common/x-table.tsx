@@ -213,7 +213,7 @@ const createActionsColumn = <T,>(config?: ActionsConfig<T>): ColumnDef<T> => ({
                   className={cn(
                     "px-2 py-2 text-sm hover:text-accent-foreground justify-start",
                     isDeleteAction &&
-                      "text-destructive hover:text-destructive hover:bg-destructive/10",
+                    "text-destructive hover:text-destructive hover:bg-destructive/10",
                     isDisabled && "opacity-50 cursor-not-allowed",
                   )}
                   fullWidth
@@ -256,7 +256,7 @@ const PaginationControls = <T,>({
             table.setPageSize(newPageSize);
           }
         }
-      } catch {}
+      } catch { }
     },
     [table, onPageSizeChange],
   );
@@ -625,32 +625,32 @@ export function XTable<T = Record<string, unknown>>({
     const baseColumns = [
       ...(renderExpanded
         ? [
-            {
-              id: "__expander__",
-              header: () => null,
-              enableSorting: false,
-              enableHiding: false,
-              cell: ({ row }: { row: Row<T> }) => {
-                if (!row.getCanExpand()) return null;
-                const isOpen = row.getIsExpanded();
-                return (
-                  <XButton
-                    variant="ghost"
-                    size="sm"
-                    onClick={row.getToggleExpandedHandler()}
-                    aria-label={isOpen ? "Collapse row" : "Expand row"}
-                  >
-                    {isOpen ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </XButton>
-                );
-              },
-              size: 36,
-            } as ColumnDef<T>,
-          ]
+          {
+            id: "__expander__",
+            header: () => null,
+            enableSorting: false,
+            enableHiding: false,
+            cell: ({ row }: { row: Row<T> }) => {
+              if (!row.getCanExpand()) return null;
+              const isOpen = row.getIsExpanded();
+              return (
+                <XButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={row.getToggleExpandedHandler()}
+                  aria-label={isOpen ? "Collapse row" : "Expand row"}
+                >
+                  {isOpen ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </XButton>
+              );
+            },
+            size: 36,
+          } as ColumnDef<T>,
+        ]
         : []),
       ...(enableSelection ? [createSelectColumn<T>(canSelectRow)] : []),
       ...columnsWithFilterFn,
@@ -671,7 +671,10 @@ export function XTable<T = Record<string, unknown>>({
     renderExpanded,
   ]);
 
-  const memoizedGetRowId = useCallback(getRowId, [getRowId]);
+  const memoizedGetRowId = useCallback(
+    (row: T) => getRowId(row),
+    [getRowId],
+  );
 
   useEffect(() => {
     if (externalSelectedRows && externalSelectedRows !== lastExternalSelection.current) {
@@ -710,34 +713,31 @@ export function XTable<T = Record<string, unknown>>({
     [rowSelection, onSelectionChange, data, memoizedGetRowId],
   );
 
-  const table = useReactTable({
-    data,
-    columns: finalColumns,
-    state: {
+  const handleColumnFiltersChange = useCallback(() => {
+  }, []);
+
+  const memoizedGetRowCanExpand = useCallback(
+    (row: Row<T>) => {
+      if (getRowCanExpand) {
+        return getRowCanExpand(row);
+      }
+      return Boolean(renderExpanded);
+    },
+    [getRowCanExpand, renderExpanded],
+  );
+
+  const tableState = useMemo(
+    () => ({
       rowSelection,
       columnFilters,
       expanded,
       ...(serverPagination ? {} : { pagination }),
-    },
-    getRowId: memoizedGetRowId,
-    enableRowSelection: enableSelection,
-    onRowSelectionChange: handleRowSelectionChange,
-    onColumnFiltersChange: () => {},
-    onPaginationChange: serverPagination ? undefined : setPagination,
-    onExpandedChange: setExpanded,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: serverPagination ? undefined : getPaginationRowModel(),
-    getRowCanExpand: getRowCanExpand || (() => Boolean(renderExpanded)),
-    ...(serverPagination
-      ? {
-          pageCount:
-            serverPagination.totalPages ||
-            Math.ceil((serverPagination.totalItems || 0) / (serverPagination.itemsPerPage || 10)),
-          manualPagination: true,
-        }
-      : {}),
-    filterFns: {
+    }),
+    [rowSelection, columnFilters, expanded, pagination, serverPagination],
+  );
+
+  const filterFns = useMemo(
+    () => ({
       exact: ((row, columnId, value) => {
         try {
           const cellValue = row.getValue(columnId);
@@ -766,7 +766,40 @@ export function XTable<T = Record<string, unknown>>({
           return true;
         }
       }) as FilterFn<unknown>,
-    },
+    }),
+    [],
+  );
+
+  const serverPaginationConfig = useMemo(
+    () =>
+      serverPagination
+        ? {
+          pageCount:
+            serverPagination.totalPages ||
+            Math.ceil((serverPagination.totalItems || 0) / (serverPagination.itemsPerPage || 10)),
+          manualPagination: true,
+        }
+        : {},
+    [serverPagination],
+  );
+
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const table = useReactTable({
+    data,
+    columns: finalColumns,
+    state: tableState,
+    getRowId: memoizedGetRowId,
+    enableRowSelection: enableSelection,
+    onRowSelectionChange: handleRowSelectionChange,
+    onColumnFiltersChange: handleColumnFiltersChange,
+    onPaginationChange: serverPagination ? undefined : setPagination,
+    onExpandedChange: setExpanded,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: serverPagination ? undefined : getPaginationRowModel(),
+    getRowCanExpand: memoizedGetRowCanExpand,
+    ...serverPaginationConfig,
+    filterFns,
   });
 
   return (

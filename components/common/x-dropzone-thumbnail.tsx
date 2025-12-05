@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { UploadIcon, XIcon } from "lucide-react";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 import { XButton, XLabel } from "@/components/common";
@@ -28,6 +28,17 @@ interface XDropzoneThumbnailProps {
   hasError?: boolean;
 }
 
+const getFileNameFromUrl = (url: string) => {
+  try {
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    const fileName = pathname.split("/").pop() || "thumbnail";
+    return fileName;
+  } catch {
+    return "thumbnail";
+  }
+};
+
 export function XDropzoneThumbnail({
   onUploadSuccess,
   onFileDelete,
@@ -41,23 +52,9 @@ export function XDropzoneThumbnail({
   title,
   hasError = false,
 }: XDropzoneThumbnailProps) {
-  const [uploadedFile, setUploadedFile] = useState<FileUpload | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-
-  useEffect(() => {
+  const getInitialFile = useCallback(() => {
     if (initialThumbnail) {
-      const getFileNameFromUrl = (url: string) => {
-        try {
-          const urlObj = new URL(url);
-          const pathname = urlObj.pathname;
-          const fileName = pathname.split("/").pop() || "thumbnail";
-          return fileName;
-        } catch {
-          return "thumbnail";
-        }
-      };
-
-      setUploadedFile({
+      return {
         id: initialThumbnail.id,
         url: initialThumbnail.url,
         fileName: getFileNameFromUrl(initialThumbnail.url),
@@ -68,7 +65,40 @@ export function XDropzoneThumbnail({
         key: "",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      });
+      };
+    }
+    return null;
+  }, [initialThumbnail]);
+
+  const [uploadedFile, setUploadedFile] = useState<FileUpload | null>(getInitialFile);
+  const [isUploading, setIsUploading] = useState(false);
+  const prevInitialThumbnailRef = useRef(initialThumbnail);
+
+  useEffect(() => {
+    const hasChanged = prevInitialThumbnailRef.current?.id !== initialThumbnail?.id || 
+        prevInitialThumbnailRef.current?.url !== initialThumbnail?.url;
+    
+    if (hasChanged) {
+      prevInitialThumbnailRef.current = initialThumbnail;
+      const timer = setTimeout(() => {
+        if (initialThumbnail) {
+          setUploadedFile({
+            id: initialThumbnail.id,
+            url: initialThumbnail.url,
+            fileName: getFileNameFromUrl(initialThumbnail.url),
+            alt: "thumbnail",
+            sortOrder: 1,
+            size: "0",
+            mimeType: "image/jpeg",
+            key: "",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          });
+        } else {
+          setUploadedFile(null);
+        }
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [initialThumbnail]);
 

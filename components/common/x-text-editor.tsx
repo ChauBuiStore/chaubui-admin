@@ -28,6 +28,27 @@ import { forwardRef, useEffect, useState } from "react";
 import { XButton, XInput, XLabel, XPopover } from "@/components/common";
 import { cn } from "@/lib/utils";
 
+interface ToolbarButtonProps {
+  onClick: () => void;
+  isActive?: boolean;
+  children: React.ReactNode;
+  title: string;
+}
+
+const ToolbarButton = ({ onClick, isActive = false, children, title }: ToolbarButtonProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={title}
+    className={cn(
+      "p-2 rounded hover:bg-accent",
+      isActive && "bg-accent text-accent-foreground",
+    )}
+  >
+    {children}
+  </button>
+);
+
 interface XTextEditorProps {
   value?: string;
   onChange?: (value: string) => void;
@@ -56,13 +77,9 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
     },
     ref,
   ) => {
-    const [isClient, setIsClient] = useState(false);
+    const [isClient] = useState(() => typeof window !== "undefined");
     const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
     const [linkUrl, setLinkUrl] = useState("");
-
-    useEffect(() => {
-      setIsClient(true);
-    }, []);
 
     const handleImageUpload = async (file: File) => {
       if (!onImageUpload) {
@@ -176,30 +193,6 @@ const XTextEditor = forwardRef<HTMLDivElement, XTextEditorProps>(
     if (!editor) {
       return null;
     }
-
-    const ToolbarButton = ({
-      onClick,
-      isActive = false,
-      children,
-      title,
-    }: {
-      onClick: () => void;
-      isActive?: boolean;
-      children: React.ReactNode;
-      title: string;
-    }) => (
-      <button
-        type="button"
-        onClick={onClick}
-        title={title}
-        className={cn(
-          "p-2 rounded hover:bg-accent",
-          isActive && "bg-accent text-accent-foreground",
-        )}
-      >
-        {children}
-      </button>
-    );
 
     return (
       <div ref={ref} className={cn("space-y-2", className)} {...props}>

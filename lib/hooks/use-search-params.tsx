@@ -11,14 +11,10 @@ export function useSearchParams(initial: FilterState = {}) {
   const router = useRouter();
   const searchParams = useNextSearchParams();
   const [filters, setFilters] = useState<FilterState>(initial);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(() => typeof window !== "undefined");
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isUpdatingFromUser = useRef(false);
   const initialRef = useRef(initial);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
 
   useEffect(() => {
     if (isUpdatingFromUser.current) {

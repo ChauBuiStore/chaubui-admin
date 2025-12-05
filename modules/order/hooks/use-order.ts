@@ -22,7 +22,7 @@ export function useOrder() {
   });
   const { toast } = useToast();
 
-  const [selectedOrder, setSelectedOrder] = useState<Order | undefined>(undefined);
+  const [selectedOrderState, setSelectedOrderState] = useState<Order | undefined>(undefined);
   const [showDetail, setShowDetail] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
   const [showChangeStatus, setShowChangeStatus] = useState(false);
@@ -87,11 +87,11 @@ export function useOrder() {
     enabled: !!viewOrderId,
   });
 
-  useEffect(() => {
-    if (orderDetailData?.data) {
-      setSelectedOrder(orderDetailData.data);
-    }
+  const selectedOrderFromQuery = useMemo(() => {
+    return orderDetailData?.data;
   }, [orderDetailData]);
+
+  const selectedOrder = selectedOrderFromQuery ?? selectedOrderState;
 
   useEffect(() => {
     if (orderDetailError) {
@@ -113,7 +113,7 @@ export function useOrder() {
   });
 
   const handleViewDetail = useCallback((order: Order) => {
-    setSelectedOrder(order);
+    setSelectedOrderState(order);
     setViewOrderId(order.id);
     setShowDetail(true);
   }, []);
@@ -122,14 +122,14 @@ export function useOrder() {
     setShowDetail(open);
     if (!open) {
       setTimeout(() => {
-        setSelectedOrder(undefined);
+        setSelectedOrderState(undefined);
         setViewOrderId(null);
       }, 300);
     }
   }, []);
 
   const handleCancelOrder = useCallback((order: Order) => {
-    setSelectedOrder(order);
+    setSelectedOrderState(order);
     setShowCancel(true);
   }, []);
 

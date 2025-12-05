@@ -42,13 +42,17 @@ export function XDropzone({
   title = "",
   hasError = false,
 }: XDropzoneProps) {
-  const [uploadedFiles, setUploadedFiles] = useState<FileUpload[]>(initialFiles);
   const prevInitialFilesRef = useRef<FileUpload[]>(initialFiles);
+  const [uploadedFiles, setUploadedFiles] = useState<FileUpload[]>(initialFiles);
 
   useEffect(() => {
-    if (JSON.stringify(prevInitialFilesRef.current) !== JSON.stringify(initialFiles)) {
-      setUploadedFiles(initialFiles);
+    const hasChanged = JSON.stringify(prevInitialFilesRef.current) !== JSON.stringify(initialFiles);
+    if (hasChanged) {
       prevInitialFilesRef.current = initialFiles;
+      const timer = setTimeout(() => {
+        setUploadedFiles(initialFiles);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [initialFiles]);
 

@@ -61,7 +61,7 @@ export const XDropdownMenu = forwardRef<HTMLDivElement, XDropdownMenuProps>(
     const handleItemClick = (item: XDropdownMenuItem) => {
       if (item.disabled) return;
       if (item.href) {
-        window.location.href = item.href;
+        window.location.assign(item.href);
       } else if (item.onClick) {
         item.onClick();
       }

@@ -8,7 +8,7 @@ import { OrderInfoCard } from "../components/order-info";
 import { OrderItemsList } from "../components/order-items-list";
 import { OrderStatusHistory } from "../components/order-status-history";
 import { OrderSummary } from "../components/order-summary";
-import { statusLabel } from "../constants/order.constant";
+import { ORDER_STATUS, statusLabel } from "../constants/order.constant";
 import { getAvailableStatuses } from "../helpers/order.helper";
 import { Order, OrderStatus } from "../types/order.type";
 
@@ -32,11 +32,13 @@ export function OrderDetail({
 
   const availableStatuses = order ? getAvailableStatuses(order.status) : [];
   const sortedStatuses = [...availableStatuses].sort((a, b) => {
-    if (a === "IN_PRODUCTION" && b === "COMPLETED") return -1;
-    if (a === "COMPLETED" && b === "IN_PRODUCTION") return 1;
+    if (a === ORDER_STATUS.IN_PRODUCTION && b === ORDER_STATUS.COMPLETED) return -1;
+    if (a === ORDER_STATUS.COMPLETED && b === ORDER_STATUS.IN_PRODUCTION) return 1;
     return 0;
   });
-  const canChangeStatus = sortedStatuses.length > 0;
+  const showFailedDelivery = order?.status === ORDER_STATUS.SHIPPING;
+  const showCompleted = order?.status === ORDER_STATUS.FAILED_DELIVERY;
+  const canChangeStatus = sortedStatuses.length > 0 || showFailedDelivery || showCompleted;
 
   const handleChangeStatus = async (status: OrderStatus) => {
     if (!onSubmitChangeStatus) return;
@@ -77,6 +79,25 @@ export function OrderDetail({
               >
                 Close
               </XButton>
+              {showFailedDelivery && (
+                <XButton
+                  variant="destructive"
+                  onClick={() => handleChangeStatus(ORDER_STATUS.FAILED_DELIVERY)}
+                  disabled={isSubmitting}
+                  loading={isSubmitting}
+                >
+                  {statusLabel[ORDER_STATUS.FAILED_DELIVERY]}
+                </XButton>
+              )}
+              {showCompleted && (
+                <XButton
+                  onClick={() => handleChangeStatus(ORDER_STATUS.COMPLETED)}
+                  disabled={isSubmitting}
+                  loading={isSubmitting}
+                >
+                  {statusLabel[ORDER_STATUS.COMPLETED]}
+                </XButton>
+              )}
               {sortedStatuses.map((status) => (
                 <XButton
                   key={status}
@@ -84,7 +105,7 @@ export function OrderDetail({
                   disabled={isSubmitting}
                   loading={isSubmitting}
                 >
-                  {statusLabel[status]}
+                  {statusLabel[status as OrderStatus]}
                 </XButton>
               ))}
             </div>

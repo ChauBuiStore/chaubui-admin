@@ -8,6 +8,7 @@ import { useSearchParams, useToast } from "@/lib/hooks";
 import { orderService } from "@/lib/services/order-service";
 import { PaginationMeta } from "@/lib/types";
 
+import { ORDER_STATUS } from "../constants/order.constant";
 import { Order, OrderStatus, UpdateOrderStatusRequest } from "../types/order.type";
 
 export function useOrder() {
@@ -15,7 +16,7 @@ export function useOrder() {
   const searchParams = useNextSearchParams();
   const { filters, setFilter } = useSearchParams({
     search: undefined,
-    status: "NEW",
+    status: ORDER_STATUS.NEW,
     page: PAGINATION_CONSTANTS.PAGE,
     limit: PAGINATION_CONSTANTS.LIMIT,
   });
@@ -54,7 +55,7 @@ export function useOrder() {
       setFilter({
         page: PAGINATION_CONSTANTS.PAGE,
         limit: PAGINATION_CONSTANTS.LIMIT,
-        status: "NEW",
+        status: ORDER_STATUS.NEW,
       });
     }
   }, [hasUrlParams, setFilter]);
@@ -151,7 +152,7 @@ export function useOrder() {
       setFilter({
         page,
         limit: filters.limit || PAGINATION_CONSTANTS.LIMIT,
-        status: (filters.status as OrderStatus) || "NEW",
+        status: (filters.status as OrderStatus) || ORDER_STATUS.NEW,
         ...(filters.search && { search: filters.search }),
       });
     },
@@ -163,7 +164,7 @@ export function useOrder() {
       setFilter({
         limit: pageSize,
         page: PAGINATION_CONSTANTS.PAGE,
-        status: (filters.status as OrderStatus) || "NEW",
+        status: (filters.status as OrderStatus) || ORDER_STATUS.NEW,
         ...(filters.search && { search: filters.search }),
       });
     },
@@ -175,7 +176,7 @@ export function useOrder() {
       setFilter({
         page: PAGINATION_CONSTANTS.PAGE,
         limit: filters.limit || PAGINATION_CONSTANTS.LIMIT,
-        status: (filters.status as OrderStatus) || "NEW",
+        status: (filters.status as OrderStatus) || ORDER_STATUS.NEW,
         ...(searchTerm && { search: searchTerm }),
       });
     },
@@ -201,7 +202,7 @@ export function useOrder() {
     updateStatusMutation.mutateAsync({ id, payload });
 
   const currentStatus: OrderStatus =
-    (statusFromUrl as OrderStatus) || (filters.status as OrderStatus) || "NEW";
+    (statusFromUrl as OrderStatus) || (filters.status as OrderStatus) || ORDER_STATUS.NEW;
 
   return {
     orders,

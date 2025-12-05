@@ -4,6 +4,8 @@ import { ArrowRight, Clock, User } from "lucide-react";
 import React from "react";
 
 import { XBadge } from "@/components/common";
+import { DATE_FORMATS } from "@/lib/constants";
+import { formatDate } from "@/lib/utils/date.ultis";
 
 import { statusColor, statusLabel } from "../constants/order.constant";
 import { OrderStatusHistory } from "../types/order.type";
@@ -11,14 +13,9 @@ import { OrderStatusHistory } from "../types/order.type";
 interface OrderStatusHistoryItemProps {
   history: OrderStatusHistory;
   isLast: boolean;
-  formatDateTime: (date: Date | string) => string;
 }
 
-export function OrderStatusHistoryItem({
-  history,
-  isLast,
-  formatDateTime,
-}: OrderStatusHistoryItemProps) {
+export function OrderStatusHistoryItem({ history, isLast }: OrderStatusHistoryItemProps) {
   return (
     <div className="relative">
       {!isLast && <div className="absolute left-[11px] top-8 bottom-0 w-0.5 bg-border" />}
@@ -49,7 +46,7 @@ export function OrderStatusHistoryItem({
           <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
             <div className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              <span>{formatDateTime(history.changedAt)}</span>
+              <span>{formatDate(history.changedAt, DATE_FORMATS.DATE_SLASH_TIME)}</span>
             </div>
             {history.changedBy && (
               <div className="flex items-center gap-1">

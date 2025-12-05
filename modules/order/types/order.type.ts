@@ -1,3 +1,5 @@
+import { ORDER_STATUS } from "../constants/order.constant";
+
 export type OrderStatus =
   | "NEW"
   | "PENDING_CONFIRMATION"
@@ -134,4 +136,10 @@ export interface OrderListResponse {
 export interface UpdateOrderStatusRequest {
   status: OrderStatus;
   reason?: string;
+}
+
+export interface OrderCancelStatusOption {
+  value: (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
+  label: string;
+  description: string;
 }

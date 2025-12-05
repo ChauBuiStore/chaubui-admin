@@ -1,73 +1,14 @@
-import { z } from "zod";
-
 import { XFormDialog, XRadioGroup, XTextarea } from "@/components/common";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui";
 
+import { getCancelStatusOptions } from "../helpers/order.helper";
+import { createCancelOrderSchema } from "../schemas/order.schema";
 import { Order, OrderStatus } from "../types/order.type";
-
-const createSchema = (orderStatus?: OrderStatus) => {
-  if (orderStatus === "PENDING_CONFIRMATION") {
-    return z.object({
-      status: z.literal("CANCELLED", {
-        message: "Please select a cancel status",
-      }),
-      reason: z.string().min(1, "Please enter cancellation reason"),
-    });
-  }
-
-  if (orderStatus === "IN_PRODUCTION") {
-    return z.object({
-      status: z.literal("CANCELLED_NO_REFUND", {
-        message: "Please select a cancel status",
-      }),
-      reason: z.string().min(1, "Please enter cancellation reason"),
-    });
-  }
-
-  if (orderStatus === "SHIPPING") {
-    return z.object({
-      status: z.enum(["CANCELLED_NO_REFUND", "FAILED_DELIVERY"], {
-        message: "Please select a cancel status",
-      }),
-      reason: z.string().min(1, "Please enter cancellation reason"),
-    });
-  }
-
-  return z.object({
-    status: z.enum(["CANCELLED_NO_REFUND", "CANCELLED_PARTIAL_REFUND"], {
-      message: "Please select a cancel status",
-    }),
-    reason: z.string().min(1, "Please enter cancellation reason"),
-  });
-};
 
 type CancelForm = {
   status: OrderStatus;
   reason: string;
 };
-
-const allCancelStatusOptions = [
-  {
-    value: "CANCELLED" as OrderStatus,
-    label: "Cancel before confirmation",
-    description: "No revenue generated",
-  },
-  {
-    value: "CANCELLED_NO_REFUND" as OrderStatus,
-    label: "Cancel without refund",
-    description: "Keep deposit",
-  },
-  {
-    value: "CANCELLED_PARTIAL_REFUND" as OrderStatus,
-    label: "Partial refund",
-    description: "Refund part of the paid amount",
-  },
-  {
-    value: "FAILED_DELIVERY" as OrderStatus,
-    label: "Failed delivery",
-    description: "Delivery failed",
-  },
-];
 
 interface CancelOrderProps {
   open: boolean;
@@ -79,23 +20,8 @@ interface CancelOrderProps {
 
 export function CancelOrder({ open, onOpenChange, onSubmit, loading, order }: CancelOrderProps) {
   const orderStatus = order?.status;
-  const schema = createSchema(orderStatus);
-
-  let cancelStatusOptions = allCancelStatusOptions;
-
-  if (orderStatus === "PENDING_CONFIRMATION") {
-    cancelStatusOptions = allCancelStatusOptions.filter((opt) => opt.value === "CANCELLED");
-  } else if (orderStatus === "IN_PRODUCTION") {
-    cancelStatusOptions = allCancelStatusOptions.filter(
-      (opt) => opt.value === "CANCELLED_NO_REFUND",
-    );
-  } else if (orderStatus === "SHIPPING") {
-    cancelStatusOptions = allCancelStatusOptions.filter(
-      (opt) => opt.value === "CANCELLED_NO_REFUND" || opt.value === "FAILED_DELIVERY",
-    );
-  } else {
-    cancelStatusOptions = allCancelStatusOptions.filter((opt) => opt.value !== "CANCELLED");
-  }
+  const schema = createCancelOrderSchema(orderStatus);
+  const cancelStatusOptions = getCancelStatusOptions(orderStatus);
 
   return (
     <XFormDialog
@@ -106,7 +32,7 @@ export function CancelOrder({ open, onOpenChange, onSubmit, loading, order }: Ca
       schema={schema}
       defaultValues={{ status: undefined, reason: "" }}
       onSubmit={onSubmit}
-      saveText="Confirm Cancel"
+      saveText="Confirm"
       cancelText="Close"
       loading={loading}
       size="lg"

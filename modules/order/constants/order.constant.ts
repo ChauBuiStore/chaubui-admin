@@ -1,5 +1,18 @@
 import { OrderStatus } from "../types/order.type";
 
+export const ORDER_STATUS = {
+  NEW: "NEW",
+  PENDING_CONFIRMATION: "PENDING_CONFIRMATION",
+  CANCELLED: "CANCELLED",
+  CONFIRMED: "CONFIRMED",
+  IN_PRODUCTION: "IN_PRODUCTION",
+  SHIPPING: "SHIPPING",
+  COMPLETED: "COMPLETED",
+  CANCELLED_NO_REFUND: "CANCELLED_NO_REFUND",
+  CANCELLED_PARTIAL_REFUND: "CANCELLED_PARTIAL_REFUND",
+  FAILED_DELIVERY: "FAILED_DELIVERY",
+} as const satisfies Record<string, OrderStatus>;
+
 export const statusLabel: Record<OrderStatus, string> = {
   NEW: "New",
   PENDING_CONFIRMATION: "Pending confirmation",

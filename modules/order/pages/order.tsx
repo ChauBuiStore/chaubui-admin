@@ -6,22 +6,11 @@ import { useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui";
 
 import { OrdersList } from "../components/order-list";
+import { ORDER_TABS } from "../helpers/order.helper";
 import { useOrder } from "../hooks/use-order";
 import { CancelOrder } from "../modals/cancel";
 import { OrderDetail } from "../modals/detail";
 import { OrderStatus } from "../types/order.type";
-
-const ORDER_TABS: { key: OrderStatus; label: string }[] = [
-  { key: "NEW", label: "New" },
-  { key: "PENDING_CONFIRMATION", label: "Pending confirmation" },
-  { key: "CONFIRMED", label: "Confirmed" },
-  { key: "IN_PRODUCTION", label: "In production" },
-  { key: "SHIPPING", label: "Shipping" },
-  { key: "COMPLETED", label: "Completed" },
-  { key: "CANCELLED", label: "Cancelled" },
-  { key: "CANCELLED_NO_REFUND", label: "Cancelled no refund" },
-  { key: "FAILED_DELIVERY", label: "Failed delivery" },
-];
 
 export function OrdersPage() {
   const {
@@ -79,7 +68,7 @@ export function OrdersPage() {
         className="w-full"
         onValueChange={(v) => handleStatusChange(v as OrderStatus)}
       >
-        <TabsList className="grid grid-cols-3 md:grid-cols-9 w-full mb-4">
+        <TabsList className="grid grid-cols-3 md:grid-cols-10 w-full mb-4">
           {ORDER_TABS.map((t) => (
             <TabsTrigger key={t.key} value={t.key}>
               {t.label}

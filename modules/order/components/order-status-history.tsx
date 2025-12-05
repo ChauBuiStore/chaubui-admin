@@ -15,11 +15,6 @@ interface OrderStatusHistoryProps {
 }
 
 export function OrderStatusHistory({ order }: OrderStatusHistoryProps) {
-  const formatDateTime = (date: Date | string) => {
-    const dateObj = typeof date === "string" ? new Date(date) : date;
-    return formatDate(dateObj, DATE_FORMATS.DATE_SLASH_TIME);
-  };
-
   return (
     <div className="rounded-lg border bg-card p-5 space-y-6">
       <div>
@@ -27,7 +22,7 @@ export function OrderStatusHistory({ order }: OrderStatusHistoryProps) {
         <div className="flex items-center gap-3">
           <XBadge variant={statusColor[order.status]}>{statusLabel[order.status]}</XBadge>
           <span className="text-xs text-muted-foreground">
-            Last updated: {formatDateTime(order.updatedAt)}
+            Last updated: {formatDate(order.updatedAt, DATE_FORMATS.DATE_SLASH_TIME)}
           </span>
         </div>
       </div>
@@ -45,7 +40,6 @@ export function OrderStatusHistory({ order }: OrderStatusHistoryProps) {
                 key={history.id}
                 history={history}
                 isLast={index === (order.statusHistory?.length ?? 0) - 1}
-                formatDateTime={formatDateTime}
               />
             ))}
           </div>

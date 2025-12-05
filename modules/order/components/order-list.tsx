@@ -3,10 +3,12 @@ import { EyeIcon, XCircleIcon } from "lucide-react";
 
 import { XBadge } from "@/components/common";
 import { XTable } from "@/components/common/x-table";
+import { DATE_FORMATS } from "@/lib/constants";
 import { PaginationMeta } from "@/lib/types";
 import { formatVND } from "@/lib/utils/currency.utils";
+import { formatDate } from "@/lib/utils/date.ultis";
 
-import { statusColor, statusLabel } from "../constants/order.constant";
+import { ORDER_STATUS, statusColor, statusLabel } from "../constants/order.constant";
 import { Order } from "../types/order.type";
 
 interface OrdersListProps {
@@ -104,10 +106,7 @@ export function OrdersList({
     {
       accessorKey: "createdAt",
       header: "Created at",
-      cell: ({ row }) => {
-        const d = new Date(row.original.createdAt);
-        return <span>{d.toLocaleString("en-US")}</span>;
-      },
+      cell: ({ row }) => <span>{formatDate(row.original.createdAt, DATE_FORMATS.DATE_TIME)}</span>,
     },
   ];
 
@@ -132,11 +131,13 @@ export function OrdersList({
             label: "Cancel order",
             onClick: onCancel,
             icon: <XCircleIcon className="h-4 w-4" />,
-            disabled: (row) => {
+            hidden: (row) => {
               const cancellableStatuses: Order["status"][] = [
-                "PENDING_CONFIRMATION",
-                "IN_PRODUCTION",
-                "SHIPPING",
+                ORDER_STATUS.PENDING_CONFIRMATION,
+                ORDER_STATUS.CONFIRMED,
+                ORDER_STATUS.IN_PRODUCTION,
+                ORDER_STATUS.SHIPPING,
+                ORDER_STATUS.FAILED_DELIVERY,
               ];
               return !cancellableStatuses.includes(row.status);
             },

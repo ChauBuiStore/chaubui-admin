@@ -1,5 +1,8 @@
 "use client";
 
+import { DATE_FORMATS } from "@/lib/constants";
+import { formatDate } from "@/lib/utils/date.ultis";
+
 import { Order } from "../types/order.type";
 
 interface OrderInfoCardProps {
@@ -7,8 +10,6 @@ interface OrderInfoCardProps {
 }
 
 export function OrderInfoCard({ order }: OrderInfoCardProps) {
-  const createdDate = new Date(order.createdAt);
-
   return (
     <div className="rounded-lg border bg-card p-4">
       <div className="grid grid-cols-3 gap-4 text-sm">
@@ -30,15 +31,7 @@ export function OrderInfoCard({ order }: OrderInfoCardProps) {
         </div>
         <div>
           <p className="text-xs text-muted-foreground mb-1">Created Date</p>
-          <p className="font-medium">
-            {createdDate.toLocaleString("en-US", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
+          <p className="font-medium">{formatDate(order.createdAt, DATE_FORMATS.DATE_TIME)}</p>
         </div>
         <div>
           <p className="text-xs text-muted-foreground mb-1">Address</p>
